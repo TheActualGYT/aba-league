@@ -6,16 +6,15 @@ export const dynamic = "force-dynamic";
 const DIVISION_NAMES = ["Alpha Division", "Delta Division", "Gamma Division", "Omega Division"];
 
 function assignDivisions(teams: any[]) {
-  // Sort alphabetically for now (rank metric TBD)
   const sorted = [...teams].sort((a, b) => a.name.localeCompare(b.name));
   const divisions: any[][] = [[], [], [], []];
 
   sorted.forEach((team, index) => {
-    const rank = index + 1; // 1-based
-    const round = Math.floor((rank - 1) / 4);
-    const posInRound = (rank - 1) % 4;
+    const overallRank = index + 1;
+    const round = Math.floor(index / 4);
+    const posInRound = index % 4;
     const divIndex = round % 2 === 0 ? posInRound : 3 - posInRound;
-    divisions[divIndex].push(team);
+    divisions[divIndex].push({ ...team, overallRank });
   });
 
   return divisions;
@@ -95,7 +94,9 @@ export default async function StandingsPage() {
                       <td className="px-3 py-3 font-semibold text-white">
                         <div className="flex items-center gap-2">
                           {team.logo && <img src={team.logo} alt="" className="h-6 w-6 object-contain" />}
-                          {team.name}
+                          <span>
+                            {team.name}<sup className="text-neutral-500 text-xs ml-0.5">{team.overallRank}</sup>
+                          </span>
                         </div>
                       </td>
                       <td className="px-3 py-3 text-center">{team.wins}</td>
