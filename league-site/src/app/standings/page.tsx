@@ -1,5 +1,4 @@
 import db from "@/lib/db";
-import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -59,64 +58,56 @@ export default async function StandingsPage() {
   });
 
   return (
-    <div className="min-h-screen">
-      <nav className="bg-neutral-900 border-b border-neutral-700 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <Link href="/" className="text-2xl font-bold text-white">ABA</Link>
-          <Link href="/" className="text-sm hover:text-neutral-300">← Back</Link>
-        </div>
-      </nav>
-      <main className="max-w-7xl mx-auto px-6 py-8">
-        <h2 className="text-3xl font-bold mb-8 text-white">League Standings</h2>
+    <main className="max-w-7xl mx-auto px-6 py-8">
+      <h2 className="text-3xl font-bold mb-8 text-white">League Standings</h2>
 
-        {standingsByDivision.map(({ division, teams: divTeams }) => (
-          <div key={division} className="mb-10">
-            <h3 className="text-2xl font-semibold text-white mb-3">{division}</h3>
-            <div className="overflow-x-auto">
-              <table className="w-full bg-neutral-900 rounded-lg border border-neutral-700">
-                <thead className="bg-neutral-800">
-                  <tr>
-                    <th className="px-3 py-3 text-left text-neutral-300 text-sm">Rank</th>
-                    <th className="px-3 py-3 text-left text-neutral-300 text-sm">Team Name</th>
-                    <th className="px-3 py-3 text-center text-neutral-300 text-sm">W</th>
-                    <th className="px-3 py-3 text-center text-neutral-300 text-sm">L</th>
-                    <th className="px-3 py-3 text-center text-neutral-300 text-sm">Win %</th>
-                    <th className="px-3 py-3 text-center text-neutral-300 text-sm">GB</th>
-                    <th className="px-3 py-3 text-center text-neutral-300 text-sm">Pts Scored</th>
-                    <th className="px-3 py-3 text-center text-neutral-300 text-sm">Pts Allowed</th>
-                    <th className="px-3 py-3 text-center text-neutral-300 text-sm">Diff</th>
+      {standingsByDivision.map(({ division, teams: divTeams }) => (
+        <div key={division} className="mb-10">
+          <h3 className="text-2xl font-semibold text-white mb-3">{division}</h3>
+          <div className="overflow-x-auto">
+            <table className="w-full bg-neutral-900 rounded-lg border border-neutral-700">
+              <thead className="bg-neutral-800">
+                <tr>
+                  <th className="px-3 py-3 text-left text-neutral-300 text-sm">Rank</th>
+                  <th className="px-3 py-3 text-left text-neutral-300 text-sm">Team Name</th>
+                  <th className="px-3 py-3 text-center text-neutral-300 text-sm">W</th>
+                  <th className="px-3 py-3 text-center text-neutral-300 text-sm">L</th>
+                  <th className="px-3 py-3 text-center text-neutral-300 text-sm">Win %</th>
+                  <th className="px-3 py-3 text-center text-neutral-300 text-sm">GB</th>
+                  <th className="px-3 py-3 text-center text-neutral-300 text-sm">Pts Scored</th>
+                  <th className="px-3 py-3 text-center text-neutral-300 text-sm">Pts Allowed</th>
+                  <th className="px-3 py-3 text-center text-neutral-300 text-sm">Diff</th>
+                </tr>
+              </thead>
+              <tbody>
+                {divTeams.map((team, i) => (
+                  <tr key={team.id} className="border-t border-neutral-700">
+                    <td className="px-3 py-3">{i + 1}</td>
+                    <td className="px-3 py-3 font-semibold text-white">
+                      <div className="flex items-center gap-2">
+                        {team.logo && <img src={team.logo} alt="" className="h-6 w-6 object-contain" />}
+                        <span>
+                          {team.name}<sup className="text-neutral-500 text-[9px] ml-1">{team.overallRank}</sup>
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-3 py-3 text-center">{team.wins}</td>
+                    <td className="px-3 py-3 text-center">{team.losses}</td>
+                    <td className="px-3 py-3 text-center">{team.winPct.toFixed(3).replace(/^0/, "")}</td>
+                    <td className="px-3 py-3 text-center">{team.gb}</td>
+                    <td className="px-3 py-3 text-center">{team.pf}</td>
+                    <td className="px-3 py-3 text-center">{team.pa}</td>
+                    <td className="px-3 py-3 text-center">{team.diff > 0 ? "+" : ""}{team.diff}</td>
                   </tr>
-                </thead>
-                <tbody>
-                  {divTeams.map((team, i) => (
-                    <tr key={team.id} className="border-t border-neutral-700">
-                      <td className="px-3 py-3">{i + 1}</td>
-                      <td className="px-3 py-3 font-semibold text-white">
-                        <div className="flex items-center gap-2">
-                          {team.logo && <img src={team.logo} alt="" className="h-6 w-6 object-contain" />}
-                          <span>
-                            {team.name}<sup className="text-neutral-500 text-[9px] ml-1">{team.overallRank}</sup>
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-3 py-3 text-center">{team.wins}</td>
-                      <td className="px-3 py-3 text-center">{team.losses}</td>
-                      <td className="px-3 py-3 text-center">{team.winPct.toFixed(3).replace(/^0/, "")}</td>
-                      <td className="px-3 py-3 text-center">{team.gb}</td>
-                      <td className="px-3 py-3 text-center">{team.pf}</td>
-                      <td className="px-3 py-3 text-center">{team.pa}</td>
-                      <td className="px-3 py-3 text-center">{team.diff > 0 ? "+" : ""}{team.diff}</td>
-                    </tr>
-                  ))}
-                  {divTeams.length === 0 && (
-                    <tr><td colSpan={9} className="px-4 py-6 text-center text-neutral-400">No teams in this division yet.</td></tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+                ))}
+                {divTeams.length === 0 && (
+                  <tr><td colSpan={9} className="px-4 py-6 text-center text-neutral-400">No teams in this division yet.</td></tr>
+                )}
+              </tbody>
+            </table>
           </div>
-        ))}
-      </main>
-    </div>
+        </div>
+      ))}
+    </main>
   );
 }
