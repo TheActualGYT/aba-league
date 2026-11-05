@@ -1,14 +1,8 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { redirect } from "next/navigation";
 import db from "@/lib/db";
 import Link from "next/link";
 import TeamForm from "@/components/TeamForm";
 
 export default async function TeamsPage() {
-  const session = await getServerSession(authOptions);
-  if (!session) redirect("/login");
-
   const data = db.load();
   const teams = data.teams.sort((a, b) => a.name.localeCompare(b.name));
 
