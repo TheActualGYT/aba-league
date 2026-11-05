@@ -1,5 +1,5 @@
 import { getServerSession } from "next-auth";
-import { authOptions } from "../api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import db from "@/lib/db";
 import Link from "next/link";
@@ -16,7 +16,7 @@ export default async function TeamsPage() {
     <div className="min-h-screen">
       <nav className="bg-neutral-900 border-b border-neutral-700 px-6 py-4">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <Link href="/" className="text-2xl font-bold text-white">NCAA 10 League</Link>
+          <Link href="/" className="text-2xl font-bold text-white">ABA</Link>
           <Link href="/" className="text-sm hover:text-neutral-300">← Back</Link>
         </div>
       </nav>
