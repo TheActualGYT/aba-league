@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import NavDropdown from "@/components/NavDropdown";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -24,7 +25,7 @@ export default function RootLayout({
           <div className="max-w-7xl mx-auto flex justify-between items-center">
             <Link href="/" className="text-2xl font-bold text-white">ABA</Link>
             <div className="flex gap-6 items-center">
-              <Link href="/standings" className="hover:text-neutral-300">Standings</Link>
+              <NavDropdown />
               <Link href="/leaders" className="hover:text-neutral-300">League Leaders</Link>
               <Link href="/teams" className="hover:text-neutral-300">Teams</Link>
               <Link href="/players" className="hover:text-neutral-300">Players</Link>
