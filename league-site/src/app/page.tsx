@@ -1,5 +1,5 @@
 import { getServerSession } from "next-auth";
-import { authOptions } from "./api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 
@@ -13,7 +13,7 @@ export default async function Home() {
     <div className="min-h-screen">
       <nav className="bg-neutral-900 border-b border-neutral-700 px-6 py-4">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-white">NCAA 10 League</h1>
+          <h1 className="text-2xl font-bold text-white">ABA</h1>
           <div className="flex gap-6 items-center">
             <Link href="/standings" className="hover:text-neutral-300">Standings</Link>
             <Link href="/teams" className="hover:text-neutral-300">Teams</Link>
