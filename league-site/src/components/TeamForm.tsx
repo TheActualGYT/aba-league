@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 function extractColors(dataUrl: string): Promise<string[]> {
   return new Promise((resolve) => {
@@ -66,6 +66,9 @@ export default function TeamForm() {
   const [colors, setColors] = useState<string[]>([]);
   const [message, setMessage] = useState("");
   const [removeIndex, setRemoveIndex] = useState<number | null>(null);
+  const [eyedropperMode, setEyedropperMode] = useState(false);
+  const [replaceIndex, setReplaceIndex] = useState<number | null>(null);
+  const logoRef = useRef<HTMLImageElement>(null);
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -110,6 +113,42 @@ export default function TeamForm() {
     setRemoveIndex(null);
   };
 
+  const startEyedropper = () => {
+    setEyedropperMode(true);
+    setReplaceIndex(null);
+    setMessage("Click a color box to replace");
+  };
+
+  const selectBoxToReplace = (index: number) => {
+    if (!eyedropperMode) return;
+    setReplaceIndex(index);
+    setMessage("Now click the logo to pick a color");
+  };
+
+  const pickColorFromLogo = (e: React.MouseEvent<HTMLImageElement>) => {
+    if (replaceIndex === null || !logoRef.current) return;
+    const img = logoRef.current;
+    const rect = img.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * img.naturalWidth;
+    const y = ((e.clientY - rect.top) / rect.height) * img.naturalHeight;
+
+    const canvas = document.createElement("canvas");
+    canvas.width = 1;
+    canvas.height = 1;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.drawImage(img, x, y, 1, 1, 0, 0, 1, 1);
+    const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
+    const hex = `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
+
+    const newColors = [...colors];
+    newColors[replaceIndex] = hex;
+    setColors(newColors);
+    setEyedropperMode(false);
+    setReplaceIndex(null);
+    setMessage("");
+  };
+
   return (
     <form onSubmit={handleSubmit} className="bg-neutral-900 p-4 rounded-lg mb-6 flex gap-4 items-end border border-neutral-700 flex-wrap">
       <div>
@@ -131,15 +170,28 @@ export default function TeamForm() {
       <div>
         <label className="block text-sm mb-1 text-neutral-300">Team Logo *</label>
         <input type="file" accept="image/*" onChange={handleFile} className="text-sm text-neutral-300 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:bg-neutral-700 file:text-white" required />
-        {logo && <img src={logo} alt="preview" className="mt-1 h-8 w-8 object-contain" />}
+        {logo && (
+          <img
+            ref={logoRef}
+            src={logo}
+            alt="preview"
+            className={`mt-1 h-8 w-8 object-contain ${replaceIndex !== null ? "cursor-crosshair" : ""}`}
+            onClick={pickColorFromLogo}
+          />
+        )}
       </div>
       {colors.length > 0 && (
         <div>
           <label className="block text-sm mb-1 text-neutral-300">Colors</label>
-          <div className="flex gap-1">
+          <div className="flex gap-1 items-center">
             {colors.map((c, i) => (
               <div key={i} className="relative group">
-                <div className="h-8 w-8 rounded border border-neutral-600" style={{ backgroundColor: c }} title={c} />
+                <div
+                  className={`h-8 w-8 rounded border border-neutral-600 ${eyedropperMode ? "cursor-pointer ring-2 ring-offset-1 ring-offset-neutral-900" : ""} ${replaceIndex === i ? "ring-white" : ""}`}
+                  style={{ backgroundColor: c }}
+                  title={c}
+                  onClick={() => selectBoxToReplace(i)}
+                />
                 <button
                   type="button"
                   onClick={() => setRemoveIndex(i)}
@@ -149,6 +201,14 @@ export default function TeamForm() {
                 </button>
               </div>
             ))}
+            <button
+              type="button"
+              onClick={startEyedropper}
+              className={`h-8 w-8 rounded border border-neutral-600 flex items-center justify-center text-neutral-300 hover:bg-neutral-800 ${eyedropperMode ? "bg-neutral-700" : ""}`}
+              title="Eyedropper"
+            >
+              👁️
+            </button>
           </div>
           {removeIndex !== null && (
             <div className="mt-1 text-xs flex items-center gap-2">
