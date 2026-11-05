@@ -31,7 +31,7 @@ export default async function TeamsPage() {
                 )}
                 <div>
                   <h3 className="text-xl font-semibold text-white">
-                    {team.name}<sup className="text-neutral-500 text-xs ml-1">{team.overallRank}</sup>
+                    {team.name}<sup className="text-neutral-500 text-[10px] ml-1">{team.overallRank}</sup>
                   </h3>
                   <p className="text-neutral-400 text-sm">{team.abbreviation}</p>
                 </div>
