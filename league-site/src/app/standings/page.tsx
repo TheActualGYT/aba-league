@@ -95,7 +95,7 @@ export default async function StandingsPage() {
                         <div className="flex items-center gap-2">
                           {team.logo && <img src={team.logo} alt="" className="h-6 w-6 object-contain" />}
                           <span>
-                            {team.name}<sup className="text-neutral-500 text-xs ml-1">{team.overallRank}</sup>
+                            {team.name}<sup className="text-neutral-500 text-[9px] ml-1">{team.overallRank}</sup>
                           </span>
                         </div>
                       </td>
