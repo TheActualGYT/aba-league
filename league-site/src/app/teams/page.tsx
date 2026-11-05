@@ -12,52 +12,44 @@ export default async function TeamsPage() {
   const teams = sorted.map((team, i) => ({ ...team, overallRank: i + 1 }));
 
   return (
-    <div className="min-h-screen">
-      <nav className="bg-neutral-900 border-b border-neutral-700 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <Link href="/" className="text-2xl font-bold text-white">ABA</Link>
-          <Link href="/" className="text-sm hover:text-neutral-300">← Back</Link>
-        </div>
-      </nav>
-      <main className="max-w-7xl mx-auto px-6 py-8">
-        <h2 className="text-3xl font-bold mb-6 text-white">Teams & Rosters</h2>
-        <TeamForm />
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {teams.map(team => (
-            <div key={team.id} className="bg-neutral-900 p-4 rounded-lg border border-neutral-700 relative">
-              <div className="flex items-center gap-3 mb-2">
-                {team.logo && (
-                  <img src={team.logo} alt="" className="h-12 w-12 object-contain flex-shrink-0" />
-                )}
-                <div>
-                  <h3 className="text-xl font-semibold text-white">
-                    {team.name}<sup className="text-neutral-500 text-[10px] ml-1">{team.overallRank}</sup>
-                  </h3>
-                  <p className="text-neutral-400 text-sm">{team.abbreviation}</p>
-                </div>
-              </div>
-              <p className="text-sm text-neutral-300">{team.location}</p>
-              <p className="text-sm text-neutral-400">Owner: {team.ownership}</p>
-              {team.colors && team.colors.length > 0 && (
-                <div className="flex gap-1 mt-2">
-                  {team.colors.map((c, i) => (
-                    <div key={i} className="h-5 w-5 rounded border border-neutral-600" style={{ backgroundColor: c }} title={c} />
-                  ))}
-                </div>
+    <main className="max-w-7xl mx-auto px-6 py-8">
+      <h2 className="text-3xl font-bold mb-6 text-white">Teams & Rosters</h2>
+      <TeamForm />
+      <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {teams.map(team => (
+          <div key={team.id} className="bg-neutral-900 p-4 rounded-lg border border-neutral-700 relative">
+            <div className="flex items-center gap-3 mb-2">
+              {team.logo && (
+                <img src={team.logo} alt="" className="h-12 w-12 object-contain flex-shrink-0" />
               )}
-              <div className="flex justify-between items-center mt-3">
-                <Link href={`/teams/${team.id}`} className="text-sm text-neutral-300 hover:underline">
-                  View Roster →
-                </Link>
-                <div className="flex gap-3">
-                  <EditTeamButton team={team} />
-                  <DeleteTeamButton teamId={team.id} teamName={team.name} />
-                </div>
+              <div>
+                <h3 className="text-xl font-semibold text-white">
+                  {team.name}<sup className="text-neutral-500 text-[10px] ml-1">{team.overallRank}</sup>
+                </h3>
+                <p className="text-neutral-400 text-sm">{team.abbreviation}</p>
               </div>
             </div>
-          ))}
-        </div>
-      </main>
-    </div>
+            <p className="text-sm text-neutral-300">{team.location}</p>
+            <p className="text-sm text-neutral-400">Owner: {team.ownership}</p>
+            {team.colors && team.colors.length > 0 && (
+              <div className="flex gap-1 mt-2">
+                {team.colors.map((c, i) => (
+                  <div key={i} className="h-5 w-5 rounded border border-neutral-600" style={{ backgroundColor: c }} title={c} />
+                ))}
+              </div>
+            )}
+            <div className="flex justify-between items-center mt-3">
+              <Link href={`/teams/${team.id}`} className="text-sm text-neutral-300 hover:underline">
+                View Roster →
+              </Link>
+              <div className="flex gap-3">
+                <EditTeamButton team={team} />
+                <DeleteTeamButton teamId={team.id} teamName={team.name} />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </main>
   );
 }
