@@ -2,7 +2,7 @@ import db from "@/lib/db";
 import Link from "next/link";
 
 export default async function GamesPage() {
-  const data = db.load();
+  const data = await db.load();
   const games = data.games
     .map(g => {
       const home = data.teams.find(t => t.id === g.home_team_id);
