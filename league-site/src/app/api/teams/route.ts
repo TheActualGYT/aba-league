@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Missing fields (logo required)" }, { status: 400 });
   }
 
-  const data = db.load();
+  const data = await db.load();
   const newId = data.nextIds.team++;
   data.teams.push({
     id: newId,
@@ -17,6 +17,6 @@ export async function POST(req: NextRequest) {
     logo,
     created_by: 1,
   });
-  db.save(data);
+  await db.save(data);
   return NextResponse.json({ id: newId });
 }
