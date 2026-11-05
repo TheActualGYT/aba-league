@@ -45,7 +45,6 @@ function extractColors(dataUrl: string): Promise<string[]> {
 export default function TeamForm() {
   const [name, setName] = useState("");
   const [abbr, setAbbr] = useState("");
-  const [division, setDivision] = useState("Alpha Division");
   const [location, setLocation] = useState("");
   const [ownership, setOwnership] = useState("");
   const [logo, setLogo] = useState<string | null>(null);
@@ -76,7 +75,7 @@ export default function TeamForm() {
       const res = await fetch("/api/teams", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, abbreviation: abbr, division, logo, location, ownership, colors }),
+        body: JSON.stringify({ name, abbreviation: abbr, division: "Auto", logo, location, ownership, colors }),
       });
       const json = await res.json();
       if (!res.ok) {
@@ -99,15 +98,6 @@ export default function TeamForm() {
       <div>
         <label className="block text-sm mb-1 text-neutral-300">Abbr</label>
         <input value={abbr} onChange={e => setAbbr(e.target.value.toUpperCase())} maxLength={4} className="px-3 py-2 bg-neutral-800 border border-neutral-600 rounded w-20 text-white" required />
-      </div>
-      <div>
-        <label className="block text-sm mb-1 text-neutral-300">Division</label>
-        <select value={division} onChange={e => setDivision(e.target.value)} className="px-3 py-2 bg-neutral-800 border border-neutral-600 rounded text-white">
-          <option>Alpha Division</option>
-          <option>Delta Division</option>
-          <option>Gamma Division</option>
-          <option>Omega Division</option>
-        </select>
       </div>
       <div>
         <label className="block text-sm mb-1 text-neutral-300">Location (City)</label>
