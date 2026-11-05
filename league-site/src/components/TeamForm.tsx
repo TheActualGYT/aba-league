@@ -68,6 +68,7 @@ export default function TeamForm() {
   const [removeIndex, setRemoveIndex] = useState<number | null>(null);
   const [eyedropperMode, setEyedropperMode] = useState(false);
   const [replaceIndex, setReplaceIndex] = useState<number | null>(null);
+  const [magnifier, setMagnifier] = useState<{ x: number; y: number; color: string } | null>(null);
   const logoRef = useRef<HTMLImageElement>(null);
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -125,6 +126,25 @@ export default function TeamForm() {
     setMessage("Now click the logo to pick a color");
   };
 
+  const updateMagnifier = (e: React.MouseEvent<HTMLImageElement>) => {
+    if (replaceIndex === null || !logoRef.current) return;
+    const img = logoRef.current;
+    const rect = img.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * img.naturalWidth;
+    const y = ((e.clientY - rect.top) / rect.height) * img.naturalHeight;
+
+    const canvas = document.createElement("canvas");
+    canvas.width = 1;
+    canvas.height = 1;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.drawImage(img, x, y, 1, 1, 0, 0, 1, 1);
+    const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
+    const hex = `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
+
+    setMagnifier({ x: e.clientX, y: e.clientY, color: hex });
+  };
+
   const pickColorFromLogo = (e: React.MouseEvent<HTMLImageElement>) => {
     if (replaceIndex === null || !logoRef.current) return;
     const img = logoRef.current;
@@ -146,11 +166,12 @@ export default function TeamForm() {
     setColors(newColors);
     setEyedropperMode(false);
     setReplaceIndex(null);
+    setMagnifier(null);
     setMessage("");
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-neutral-900 p-4 rounded-lg mb-6 flex gap-4 items-end border border-neutral-700 flex-wrap">
+    <form onSubmit={handleSubmit} className="bg-neutral-900 p-4 rounded-lg mb-6 flex gap-4 items-end border border-neutral-700 flex-wrap relative">
       <div>
         <label className="block text-sm mb-1 text-neutral-300">Team Name</label>
         <input value={name} onChange={e => setName(e.target.value)} className="px-3 py-2 bg-neutral-800 border border-neutral-600 rounded text-white" required />
@@ -175,8 +196,10 @@ export default function TeamForm() {
             ref={logoRef}
             src={logo}
             alt="preview"
-            className={`mt-1 h-8 w-8 object-contain ${replaceIndex !== null ? "cursor-crosshair" : ""}`}
+            className={`mt-1 h-16 w-16 object-contain ${replaceIndex !== null ? "cursor-crosshair" : ""}`}
             onClick={pickColorFromLogo}
+            onMouseMove={updateMagnifier}
+            onMouseLeave={() => setMagnifier(null)}
           />
         )}
       </div>
@@ -223,6 +246,19 @@ export default function TeamForm() {
         Create Team
       </button>
       {message && <p className="text-sm text-amber-300 w-full">{message}</p>}
+
+      {magnifier && replaceIndex !== null && (
+        <div
+          className="fixed pointer-events-none z-50 border-2 border-white rounded-full shadow-lg"
+          style={{
+            left: magnifier.x + 16,
+            top: magnifier.y - 40,
+            width: 64,
+            height: 64,
+            backgroundColor: magnifier.color,
+          }}
+        />
+      )}
     </form>
   );
 }
