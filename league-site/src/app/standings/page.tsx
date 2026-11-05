@@ -3,15 +3,32 @@ import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
+const DIVISION_NAMES = ["Alpha Division", "Delta Division", "Gamma Division", "Omega Division"];
+
+function assignDivisions(teams: any[]) {
+  // Sort alphabetically for now (rank metric TBD)
+  const sorted = [...teams].sort((a, b) => a.name.localeCompare(b.name));
+  const divisions: any[][] = [[], [], [], []];
+
+  sorted.forEach((team, index) => {
+    const rank = index + 1; // 1-based
+    const round = Math.floor((rank - 1) / 4);
+    const posInRound = (rank - 1) % 4;
+    const divIndex = round % 2 === 0 ? posInRound : 3 - posInRound;
+    divisions[divIndex].push(team);
+  });
+
+  return divisions;
+}
+
 export default async function StandingsPage() {
   const data = await db.load();
   const teams = data.teams;
   const games = data.games;
 
-  const divisions = ["Alpha Division", "Delta Division", "Gamma Division", "Omega Division"];
+  const divisionTeams = assignDivisions(teams);
 
-  const standingsByDivision = divisions.map(div => {
-    const divTeams = teams.filter(t => t.division === div);
+  const standingsByDivision = divisionTeams.map((divTeams, idx) => {
     const standings = divTeams.map(team => {
       let wins = 0, losses = 0, pf = 0, pa = 0;
       games.forEach(game => {
@@ -39,7 +56,7 @@ export default async function StandingsPage() {
       return { ...team, gb: gb === 0 ? "—" : gb.toFixed(1) };
     });
 
-    return { division: div, teams: withGB };
+    return { division: DIVISION_NAMES[idx], teams: withGB };
   });
 
   return (
