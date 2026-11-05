@@ -19,13 +19,11 @@ function extractColors(dataUrl: string): Promise<string[]> {
 
       for (let i = 0; i < data.length; i += 4) {
         const r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
-        if (a < 200) continue; // skip transparent / semi-transparent
+        if (a < 200) continue;
 
-        // Skip near-black and near-white
         const brightness = (r + g + b) / 3;
         if (brightness < 40 || brightness > 220) continue;
 
-        // Coarser quantization for better grouping
         const qr = Math.round(r / 24) * 24;
         const qg = Math.round(g / 24) * 24;
         const qb = Math.round(b / 24) * 24;
@@ -40,7 +38,10 @@ function extractColors(dataUrl: string): Promise<string[]> {
         colorMap[key].b += b;
       }
 
+      // Only keep colors that appear enough times (avoid noise)
+      const minCount = 15;
       const sorted = Object.values(colorMap)
+        .filter(c => c.count >= minCount)
         .sort((a, b) => b.count - a.count)
         .slice(0, 3);
 
@@ -51,8 +52,8 @@ function extractColors(dataUrl: string): Promise<string[]> {
         return `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
       });
 
-      while (hexes.length < 3 && hexes.length > 0) hexes.push(hexes[hexes.length - 1]);
-      resolve(hexes.slice(0, 3));
+      // Return only the real colors found (2 or 3)
+      resolve(hexes);
     };
     img.src = dataUrl;
   });
