@@ -86,36 +86,36 @@ export default async function Home() {
 
       <main className="max-w-7xl mx-auto px-6 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-[auto_1fr] gap-8">
-          <div>
+          <div style={{ width: "480px" }}>
             <h2 className="text-2xl font-bold text-white mb-4 uppercase tracking-wide">Standings</h2>
             <div className="space-y-6">
               {standingsByDivision.map(({ division, teams: divTeams }) => (
                 <div key={division}>
                   <h3 className="text-lg font-semibold text-white mb-2">{division}</h3>
-                  <div className="bg-neutral-900 border-2 border-white rounded-lg overflow-hidden" style={{ minWidth: "420px" }}>
-                    <table className="text-sm w-full">
+                  <div className="bg-neutral-900 border-2 border-white rounded-lg overflow-hidden w-full">
+                    <table className="text-sm w-full table-fixed">
                       <thead className="bg-neutral-800">
                         <tr>
-                          <th className="px-2 py-2 text-center text-neutral-300 w-8">RK</th>
-                          <th className="px-3 py-2 text-left text-neutral-300 whitespace-nowrap">Team</th>
-                          <th className="px-2 py-2 text-center text-neutral-300">W</th>
-                          <th className="px-2 py-2 text-center text-neutral-300">L</th>
-                          <th className="px-2 py-2 text-center text-neutral-300">W%</th>
-                          <th className="px-2 py-2 text-center text-neutral-300">GB</th>
+                          <th className="px-2 py-2 text-center text-neutral-300" style={{ width: "40px" }}>RK</th>
+                          <th className="px-3 py-2 text-left text-neutral-300">Team</th>
+                          <th className="px-2 py-2 text-center text-neutral-300" style={{ width: "36px" }}>W</th>
+                          <th className="px-2 py-2 text-center text-neutral-300" style={{ width: "36px" }}>L</th>
+                          <th className="px-2 py-2 text-center text-neutral-300" style={{ width: "48px" }}>W%</th>
+                          <th className="px-2 py-2 text-center text-neutral-300" style={{ width: "40px" }}>GB</th>
                         </tr>
                       </thead>
                       <tbody>
                         {divTeams.map((team, i) => (
                           <tr key={team.id} className="border-t border-neutral-700">
                             <td className="px-2 py-2 text-center text-white text-xs">{i + 1}</td>
-                            <td className="px-3 py-2 text-white font-medium whitespace-nowrap">
+                            <td className="px-3 py-2 text-white font-medium whitespace-nowrap overflow-hidden text-ellipsis">
                               <div className="flex items-center gap-2">
                                 {team.logo ? (
                                   <img src={team.logo} alt="" className="h-5 w-5 object-contain flex-shrink-0" />
                                 ) : (
                                   <div className="h-5 w-5 flex-shrink-0" />
                                 )}
-                                <span className="whitespace-nowrap">
+                                <span className="whitespace-nowrap truncate">
                                   {team.name}<sup className="text-neutral-500 text-[9px] ml-1">{team.overallRank}</sup>
                                 </span>
                               </div>
