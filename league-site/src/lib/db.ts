@@ -19,6 +19,7 @@ interface Team {
   name: string;
   abbreviation: string;
   division: string;
+  logo: string; // base64 data URL
   created_by: number;
 }
 
