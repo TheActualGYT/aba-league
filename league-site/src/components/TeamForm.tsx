@@ -8,6 +8,7 @@ export default function TeamForm() {
   const [abbr, setAbbr] = useState("");
   const [division, setDivision] = useState("Alpha Division");
   const [logo, setLogo] = useState<string | null>(null);
+  const [message, setMessage] = useState("");
   const router = useRouter();
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -20,20 +21,34 @@ export default function TeamForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setMessage("");
     if (!logo) {
-      alert("Please upload a team logo");
+      setMessage("Please upload a team logo");
       return;
     }
-    await fetch("/api/teams", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, abbreviation: abbr, division, logo }),
-    });
-    setName("");
-    setAbbr("");
-    setDivision("Alpha Division");
-    setLogo(null);
-    router.refresh();
+    try {
+      const res = await fetch("/api/teams", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, abbreviation: abbr, division, logo }),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        setMessage(json.error || "Failed to create team");
+        return;
+      }
+      setMessage("Team created!");
+      setName("");
+      setAbbr("");
+      setDivision("Alpha Division");
+      setLogo(null);
+      setTimeout(() => {
+        setMessage("");
+        router.refresh();
+      }, 800);
+    } catch (err) {
+      setMessage("Network error");
+    }
   };
 
   return (
@@ -84,6 +99,7 @@ export default function TeamForm() {
       <button type="submit" className="bg-neutral-200 hover:bg-white text-black font-bold px-4 py-2 rounded">
         Create Team
       </button>
+      {message && <p className="text-sm text-amber-300 w-full">{message}</p>}
     </form>
   );
 }
