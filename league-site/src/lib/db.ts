@@ -1,13 +1,14 @@
-import fs from 'fs';
-import path from 'path';
+import postgres from 'postgres';
 import bcrypt from 'bcryptjs';
 
-const dataPath = process.env.VERCEL
-  ? path.join('/tmp', 'data.json')
-  : path.join(process.cwd(), 'data.json');
+// Uses STORAGE_URL (from your Prisma Postgres connection) or POSTGRES_URL
+const connectionString = process.env.STORAGE_URL || process.env.POSTGRES_URL || process.env.DATABASE_URL;
 
-// In-memory cache so data survives within the same serverless instance
-let memoryData: Data | null = null;
+if (!connectionString) {
+  throw new Error('No database connection string found. Set STORAGE_URL, POSTGRES_URL, or DATABASE_URL.');
+}
+
+const sql = postgres(connectionString, { ssl: 'require' });
 
 interface User {
   id: number;
@@ -80,41 +81,39 @@ function getInitialData(): Data {
   };
 }
 
-function loadData(): Data {
-  if (memoryData) return memoryData;
-
-  try {
-    if (fs.existsSync(dataPath)) {
-      const parsed = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
-      memoryData = parsed;
-      return parsed;
-    }
-  } catch (e) {
-    // ignore
-  }
-
-  const initial = getInitialData();
-  memoryData = initial;
-  try {
-    fs.writeFileSync(dataPath, JSON.stringify(initial, null, 2));
-  } catch (e) {
-    // ignore
-  }
-  return initial;
+async function ensureTable() {
+  await sql`
+    CREATE TABLE IF NOT EXISTS league_data (
+      id INTEGER PRIMARY KEY DEFAULT 1,
+      data JSONB NOT NULL
+    )
+  `;
 }
 
-function saveData(data: Data) {
-  memoryData = data;
-  try {
-    fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
-  } catch (e) {
-    console.error('Failed to save data:', e);
+async function loadData(): Promise<Data> {
+  await ensureTable();
+  const rows = await sql`SELECT data FROM league_data WHERE id = 1`;
+  if (rows.length === 0) {
+    const initial = getInitialData();
+    await sql`INSERT INTO league_data (id, data) VALUES (1, ${sql.json(initial)})`;
+    return initial;
   }
+  return rows[0].data as Data;
 }
 
+async function saveData(data: Data) {
+  await ensureTable();
+  await sql`
+    INSERT INTO league_data (id, data)
+    VALUES (1, ${sql.json(data)})
+    ON CONFLICT (id) DO UPDATE SET data = EXCLUDED.data
+  `;
+}
+
+// Sync wrappers so existing code doesn't need big changes
 export const db = {
-  load: loadData,
-  save: saveData,
+  load: () => loadData(),
+  save: (data: Data) => saveData(data),
 };
 
 export default db;
