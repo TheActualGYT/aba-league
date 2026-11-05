@@ -85,15 +85,15 @@ export default async function Home() {
       </nav>
 
       <main className="max-w-7xl mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-1">
+        <div className="grid grid-cols-1 lg:grid-cols-[auto_1fr] gap-8">
+          <div>
             <h2 className="text-2xl font-bold text-white mb-4 uppercase tracking-wide">Standings</h2>
             <div className="space-y-6">
               {standingsByDivision.map(({ division, teams: divTeams }) => (
                 <div key={division}>
                   <h3 className="text-lg font-semibold text-white mb-2">{division}</h3>
-                  <div className="bg-neutral-900 border-2 border-white rounded-lg overflow-x-auto">
-                    <table className="w-full text-sm">
+                  <div className="bg-neutral-900 border-2 border-white rounded-lg inline-block">
+                    <table className="text-sm">
                       <thead className="bg-neutral-800">
                         <tr>
                           <th className="px-2 py-2 text-center text-neutral-300 w-8">RK</th>
@@ -137,7 +137,7 @@ export default async function Home() {
             </div>
           </div>
 
-          <div className="lg:col-span-2 space-y-8">
+          <div className="space-y-8">
             <div>
               <h2 className="text-2xl font-bold text-white mb-4 uppercase tracking-wide">League Leaders</h2>
               <div className="grid grid-cols-2 gap-4">
