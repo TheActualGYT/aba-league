@@ -29,7 +29,6 @@ export default function RootLayout({
               <Link href="/teams" className="hover:text-neutral-300">Teams</Link>
               <Link href="/players" className="hover:text-neutral-300">Players</Link>
               <Link href="/games" className="hover:text-neutral-300">Games</Link>
-              <Link href="/news" className="hover:text-neutral-300">News</Link>
               <span className="text-sm text-neutral-400">Dev Mode</span>
             </div>
           </div>
