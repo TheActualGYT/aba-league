@@ -7,7 +7,7 @@ function extractColors(dataUrl: string): Promise<string[]> {
     const img = new Image();
     img.onload = () => {
       const canvas = document.createElement("canvas");
-      const size = 50;
+      const size = 80;
       canvas.width = size;
       canvas.height = size;
       const ctx = canvas.getContext("2d");
@@ -15,23 +15,39 @@ function extractColors(dataUrl: string): Promise<string[]> {
       ctx.drawImage(img, 0, 0, size, size);
       const data = ctx.getImageData(0, 0, size, size).data;
 
-      const colorMap: Record<string, number> = {};
+      const colorMap: Record<string, { count: number; r: number; g: number; b: number }> = {};
+
       for (let i = 0; i < data.length; i += 4) {
         const r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
-        if (a < 128) continue;
-        const qr = Math.round(r / 32) * 32;
-        const qg = Math.round(g / 32) * 32;
-        const qb = Math.round(b / 32) * 32;
+        if (a < 200) continue; // skip transparent / semi-transparent
+
+        // Skip near-black and near-white
+        const brightness = (r + g + b) / 3;
+        if (brightness < 40 || brightness > 220) continue;
+
+        // Coarser quantization for better grouping
+        const qr = Math.round(r / 24) * 24;
+        const qg = Math.round(g / 24) * 24;
+        const qb = Math.round(b / 24) * 24;
         const key = `${qr},${qg},${qb}`;
-        colorMap[key] = (colorMap[key] || 0) + 1;
+
+        if (!colorMap[key]) {
+          colorMap[key] = { count: 0, r: 0, g: 0, b: 0 };
+        }
+        colorMap[key].count++;
+        colorMap[key].r += r;
+        colorMap[key].g += g;
+        colorMap[key].b += b;
       }
 
-      const sorted = Object.entries(colorMap)
-        .sort((a, b) => b[1] - a[1])
+      const sorted = Object.values(colorMap)
+        .sort((a, b) => b.count - a.count)
         .slice(0, 3);
 
-      const hexes = sorted.map(([key]) => {
-        const [r, g, b] = key.split(",").map(Number);
+      const hexes = sorted.map(c => {
+        const r = Math.round(c.r / c.count);
+        const g = Math.round(c.g / c.count);
+        const b = Math.round(c.b / c.count);
         return `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
       });
 
