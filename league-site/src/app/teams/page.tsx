@@ -3,6 +3,8 @@ import Link from "next/link";
 import TeamForm from "@/components/TeamForm";
 import DeleteTeamButton from "@/components/DeleteTeamButton";
 
+export const dynamic = "force-dynamic";
+
 export default async function TeamsPage() {
   const data = await db.load();
   const teams = data.teams.sort((a, b) => a.name.localeCompare(b.name));
