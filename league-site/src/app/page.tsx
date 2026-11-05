@@ -92,8 +92,8 @@ export default async function Home() {
               {standingsByDivision.map(({ division, teams: divTeams }) => (
                 <div key={division}>
                   <h3 className="text-lg font-semibold text-white mb-2">{division}</h3>
-                  <div className="bg-neutral-900 border-2 border-white rounded-lg inline-block">
-                    <table className="text-sm">
+                  <div className="bg-neutral-900 border-2 border-white rounded-lg" style={{ minWidth: "420px" }}>
+                    <table className="text-sm w-full">
                       <thead className="bg-neutral-800">
                         <tr>
                           <th className="px-2 py-2 text-center text-neutral-300 w-8">RK</th>
