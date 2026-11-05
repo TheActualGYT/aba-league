@@ -26,7 +26,7 @@ export default function RootLayout({
         <nav className="bg-neutral-900 border-b border-neutral-700 px-6 py-4">
           <div className="max-w-7xl mx-auto flex justify-between items-center">
             <Link href="/" className="flex items-center gap-2">
-              <img src={LOGO} alt="ABA" className="h-8 w-auto" />
+              <img src={LOGO} alt="ABA" className="h-16 w-auto" />
               <span className="text-2xl font-bold text-white">ABA</span>
             </Link>
             <div className="flex gap-6 items-center">
