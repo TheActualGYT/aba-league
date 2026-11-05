@@ -7,18 +7,32 @@ export default function TeamForm() {
   const [name, setName] = useState("");
   const [abbr, setAbbr] = useState("");
   const [division, setDivision] = useState("Alpha Division");
+  const [logo, setLogo] = useState<string | null>(null);
   const router = useRouter();
+
+  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setLogo(reader.result as string);
+    reader.readAsDataURL(file);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!logo) {
+      alert("Please upload a team logo");
+      return;
+    }
     await fetch("/api/teams", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, abbreviation: abbr, division }),
+      body: JSON.stringify({ name, abbreviation: abbr, division, logo }),
     });
     setName("");
     setAbbr("");
     setDivision("Alpha Division");
+    setLogo(null);
     router.refresh();
   };
 
@@ -55,6 +69,17 @@ export default function TeamForm() {
           <option>Gamma Division</option>
           <option>Omega Division</option>
         </select>
+      </div>
+      <div>
+        <label className="block text-sm mb-1 text-neutral-300">Team Logo *</label>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleFile}
+          className="text-sm text-neutral-300 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:bg-neutral-700 file:text-white"
+          required
+        />
+        {logo && <img src={logo} alt="preview" className="mt-1 h-8 w-8 object-contain" />}
       </div>
       <button type="submit" className="bg-neutral-200 hover:bg-white text-black font-bold px-4 py-2 rounded">
         Create Team
