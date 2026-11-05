@@ -1,6 +1,12 @@
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
-import db from "@/lib/db";
+
+// Hardcoded users for Vercel (file system is read-only)
+const USERS = [
+  { id: "1", username: "garrett", password: "password123", name: "Garrett" },
+  { id: "2", username: "dad", password: "password123", name: "Dad" },
+  { id: "3", username: "uncle", password: "password123", name: "Uncle" },
+];
 
 export const authOptions = {
   providers: [
@@ -12,10 +18,9 @@ export const authOptions = {
       },
       async authorize(credentials: any) {
         if (!credentials?.username || !credentials?.password) return null;
-        const data = db.load();
-        const user = data.users.find((u: any) => u.username === credentials.username);
-        if (user && bcrypt.compareSync(credentials.password, user.password_hash)) {
-          return { id: user.id.toString(), name: user.name, username: user.username };
+        const user = USERS.find(u => u.username === credentials.username && u.password === credentials.password);
+        if (user) {
+          return { id: user.id, name: user.name, username: user.username };
         }
         return null;
       },
