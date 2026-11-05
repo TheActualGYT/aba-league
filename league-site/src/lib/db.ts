@@ -2,7 +2,10 @@ import fs from 'fs';
 import path from 'path';
 import bcrypt from 'bcryptjs';
 
-const dataPath = path.join(process.cwd(), 'data.json');
+// Use /tmp on Vercel (writable), otherwise local data.json
+const dataPath = process.env.VERCEL
+  ? path.join('/tmp', 'data.json')
+  : path.join(process.cwd(), 'data.json');
 
 interface User {
   id: number;
@@ -58,32 +61,45 @@ interface Data {
   };
 }
 
-function loadData(): Data {
-  if (!fs.existsSync(dataPath)) {
-    const initial: Data = {
-      users: [],
-      teams: [],
-      players: [],
-      games: [],
-      news: [],
-      nextIds: { user: 1, team: 1, player: 1, game: 1, news: 1 },
-    };
-    // Seed users
-    const hash = bcrypt.hashSync('password123', 10);
-    initial.users = [
+function getInitialData(): Data {
+  const hash = bcrypt.hashSync('password123', 10);
+  return {
+    users: [
       { id: 1, username: 'garrett', password_hash: hash, name: 'Garrett' },
       { id: 2, username: 'dad', password_hash: hash, name: 'Dad' },
       { id: 3, username: 'uncle', password_hash: hash, name: 'Uncle' },
-    ];
-    initial.nextIds.user = 4;
-    fs.writeFileSync(dataPath, JSON.stringify(initial, null, 2));
-    return initial;
+    ],
+    teams: [],
+    players: [],
+    games: [],
+    news: [],
+    nextIds: { user: 4, team: 1, player: 1, game: 1, news: 1 },
+  };
+}
+
+function loadData(): Data {
+  try {
+    if (fs.existsSync(dataPath)) {
+      return JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
+    }
+  } catch (e) {
+    // ignore and return fresh data
   }
-  return JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
+  const initial = getInitialData();
+  try {
+    fs.writeFileSync(dataPath, JSON.stringify(initial, null, 2));
+  } catch (e) {
+    // write may fail on some environments; that's ok
+  }
+  return initial;
 }
 
 function saveData(data: Data) {
-  fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
+  try {
+    fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
+  } catch (e) {
+    console.error('Failed to save data:', e);
+  }
 }
 
 export const db = {
