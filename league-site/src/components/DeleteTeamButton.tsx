@@ -5,16 +5,30 @@ import { useRouter } from "next/navigation";
 
 export default function DeleteTeamButton({ teamId, teamName }: { teamId: number; teamName: string }) {
   const [confirming, setConfirming] = useState(false);
+  const [status, setStatus] = useState("");
   const router = useRouter();
 
   const handleDelete = async () => {
-    await fetch("/api/teams", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: teamId }),
-    });
-    setConfirming(false);
-    router.refresh();
+    setStatus("Deleting...");
+    try {
+      const res = await fetch("/api/teams", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: teamId }),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        setStatus(json.error || "Failed");
+        return;
+      }
+      setStatus("Deleted");
+      setConfirming(false);
+      router.refresh();
+      // Hard reload as fallback
+      setTimeout(() => window.location.reload(), 300);
+    } catch (err: any) {
+      setStatus("Error: " + err.message);
+    }
   };
 
   if (confirming) {
@@ -27,6 +41,7 @@ export default function DeleteTeamButton({ teamId, teamName }: { teamId: number;
         <button onClick={() => setConfirming(false)} className="text-xs bg-neutral-700 hover:bg-neutral-600 text-white px-2 py-1 rounded">
           No
         </button>
+        {status && <span className="text-xs text-neutral-400">{status}</span>}
       </div>
     );
   }
