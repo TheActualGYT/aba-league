@@ -36,6 +36,20 @@ export default async function Home() {
     return { division: div, teams: withGB };
   });
 
+  // Latest 4 games by date
+  const recentGames = [...games]
+    .sort((a, b) => b.date.localeCompare(a.date))
+    .slice(0, 4)
+    .map(g => {
+      const home = teams.find(t => t.id === g.home_team_id);
+      const away = teams.find(t => t.id === g.away_team_id);
+      return {
+        ...g,
+        home_name: home?.name || "TBD",
+        away_name: away?.name || "TBD",
+      };
+    });
+
   return (
     <div className="min-h-screen">
       <nav className="bg-neutral-900 border-b border-neutral-700 px-6 py-4">
@@ -94,29 +108,56 @@ export default async function Home() {
             </div>
           </div>
 
-          {/* League Leaders */}
-          <div className="lg:col-span-2">
-            <h2 className="text-2xl font-bold text-white mb-4 uppercase tracking-wide">League Leaders</h2>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-neutral-900 border-2 border-green-500 rounded-lg p-4">
-                <h3 className="text-green-400 font-bold text-lg mb-2">Points Per Game</h3>
-                <div className="text-center py-8 text-neutral-500">No stats yet</div>
+          {/* Right column: Leaders + Final Scores */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* League Leaders */}
+            <div>
+              <h2 className="text-2xl font-bold text-white mb-4 uppercase tracking-wide">League Leaders</h2>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-neutral-900 border-2 border-green-500 rounded-lg p-4">
+                  <h3 className="text-green-400 font-bold text-lg mb-2">Points Per Game</h3>
+                  <div className="text-center py-8 text-neutral-500">No stats yet</div>
+                </div>
+                <div className="bg-neutral-900 border-2 border-red-500 rounded-lg p-4">
+                  <h3 className="text-red-400 font-bold text-lg mb-2">Assists Per Game</h3>
+                  <div className="text-center py-8 text-neutral-500">No stats yet</div>
+                </div>
+                <div className="bg-neutral-900 border-2 border-blue-500 rounded-lg p-4">
+                  <h3 className="text-blue-400 font-bold text-lg mb-2">Rebounds Per Game</h3>
+                  <div className="text-center py-8 text-neutral-500">No stats yet</div>
+                </div>
+                <div className="bg-neutral-900 border-2 border-white rounded-lg p-4">
+                  <h3 className="text-white font-bold text-lg mb-2">GPA</h3>
+                  <div className="text-center py-8 text-neutral-500">No stats yet</div>
+                </div>
               </div>
-              <div className="bg-neutral-900 border-2 border-red-500 rounded-lg p-4">
-                <h3 className="text-red-400 font-bold text-lg mb-2">Assists Per Game</h3>
-                <div className="text-center py-8 text-neutral-500">No stats yet</div>
-              </div>
-              <div className="bg-neutral-900 border-2 border-blue-500 rounded-lg p-4">
-                <h3 className="text-blue-400 font-bold text-lg mb-2">Rebounds Per Game</h3>
-                <div className="text-center py-8 text-neutral-500">No stats yet</div>
-              </div>
-              <div className="bg-neutral-900 border-2 border-white rounded-lg p-4">
-                <h3 className="text-white font-bold text-lg mb-2">GPA</h3>
-                <div className="text-center py-8 text-neutral-500">No stats yet</div>
+              <div className="mt-4 text-right">
+                <Link href="/leaders" className="text-neutral-300 hover:text-white text-sm">View Full League Leaders →</Link>
               </div>
             </div>
-            <div className="mt-4 text-right">
-              <Link href="/leaders" className="text-neutral-300 hover:text-white text-sm">View Full League Leaders →</Link>
+
+            {/* Final Scores */}
+            <div>
+              <h2 className="text-2xl font-bold text-white mb-4 uppercase tracking-wide">Final Scores</h2>
+              <div className="space-y-3">
+                {recentGames.map(game => (
+                  <div key={game.id} className="bg-neutral-900 border border-neutral-700 rounded-lg p-4 flex justify-between items-center">
+                    <div className="flex items-center gap-4">
+                      <span className="font-semibold text-white w-32 text-right">{game.home_name}</span>
+                      <span className="text-2xl font-bold text-white">{game.home_score}</span>
+                      <span className="text-neutral-500">-</span>
+                      <span className="text-2xl font-bold text-white">{game.away_score}</span>
+                      <span className="font-semibold text-white w-32">{game.away_name}</span>
+                    </div>
+                    <span className="text-sm text-neutral-400">{game.date}</span>
+                  </div>
+                ))}
+                {recentGames.length === 0 && (
+                  <div className="bg-neutral-900 border border-neutral-700 rounded-lg p-6 text-center text-neutral-400">
+                    No games recorded yet.
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
