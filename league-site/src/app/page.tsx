@@ -3,55 +3,50 @@ import db from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
-const DIVISION_NAMES = ["Alpha Division", "Delta Division", "Gamma Division", "Omega Division"];
-
-function assignDivisions(teams: any[]) {
-  const sorted = [...teams].sort((a, b) => a.name.localeCompare(b.name));
-  const divisions: any[][] = [[], [], [], []];
-
-  sorted.forEach((team, index) => {
-    const overallRank = index + 1;
-    const round = Math.floor(index / 4);
-    const posInRound = index % 4;
-    const divIndex = round % 2 === 0 ? posInRound : 3 - posInRound;
-    divisions[divIndex].push({ ...team, overallRank });
-  });
-
-  return divisions;
-}
-
 export default async function Home() {
   const data = await db.load();
   const teams = data.teams;
   const games = data.games;
 
-  const divisionTeams = assignDivisions(teams);
+  // Assign overall rank alphabetically for now
+  const ranked = [...teams]
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map((team, i) => ({ ...team, overallRank: i + 1 }));
 
-  const standingsByDivision = divisionTeams.map((divTeams, idx) => {
-    const standings = divTeams.map(team => {
-      let wins = 0, losses = 0;
-      games.forEach(game => {
-        if (game.home_team_id === team.id) {
-          if (game.home_score > game.away_score) wins++;
-          else losses++;
-        } else if (game.away_team_id === team.id) {
-          if (game.away_score > game.home_score) wins++;
-          else losses++;
-        }
-      });
-      const gamesPlayed = wins + losses;
-      const winPct = gamesPlayed > 0 ? wins / gamesPlayed : 0;
-      return { ...team, wins, losses, winPct, gamesPlayed };
-    }).sort((a, b) => b.wins - a.wins || a.losses - b.losses);
-
-    const leaderWins = standings[0]?.wins || 0;
-    const leaderLosses = standings[0]?.losses || 0;
-    const withGB = standings.map(team => {
-      const gb = ((leaderWins - team.wins) + (team.losses - leaderLosses)) / 2;
-      return { ...team, gb: gb === 0 ? "—" : gb.toFixed(1) };
+  // Calculate standings
+  const standings = ranked.map(team => {
+    let wins = 0, losses = 0;
+    games.forEach(game => {
+      if (game.home_team_id === team.id) {
+        if (game.home_score > game.away_score) wins++;
+        else losses++;
+      } else if (game.away_team_id === team.id) {
+        if (game.away_score > game.home_score) wins++;
+        else losses++;
+      }
     });
+    const gamesPlayed = wins + losses;
+    const winPct = gamesPlayed > 0 ? wins / gamesPlayed : 0;
+    return { ...team, wins, losses, winPct, gamesPlayed };
+  });
 
-    return { division: DIVISION_NAMES[idx], teams: withGB };
+  // Sort: by wins if games played, otherwise by overall rank
+  const hasGames = games.length > 0;
+  const sorted = [...standings].sort((a, b) => {
+    if (hasGames) {
+      return b.wins - a.wins || a.losses - b.losses || a.overallRank - b.overallRank;
+    }
+    return a.overallRank - b.overallRank;
+  });
+
+  const top16 = sorted.slice(0, 16);
+
+  // GB relative to #1
+  const leaderWins = top16[0]?.wins || 0;
+  const leaderLosses = top16[0]?.losses || 0;
+  const withGB = top16.map(team => {
+    const gb = ((leaderWins - team.wins) + (team.losses - leaderLosses)) / 2;
+    return { ...team, gb: gb === 0 ? "—" : gb.toFixed(1) };
   });
 
   const recentGames = [...games]
@@ -87,53 +82,49 @@ export default async function Home() {
       <main className="max-w-7xl mx-auto px-6 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-[auto_1fr] gap-8">
           <div style={{ width: "480px" }}>
-            <h2 className="text-2xl font-bold text-white mb-4 uppercase tracking-wide">Standings</h2>
-            <div className="space-y-6">
-              {standingsByDivision.map(({ division, teams: divTeams }) => (
-                <div key={division}>
-                  <h3 className="text-lg font-semibold text-white mb-2">{division}</h3>
-                  <div className="bg-neutral-900 border-2 border-white rounded-lg overflow-hidden w-full">
-                    <table className="text-sm w-full table-fixed">
-                      <thead className="bg-neutral-800">
-                        <tr>
-                          <th className="px-2 py-2 text-center text-neutral-300" style={{ width: "40px" }}>RK</th>
-                          <th className="px-3 py-2 text-left text-neutral-300">Team</th>
-                          <th className="px-2 py-2 text-center text-neutral-300" style={{ width: "36px" }}>W</th>
-                          <th className="px-2 py-2 text-center text-neutral-300" style={{ width: "36px" }}>L</th>
-                          <th className="px-2 py-2 text-center text-neutral-300" style={{ width: "48px" }}>W%</th>
-                          <th className="px-2 py-2 text-center text-neutral-300" style={{ width: "40px" }}>GB</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {divTeams.map((team, i) => (
-                          <tr key={team.id} className="border-t border-neutral-700">
-                            <td className="px-2 py-2 text-center text-white text-xs">{i + 1}</td>
-                            <td className="px-3 py-2 text-white font-medium whitespace-nowrap overflow-hidden text-ellipsis">
-                              <div className="flex items-center gap-2">
-                                {team.logo ? (
-                                  <img src={team.logo} alt="" className="h-5 w-5 object-contain flex-shrink-0" />
-                                ) : (
-                                  <div className="h-5 w-5 flex-shrink-0" />
-                                )}
-                                <span className="whitespace-nowrap truncate">
-                                  {team.name}<sup className="text-neutral-500 text-[9px] ml-1">{team.overallRank}</sup>
-                                </span>
-                              </div>
-                            </td>
-                            <td className="px-2 py-2 text-center">{team.wins}</td>
-                            <td className="px-2 py-2 text-center">{team.losses}</td>
-                            <td className="px-2 py-2 text-center">{team.winPct.toFixed(3).replace(/^0/, "")}</td>
-                            <td className="px-2 py-2 text-center">{team.gb}</td>
-                          </tr>
-                        ))}
-                        {divTeams.length === 0 && (
-                          <tr><td colSpan={6} className="px-3 py-4 text-center text-neutral-400 text-xs">No teams</td></tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              ))}
+            <h2 className="text-2xl font-bold text-white mb-4 uppercase tracking-wide">Playoff Standings</h2>
+            <div className="bg-neutral-900 border-2 border-white rounded-lg overflow-hidden">
+              <table className="text-sm w-full table-fixed">
+                <thead className="bg-neutral-800">
+                  <tr>
+                    <th className="px-2 py-2 text-center text-neutral-300" style={{ width: "40px" }}>RK</th>
+                    <th className="px-3 py-2 text-left text-neutral-300">Team</th>
+                    <th className="px-2 py-2 text-center text-neutral-300" style={{ width: "36px" }}>W</th>
+                    <th className="px-2 py-2 text-center text-neutral-300" style={{ width: "36px" }}>L</th>
+                    <th className="px-2 py-2 text-center text-neutral-300" style={{ width: "48px" }}>W%</th>
+                    <th className="px-2 py-2 text-center text-neutral-300" style={{ width: "40px" }}>GB</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {withGB.map((team, i) => (
+                    <tr key={team.id} className="border-t border-neutral-700">
+                      <td className="px-2 py-2 text-center text-white text-xs">{i + 1}</td>
+                      <td className="px-3 py-2 text-white font-medium whitespace-nowrap overflow-hidden text-ellipsis">
+                        <div className="flex items-center gap-2">
+                          {team.logo ? (
+                            <img src={team.logo} alt="" className="h-5 w-5 object-contain flex-shrink-0" />
+                          ) : (
+                            <div className="h-5 w-5 flex-shrink-0" />
+                          )}
+                          <span className="whitespace-nowrap truncate">
+                            {team.name}<sup className="text-neutral-500 text-[9px] ml-1">{team.overallRank}</sup>
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-2 py-2 text-center">{team.wins}</td>
+                      <td className="px-2 py-2 text-center">{team.losses}</td>
+                      <td className="px-2 py-2 text-center">{team.winPct.toFixed(3).replace(/^0/, "")}</td>
+                      <td className="px-2 py-2 text-center">{team.gb}</td>
+                    </tr>
+                  ))}
+                  {withGB.length === 0 && (
+                    <tr><td colSpan={6} className="px-3 py-4 text-center text-neutral-400 text-xs">No teams</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+            <div className="mt-4 text-right">
+              <Link href="/standings" className="text-neutral-300 hover:text-white text-sm">View Full Standings →</Link>
             </div>
           </div>
 
