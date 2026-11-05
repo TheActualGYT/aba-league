@@ -1,6 +1,8 @@
 import db from "@/lib/db";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export default async function StandingsPage() {
   const data = await db.load();
   const teams = data.teams;
