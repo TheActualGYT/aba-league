@@ -116,7 +116,7 @@ export default async function Home() {
                                   <div className="h-5 w-5 flex-shrink-0" />
                                 )}
                                 <span className="whitespace-nowrap">
-                                  {team.name}<sup className="text-neutral-500 text-xs ml-1">{team.overallRank}</sup>
+                                  {team.name}<sup className="text-neutral-500 text-[9px] ml-1">{team.overallRank}</sup>
                                 </span>
                               </div>
                             </td>
