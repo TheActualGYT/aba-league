@@ -15,6 +15,7 @@ interface Team {
   id: number;
   name: string;
   abbreviation: string;
+  division: string;
   created_by: number;
 }
 

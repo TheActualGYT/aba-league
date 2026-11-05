@@ -7,8 +7,8 @@ export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { name, abbreviation } = await req.json();
-  if (!name || !abbreviation) return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+  const { name, abbreviation, division } = await req.json();
+  if (!name || !abbreviation || !division) return NextResponse.json({ error: "Missing fields" }, { status: 400 });
 
   const data = db.load();
   const newId = data.nextIds.team++;
@@ -16,6 +16,7 @@ export async function POST(req: NextRequest) {
     id: newId,
     name,
     abbreviation,
+    division,
     created_by: Number(session.user.id),
   });
   db.save(data);
