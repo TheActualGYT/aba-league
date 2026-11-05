@@ -73,7 +73,12 @@ export default async function StandingsPage() {
                   {divTeams.map((team, i) => (
                     <tr key={team.id} className="border-t border-neutral-700">
                       <td className="px-3 py-3">{i + 1}</td>
-                      <td className="px-3 py-3 font-semibold text-white">{team.name}</td>
+                      <td className="px-3 py-3 font-semibold text-white">
+                        <div className="flex items-center gap-2">
+                          {team.logo && <img src={team.logo} alt="" className="h-6 w-6 object-contain" />}
+                          {team.name}
+                        </div>
+                      </td>
                       <td className="px-3 py-3 text-center">{team.wins}</td>
                       <td className="px-3 py-3 text-center">{team.losses}</td>
                       <td className="px-3 py-3 text-center">{team.winPct.toFixed(3).replace(/^0/, "")}</td>
