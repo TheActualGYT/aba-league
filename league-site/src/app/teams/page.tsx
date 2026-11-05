@@ -1,6 +1,7 @@
 import db from "@/lib/db";
 import Link from "next/link";
 import TeamForm from "@/components/TeamForm";
+import DeleteTeamButton from "@/components/DeleteTeamButton";
 
 export default async function TeamsPage() {
   const data = await db.load();
@@ -19,7 +20,7 @@ export default async function TeamsPage() {
         <TeamForm />
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {teams.map(team => (
-            <div key={team.id} className="bg-neutral-900 p-4 rounded-lg border border-neutral-700">
+            <div key={team.id} className="bg-neutral-900 p-4 rounded-lg border border-neutral-700 relative">
               <div className="flex items-center gap-3 mb-2">
                 {team.logo && (
                   <img src={team.logo} alt="" className="h-12 w-12 object-contain flex-shrink-0" />
@@ -38,9 +39,12 @@ export default async function TeamsPage() {
                   ))}
                 </div>
               )}
-              <Link href={`/teams/${team.id}`} className="text-sm text-neutral-300 hover:underline mt-2 inline-block">
-                View Roster →
-              </Link>
+              <div className="flex justify-between items-center mt-3">
+                <Link href={`/teams/${team.id}`} className="text-sm text-neutral-300 hover:underline">
+                  View Roster →
+                </Link>
+                <DeleteTeamButton teamId={team.id} teamName={team.name} />
+              </div>
             </div>
           ))}
         </div>
