@@ -2,10 +2,12 @@ import fs from 'fs';
 import path from 'path';
 import bcrypt from 'bcryptjs';
 
-// Use /tmp on Vercel (writable), otherwise local data.json
 const dataPath = process.env.VERCEL
   ? path.join('/tmp', 'data.json')
   : path.join(process.cwd(), 'data.json');
+
+// In-memory cache so data survives within the same serverless instance
+let memoryData: Data | null = null;
 
 interface User {
   id: number;
@@ -19,7 +21,7 @@ interface Team {
   name: string;
   abbreviation: string;
   division: string;
-  logo: string; // base64 data URL
+  logo: string;
   created_by: number;
 }
 
@@ -79,23 +81,30 @@ function getInitialData(): Data {
 }
 
 function loadData(): Data {
+  if (memoryData) return memoryData;
+
   try {
     if (fs.existsSync(dataPath)) {
-      return JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
+      const parsed = JSON.parse(fs.readFileSync(dataPath, 'utf-8'));
+      memoryData = parsed;
+      return parsed;
     }
   } catch (e) {
-    // ignore and return fresh data
+    // ignore
   }
+
   const initial = getInitialData();
+  memoryData = initial;
   try {
     fs.writeFileSync(dataPath, JSON.stringify(initial, null, 2));
   } catch (e) {
-    // write may fail on some environments; that's ok
+    // ignore
   }
   return initial;
 }
 
 function saveData(data: Data) {
+  memoryData = data;
   try {
     fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
   } catch (e) {
