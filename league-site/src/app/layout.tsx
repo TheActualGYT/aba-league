@@ -23,7 +23,10 @@ export default function RootLayout({
       <body className="min-h-screen bg-neutral-950 text-white">
         <nav className="bg-neutral-900 border-b border-neutral-700 px-6 py-4">
           <div className="max-w-7xl mx-auto flex justify-between items-center">
-            <Link href="/" className="text-2xl font-bold text-white">ABA</Link>
+            <Link href="/" className="flex items-center gap-2">
+              <img src="/logo.png" alt="ABA" className="h-8 w-auto" />
+              <span className="text-2xl font-bold text-white">ABA</span>
+            </Link>
             <div className="flex gap-6 items-center">
               <NavDropdown />
               <Link href="/leaders" className="hover:text-neutral-300">League Leaders</Link>
