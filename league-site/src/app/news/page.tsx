@@ -1,13 +1,7 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { redirect } from "next/navigation";
 import db from "@/lib/db";
 import Link from "next/link";
 
 export default async function NewsPage() {
-  const session = await getServerSession(authOptions);
-  if (!session) redirect("/login");
-
   const data = db.load();
   const news = data.news
     .map(n => {
