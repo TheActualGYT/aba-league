@@ -21,11 +21,14 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body className="min-h-screen bg-neutral-950 text-white">
-        <nav className="bg-neutral-900 border-b border-neutral-700 px-6 py-4">
+        <nav className="bg-neutral-900 border-b border-neutral-700 px-6 py-2">
           <div className="max-w-7xl mx-auto flex justify-between items-center">
             <Link href="/" className="flex items-center gap-2">
               <img src="/logo.png" alt="ABA" className="h-16 w-auto" />
-              <span className="text-2xl font-bold text-white">ABA</span>
+              <div className="flex flex-col leading-tight">
+                <span className="text-2xl font-bold text-white">ABA</span>
+                <span className="text-xs text-neutral-400">NCAA 10 Basketball</span>
+              </div>
             </Link>
             <div className="flex gap-6 items-center">
               <NavDropdown />
