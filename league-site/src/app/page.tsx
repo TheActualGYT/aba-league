@@ -1,13 +1,7 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { redirect } from "next/navigation";
 import Link from "next/link";
 import db from "@/lib/db";
 
 export default async function Home() {
-  const session = await getServerSession(authOptions);
-  if (!session) redirect("/login");
-
   const data = db.load();
   const teams = data.teams;
   const games = data.games;
@@ -54,10 +48,7 @@ export default async function Home() {
             <Link href="/players" className="hover:text-neutral-300">Players</Link>
             <Link href="/games" className="hover:text-neutral-300">Games</Link>
             <Link href="/news" className="hover:text-neutral-300">News</Link>
-            <span className="text-sm text-neutral-400">{session.user?.name}</span>
-            <Link href="/api/auth/signout" className="text-sm bg-neutral-700 hover:bg-neutral-600 px-3 py-1 rounded text-white">
-              Logout
-            </Link>
+            <span className="text-sm text-neutral-400">Dev Mode</span>
           </div>
         </div>
       </nav>
