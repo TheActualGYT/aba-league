@@ -36,7 +36,6 @@ export default async function Home() {
     return { division: div, teams: withGB };
   });
 
-  // Latest 4 games by date
   const recentGames = [...games]
     .sort((a, b) => b.date.localeCompare(a.date))
     .slice(0, 4)
@@ -69,7 +68,6 @@ export default async function Home() {
 
       <main className="max-w-7xl mx-auto px-6 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Mini Standings by Division */}
           <div className="lg:col-span-1">
             <h2 className="text-2xl font-bold text-white mb-4 uppercase tracking-wide">Standings</h2>
             <div className="space-y-6">
@@ -90,7 +88,12 @@ export default async function Home() {
                       <tbody>
                         {divTeams.map((team, i) => (
                           <tr key={team.id} className="border-t border-neutral-700">
-                            <td className="px-3 py-2 text-white font-medium">{i + 1}. {team.name}</td>
+                            <td className="px-3 py-2 text-white font-medium">
+                              <div className="flex items-center gap-2">
+                                {team.logo && <img src={team.logo} alt="" className="h-5 w-5 object-contain" />}
+                                {i + 1}. {team.name}
+                              </div>
+                            </td>
                             <td className="px-2 py-2 text-center">{team.wins}</td>
                             <td className="px-2 py-2 text-center">{team.losses}</td>
                             <td className="px-2 py-2 text-center">{team.winPct.toFixed(3).replace(/^0/, "")}</td>
@@ -108,9 +111,7 @@ export default async function Home() {
             </div>
           </div>
 
-          {/* Right column: Leaders + Final Scores */}
           <div className="lg:col-span-2 space-y-8">
-            {/* League Leaders */}
             <div>
               <h2 className="text-2xl font-bold text-white mb-4 uppercase tracking-wide">League Leaders</h2>
               <div className="grid grid-cols-2 gap-4">
@@ -136,7 +137,6 @@ export default async function Home() {
               </div>
             </div>
 
-            {/* Final Scores */}
             <div>
               <h2 className="text-2xl font-bold text-white mb-4 uppercase tracking-wide">Final Scores</h2>
               <div className="space-y-3">
