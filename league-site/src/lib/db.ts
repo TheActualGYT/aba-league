@@ -95,7 +95,7 @@ async function loadData(): Promise<Data> {
   const rows = await sql`SELECT data FROM league_data WHERE id = 1`;
   if (rows.length === 0) {
     const initial = getInitialData();
-    await sql`INSERT INTO league_data (id, data) VALUES (1, ${sql.json(initial)})`;
+    await sql`INSERT INTO league_data (id, data) VALUES (1, ${sql.json(initial as any)})`;
     return initial;
   }
   return rows[0].data as Data;
@@ -105,12 +105,11 @@ async function saveData(data: Data) {
   await ensureTable();
   await sql`
     INSERT INTO league_data (id, data)
-    VALUES (1, ${sql.json(data)})
+    VALUES (1, ${sql.json(data as any)})
     ON CONFLICT (id) DO UPDATE SET data = EXCLUDED.data
   `;
 }
 
-// Sync wrappers so existing code doesn't need big changes
 export const db = {
   load: () => loadData(),
   save: (data: Data) => saveData(data),
