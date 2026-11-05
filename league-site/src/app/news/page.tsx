@@ -2,7 +2,7 @@ import db from "@/lib/db";
 import Link from "next/link";
 
 export default async function NewsPage() {
-  const data = db.load();
+  const data = await db.load();
   const news = data.news
     .map(n => {
       const author = data.users.find(u => u.id === n.author_id);
