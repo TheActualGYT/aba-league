@@ -7,7 +7,8 @@ export const dynamic = "force-dynamic";
 
 export default async function TeamsPage() {
   const data = await db.load();
-  const teams = data.teams.sort((a, b) => a.name.localeCompare(b.name));
+  const sorted = [...data.teams].sort((a, b) => a.name.localeCompare(b.name));
+  const teams = sorted.map((team, i) => ({ ...team, overallRank: i + 1 }));
 
   return (
     <div className="min-h-screen">
@@ -28,7 +29,9 @@ export default async function TeamsPage() {
                   <img src={team.logo} alt="" className="h-12 w-12 object-contain flex-shrink-0" />
                 )}
                 <div>
-                  <h3 className="text-xl font-semibold text-white">{team.name}</h3>
+                  <h3 className="text-xl font-semibold text-white">
+                    {team.name}<sup className="text-neutral-500 text-xs ml-0.5">{team.overallRank}</sup>
+                  </h3>
                   <p className="text-neutral-400 text-sm">{team.abbreviation}</p>
                 </div>
               </div>
