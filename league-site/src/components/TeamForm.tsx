@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 
 function extractColors(dataUrl: string): Promise<string[]> {
   return new Promise((resolve) => {
@@ -19,8 +18,7 @@ function extractColors(dataUrl: string): Promise<string[]> {
       const colorMap: Record<string, number> = {};
       for (let i = 0; i < data.length; i += 4) {
         const r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
-        if (a < 128) continue; // skip transparent
-        // Quantize to reduce unique colors
+        if (a < 128) continue;
         const qr = Math.round(r / 32) * 32;
         const qg = Math.round(g / 32) * 32;
         const qb = Math.round(b / 32) * 32;
@@ -37,7 +35,6 @@ function extractColors(dataUrl: string): Promise<string[]> {
         return `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
       });
 
-      // Pad to 3 if needed
       while (hexes.length < 3 && hexes.length > 0) hexes.push(hexes[hexes.length - 1]);
       resolve(hexes.slice(0, 3));
     };
@@ -54,7 +51,6 @@ export default function TeamForm() {
   const [logo, setLogo] = useState<string | null>(null);
   const [colors, setColors] = useState<string[]>([]);
   const [message, setMessage] = useState("");
-  const router = useRouter();
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -83,17 +79,12 @@ export default function TeamForm() {
         body: JSON.stringify({ name, abbreviation: abbr, division, logo, location, ownership, colors }),
       });
       const json = await res.json();
-      setMessage(res.ok ? `Created! ID: ${json.id}` : `Error: ${json.error || "unknown"}`);
-      if (res.ok) {
-        setName("");
-        setAbbr("");
-        setDivision("Alpha Division");
-        setLocation("");
-        setOwnership("");
-        setLogo(null);
-        setColors([]);
-        setTimeout(() => router.refresh(), 500);
+      if (!res.ok) {
+        setMessage(`Error: ${json.error || "unknown"}`);
+        return;
       }
+      setMessage("Created! Reloading...");
+      setTimeout(() => window.location.reload(), 600);
     } catch (err: any) {
       setMessage("Network error: " + err.message);
     }
