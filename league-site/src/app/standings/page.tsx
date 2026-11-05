@@ -2,7 +2,7 @@ import db from "@/lib/db";
 import Link from "next/link";
 
 export default async function StandingsPage() {
-  const data = db.load();
+  const data = await db.load();
   const teams = data.teams;
   const games = data.games;
 
