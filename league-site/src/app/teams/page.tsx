@@ -2,6 +2,7 @@ import db from "@/lib/db";
 import Link from "next/link";
 import TeamForm from "@/components/TeamForm";
 import DeleteTeamButton from "@/components/DeleteTeamButton";
+import EditTeamButton from "@/components/EditTeamButton";
 
 export const dynamic = "force-dynamic";
 
@@ -48,7 +49,10 @@ export default async function TeamsPage() {
                 <Link href={`/teams/${team.id}`} className="text-sm text-neutral-300 hover:underline">
                   View Roster →
                 </Link>
-                <DeleteTeamButton teamId={team.id} teamName={team.name} />
+                <div className="flex gap-3">
+                  <EditTeamButton team={team} />
+                  <DeleteTeamButton teamId={team.id} teamName={team.name} />
+                </div>
               </div>
             </div>
           ))}
