@@ -38,7 +38,6 @@ function extractColors(dataUrl: string): Promise<string[]> {
         colorMap[key].b += b;
       }
 
-      // Only keep colors that appear enough times (avoid noise)
       const minCount = 15;
       const sorted = Object.values(colorMap)
         .filter(c => c.count >= minCount)
@@ -52,7 +51,6 @@ function extractColors(dataUrl: string): Promise<string[]> {
         return `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
       });
 
-      // Return only the real colors found (2 or 3)
       resolve(hexes);
     };
     img.src = dataUrl;
@@ -67,6 +65,7 @@ export default function TeamForm() {
   const [logo, setLogo] = useState<string | null>(null);
   const [colors, setColors] = useState<string[]>([]);
   const [message, setMessage] = useState("");
+  const [removeIndex, setRemoveIndex] = useState<number | null>(null);
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -106,6 +105,11 @@ export default function TeamForm() {
     }
   };
 
+  const confirmRemove = (index: number) => {
+    setColors(colors.filter((_, i) => i !== index));
+    setRemoveIndex(null);
+  };
+
   return (
     <form onSubmit={handleSubmit} className="bg-neutral-900 p-4 rounded-lg mb-6 flex gap-4 items-end border border-neutral-700 flex-wrap">
       <div>
@@ -134,9 +138,25 @@ export default function TeamForm() {
           <label className="block text-sm mb-1 text-neutral-300">Colors</label>
           <div className="flex gap-1">
             {colors.map((c, i) => (
-              <div key={i} className="h-8 w-8 rounded border border-neutral-600" style={{ backgroundColor: c }} title={c} />
+              <div key={i} className="relative group">
+                <div className="h-8 w-8 rounded border border-neutral-600" style={{ backgroundColor: c }} title={c} />
+                <button
+                  type="button"
+                  onClick={() => setRemoveIndex(i)}
+                  className="absolute -top-1 -right-1 hidden group-hover:flex items-center justify-center h-4 w-4 bg-red-600 text-white text-xs rounded-full leading-none"
+                >
+                  ×
+                </button>
+              </div>
             ))}
           </div>
+          {removeIndex !== null && (
+            <div className="mt-1 text-xs flex items-center gap-2">
+              <span className="text-red-400">Remove this color?</span>
+              <button type="button" onClick={() => confirmRemove(removeIndex)} className="bg-red-600 text-white px-2 py-0.5 rounded">Yes</button>
+              <button type="button" onClick={() => setRemoveIndex(null)} className="bg-neutral-700 text-white px-2 py-0.5 rounded">No</button>
+            </div>
+          )}
         </div>
       )}
       <button type="submit" className="bg-neutral-200 hover:bg-white text-black font-bold px-4 py-2 rounded">
