@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 export default function TeamForm() {
   const [name, setName] = useState("");
   const [abbr, setAbbr] = useState("");
-  const [division, setDivision] = useState("Omega Division");
+  const [division, setDivision] = useState("Alpha Division");
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -18,7 +18,7 @@ export default function TeamForm() {
     });
     setName("");
     setAbbr("");
-    setDivision("Omega Division");
+    setDivision("Alpha Division");
     router.refresh();
   };
 
@@ -50,10 +50,10 @@ export default function TeamForm() {
           onChange={e => setDivision(e.target.value)}
           className="px-3 py-2 bg-neutral-800 border border-neutral-600 rounded text-white"
         >
-          <option>Omega Division</option>
           <option>Alpha Division</option>
-          <option>Gamma Division</option>
           <option>Delta Division</option>
+          <option>Gamma Division</option>
+          <option>Omega Division</option>
         </select>
       </div>
       <button type="submit" className="bg-neutral-200 hover:bg-white text-black font-bold px-4 py-2 rounded">
