@@ -92,12 +92,12 @@ export default async function Home() {
               {standingsByDivision.map(({ division, teams: divTeams }) => (
                 <div key={division}>
                   <h3 className="text-lg font-semibold text-white mb-2">{division}</h3>
-                  <div className="bg-neutral-900 border-2 border-white rounded-lg overflow-hidden">
+                  <div className="bg-neutral-900 border-2 border-white rounded-lg overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead className="bg-neutral-800">
                         <tr>
                           <th className="px-2 py-2 text-center text-neutral-300 w-8">RK</th>
-                          <th className="px-3 py-2 text-left text-neutral-300">Team</th>
+                          <th className="px-3 py-2 text-left text-neutral-300 whitespace-nowrap">Team</th>
                           <th className="px-2 py-2 text-center text-neutral-300">W</th>
                           <th className="px-2 py-2 text-center text-neutral-300">L</th>
                           <th className="px-2 py-2 text-center text-neutral-300">W%</th>
@@ -108,14 +108,14 @@ export default async function Home() {
                         {divTeams.map((team, i) => (
                           <tr key={team.id} className="border-t border-neutral-700">
                             <td className="px-2 py-2 text-center text-white text-xs">{i + 1}</td>
-                            <td className="px-3 py-2 text-white font-medium">
+                            <td className="px-3 py-2 text-white font-medium whitespace-nowrap">
                               <div className="flex items-center gap-2">
                                 {team.logo ? (
                                   <img src={team.logo} alt="" className="h-5 w-5 object-contain flex-shrink-0" />
                                 ) : (
                                   <div className="h-5 w-5 flex-shrink-0" />
                                 )}
-                                <span>
+                                <span className="whitespace-nowrap">
                                   {team.name}<sup className="text-neutral-500 text-xs ml-1">{team.overallRank}</sup>
                                 </span>
                               </div>
