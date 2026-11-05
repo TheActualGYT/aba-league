@@ -1,7 +1,6 @@
 import postgres from 'postgres';
 import bcrypt from 'bcryptjs';
 
-// Uses STORAGE_URL (from your Prisma Postgres connection) or POSTGRES_URL
 const connectionString = process.env.STORAGE_URL || process.env.POSTGRES_URL || process.env.DATABASE_URL;
 
 if (!connectionString) {
@@ -23,6 +22,9 @@ interface Team {
   abbreviation: string;
   division: string;
   logo: string;
+  location: string;
+  ownership: string;
+  colors: string[]; // hex colors extracted from logo
   created_by: number;
 }
 
