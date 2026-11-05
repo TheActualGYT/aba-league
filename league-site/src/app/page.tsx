@@ -96,6 +96,7 @@ export default async function Home() {
                     <table className="w-full text-sm">
                       <thead className="bg-neutral-800">
                         <tr>
+                          <th className="px-2 py-2 text-center text-neutral-300 w-8">RK</th>
                           <th className="px-3 py-2 text-left text-neutral-300">Team</th>
                           <th className="px-2 py-2 text-center text-neutral-300">W</th>
                           <th className="px-2 py-2 text-center text-neutral-300">L</th>
@@ -106,9 +107,9 @@ export default async function Home() {
                       <tbody>
                         {divTeams.map((team, i) => (
                           <tr key={team.id} className="border-t border-neutral-700">
+                            <td className="px-2 py-2 text-center text-white text-xs">{i + 1}</td>
                             <td className="px-3 py-2 text-white font-medium">
-                              <div className="flex items-center gap-3">
-                                <span className="w-4 text-right text-neutral-400 text-xs">{i + 1}</span>
+                              <div className="flex items-center gap-2">
                                 {team.logo ? (
                                   <img src={team.logo} alt="" className="h-5 w-5 object-contain flex-shrink-0" />
                                 ) : (
@@ -126,7 +127,7 @@ export default async function Home() {
                           </tr>
                         ))}
                         {divTeams.length === 0 && (
-                          <tr><td colSpan={5} className="px-3 py-4 text-center text-neutral-400 text-xs">No teams</td></tr>
+                          <tr><td colSpan={6} className="px-3 py-4 text-center text-neutral-400 text-xs">No teams</td></tr>
                         )}
                       </tbody>
                     </table>
