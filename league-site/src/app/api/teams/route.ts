@@ -23,3 +23,13 @@ export async function POST(req: NextRequest) {
   await db.save(data);
   return NextResponse.json({ id: newId });
 }
+
+export async function DELETE(req: NextRequest) {
+  const { id } = await req.json();
+  if (!id) return NextResponse.json({ error: "Missing team id" }, { status: 400 });
+
+  const data = await db.load();
+  data.teams = data.teams.filter(t => t.id !== Number(id));
+  await db.save(data);
+  return NextResponse.json({ ok: true });
+}
