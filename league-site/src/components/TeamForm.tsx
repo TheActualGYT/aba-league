@@ -21,7 +21,7 @@ export default function TeamForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage("");
+    setMessage("Creating...");
     if (!logo) {
       setMessage("Please upload a team logo");
       return;
@@ -33,21 +33,16 @@ export default function TeamForm() {
         body: JSON.stringify({ name, abbreviation: abbr, division, logo }),
       });
       const json = await res.json();
-      if (!res.ok) {
-        setMessage(json.error || "Failed to create team");
-        return;
+      setMessage(res.ok ? `Created! ID: ${json.id}` : `Error: ${json.error || "unknown"}`);
+      if (res.ok) {
+        setName("");
+        setAbbr("");
+        setDivision("Alpha Division");
+        setLogo(null);
+        setTimeout(() => router.refresh(), 500);
       }
-      setMessage("Team created!");
-      setName("");
-      setAbbr("");
-      setDivision("Alpha Division");
-      setLogo(null);
-      setTimeout(() => {
-        setMessage("");
-        router.refresh();
-      }, 800);
-    } catch (err) {
-      setMessage("Network error");
+    } catch (err: any) {
+      setMessage("Network error: " + err.message);
     }
   };
 
