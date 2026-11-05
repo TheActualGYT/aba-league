@@ -1,13 +1,7 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { redirect } from "next/navigation";
 import db from "@/lib/db";
 import Link from "next/link";
 
 export default async function StandingsPage() {
-  const session = await getServerSession(authOptions);
-  if (!session) redirect("/login");
-
   const data = db.load();
   const teams = data.teams;
   const games = data.games;
@@ -36,7 +30,6 @@ export default async function StandingsPage() {
       return { ...team, wins, losses, pf, pa, diff: pf - pa, winPct, gamesPlayed };
     }).sort((a, b) => b.wins - a.wins || b.diff - a.diff);
 
-    // Calculate GB
     const leaderWins = standings[0]?.wins || 0;
     const leaderLosses = standings[0]?.losses || 0;
     const withGB = standings.map(team => {
