@@ -110,7 +110,7 @@ export default async function Home() {
                               <div className="flex items-center gap-2">
                                 {team.logo && <img src={team.logo} alt="" className="h-5 w-5 object-contain" />}
                                 <span>
-                                  {i + 1}. {team.name}<sup className="text-neutral-500 text-xs ml-0.5">{team.overallRank}</sup>
+                                  {i + 1}. {team.name}<sup className="text-neutral-500 text-xs ml-1">{team.overallRank}</sup>
                                 </span>
                               </div>
                             </td>
