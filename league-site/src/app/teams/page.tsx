@@ -3,7 +3,7 @@ import Link from "next/link";
 import TeamForm from "@/components/TeamForm";
 
 export default async function TeamsPage() {
-  const data = db.load();
+  const data = await db.load();
   const teams = data.teams.sort((a, b) => a.name.localeCompare(b.name));
 
   return (
