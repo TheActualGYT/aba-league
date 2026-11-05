@@ -12,7 +12,7 @@ export default async function StandingsPage() {
   const teams = data.teams;
   const games = data.games;
 
-  const divisions = ["Omega Division", "Alpha Division", "Gamma Division", "Delta Division"];
+  const divisions = ["Alpha Division", "Delta Division", "Gamma Division", "Omega Division"];
 
   const standingsByDivision = divisions.map(div => {
     const divTeams = teams.filter(t => t.division === div);
