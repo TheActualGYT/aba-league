@@ -10,11 +10,11 @@ function assignDivisions(teams: any[]) {
   const divisions: any[][] = [[], [], [], []];
 
   sorted.forEach((team, index) => {
-    const rank = index + 1;
-    const round = Math.floor((rank - 1) / 4);
-    const posInRound = (rank - 1) % 4;
+    const overallRank = index + 1;
+    const round = Math.floor(index / 4);
+    const posInRound = index % 4;
     const divIndex = round % 2 === 0 ? posInRound : 3 - posInRound;
-    divisions[divIndex].push(team);
+    divisions[divIndex].push({ ...team, overallRank });
   });
 
   return divisions;
@@ -109,7 +109,9 @@ export default async function Home() {
                             <td className="px-3 py-2 text-white font-medium">
                               <div className="flex items-center gap-2">
                                 {team.logo && <img src={team.logo} alt="" className="h-5 w-5 object-contain" />}
-                                {i + 1}. {team.name}
+                                <span>
+                                  {i + 1}. {team.name}<sup className="text-neutral-500 text-xs ml-0.5">{team.overallRank}</sup>
+                                </span>
                               </div>
                             </td>
                             <td className="px-2 py-2 text-center">{team.wins}</td>
