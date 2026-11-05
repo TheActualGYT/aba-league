@@ -19,12 +19,17 @@ export default async function TeamsPage() {
         <TeamForm />
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {teams.map(team => (
-            <div key={team.id} className="bg-neutral-900 p-4 rounded-lg border border-neutral-700">
-              <h3 className="text-xl font-semibold text-white">{team.name}</h3>
-              <p className="text-neutral-400">{team.abbreviation}</p>
-              <Link href={`/teams/${team.id}`} className="text-sm text-neutral-300 hover:underline mt-2 inline-block">
-                View Roster →
-              </Link>
+            <div key={team.id} className="bg-neutral-900 p-4 rounded-lg border border-neutral-700 flex items-center gap-3">
+              {team.logo && (
+                <img src={team.logo} alt="" className="h-12 w-12 object-contain flex-shrink-0" />
+              )}
+              <div>
+                <h3 className="text-xl font-semibold text-white">{team.name}</h3>
+                <p className="text-neutral-400">{team.abbreviation}</p>
+                <Link href={`/teams/${team.id}`} className="text-sm text-neutral-300 hover:underline mt-1 inline-block">
+                  View Roster →
+                </Link>
+              </div>
             </div>
           ))}
         </div>
