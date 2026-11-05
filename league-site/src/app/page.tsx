@@ -107,10 +107,15 @@ export default async function Home() {
                         {divTeams.map((team, i) => (
                           <tr key={team.id} className="border-t border-neutral-700">
                             <td className="px-3 py-2 text-white font-medium">
-                              <div className="flex items-center gap-2">
-                                {team.logo && <img src={team.logo} alt="" className="h-5 w-5 object-contain" />}
+                              <div className="flex items-center gap-3">
+                                <span className="w-4 text-right text-neutral-400 text-xs">{i + 1}</span>
+                                {team.logo ? (
+                                  <img src={team.logo} alt="" className="h-5 w-5 object-contain flex-shrink-0" />
+                                ) : (
+                                  <div className="h-5 w-5 flex-shrink-0" />
+                                )}
                                 <span>
-                                  {i + 1}. {team.name}<sup className="text-neutral-500 text-xs ml-1">{team.overallRank}</sup>
+                                  {team.name}<sup className="text-neutral-500 text-xs ml-1">{team.overallRank}</sup>
                                 </span>
                               </div>
                             </td>
