@@ -2,20 +2,48 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import db from "@/lib/db";
 
 export default async function Home() {
   const session = await getServerSession(authOptions);
-  if (!session) {
-    redirect("/login");
-  }
+  if (!session) redirect("/login");
+
+  const data = db.load();
+  const teams = data.teams;
+  const games = data.games;
+
+  // Mini standings (top overall, simplified)
+  const miniStandings = teams.map(team => {
+    let wins = 0, losses = 0;
+    games.forEach(game => {
+      if (game.home_team_id === team.id) {
+        if (game.home_score > game.away_score) wins++;
+        else losses++;
+      } else if (game.away_team_id === team.id) {
+        if (game.away_score > game.home_score) wins++;
+        else losses++;
+      }
+    });
+    const gamesPlayed = wins + losses;
+    const winPct = gamesPlayed > 0 ? wins / gamesPlayed : 0;
+    return { ...team, wins, losses, winPct, gamesPlayed };
+  }).sort((a, b) => b.wins - a.wins || a.losses - b.losses);
+
+  const leaderWins = miniStandings[0]?.wins || 0;
+  const leaderLosses = miniStandings[0]?.losses || 0;
+  const withGB = miniStandings.slice(0, 10).map(team => {
+    const gb = ((leaderWins - team.wins) + (team.losses - leaderLosses)) / 2;
+    return { ...team, gb: gb === 0 ? "—" : gb.toFixed(1) };
+  });
 
   return (
     <div className="min-h-screen">
       <nav className="bg-neutral-900 border-b border-neutral-700 px-6 py-4">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-white">ABA</h1>
+          <Link href="/" className="text-2xl font-bold text-white">ABA</Link>
           <div className="flex gap-6 items-center">
             <Link href="/standings" className="hover:text-neutral-300">Standings</Link>
+            <Link href="/leaders" className="hover:text-neutral-300">League Leaders</Link>
             <Link href="/teams" className="hover:text-neutral-300">Teams</Link>
             <Link href="/players" className="hover:text-neutral-300">Players</Link>
             <Link href="/games" className="hover:text-neutral-300">Games</Link>
@@ -27,24 +55,70 @@ export default async function Home() {
           </div>
         </div>
       </nav>
+
       <main className="max-w-7xl mx-auto px-6 py-8">
-        <h2 className="text-4xl font-bold mb-4 text-white">Welcome to the League Mastersheet</h2>
-        <p className="text-lg text-neutral-300 mb-8">
-          Private dashboard for tracking our NCAA 10 Xbox 360 league. Manage teams, rosters, games, stats, and more.
-        </p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Link href="/standings" className="bg-neutral-900 p-6 rounded-lg hover:bg-neutral-800 transition border border-neutral-700">
-            <h3 className="text-xl font-semibold text-white mb-2">Standings</h3>
-            <p className="text-neutral-300">View current league rankings</p>
-          </Link>
-          <Link href="/teams" className="bg-neutral-900 p-6 rounded-lg hover:bg-neutral-800 transition border border-neutral-700">
-            <h3 className="text-xl font-semibold text-white mb-2">Teams & Rosters</h3>
-            <p className="text-neutral-300">Create teams and manage players</p>
-          </Link>
-          <Link href="/games" className="bg-neutral-900 p-6 rounded-lg hover:bg-neutral-800 transition border border-neutral-700">
-            <h3 className="text-xl font-semibold text-white mb-2">Games</h3>
-            <p className="text-neutral-300">Log results and view schedule</p>
-          </Link>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Mini Standings */}
+          <div className="lg:col-span-1">
+            <h2 className="text-2xl font-bold text-white mb-4">Standings</h2>
+            <div className="bg-neutral-900 border border-neutral-700 rounded-lg overflow-hidden">
+              <table className="w-full text-sm">
+                <thead className="bg-neutral-800">
+                  <tr>
+                    <th className="px-3 py-2 text-left text-neutral-300">Team</th>
+                    <th className="px-2 py-2 text-center text-neutral-300">W</th>
+                    <th className="px-2 py-2 text-center text-neutral-300">L</th>
+                    <th className="px-2 py-2 text-center text-neutral-300">W%</th>
+                    <th className="px-2 py-2 text-center text-neutral-300">GB</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {withGB.map((team, i) => (
+                    <tr key={team.id} className="border-t border-neutral-700">
+                      <td className="px-3 py-2 text-white font-medium">{i + 1}. {team.name}</td>
+                      <td className="px-2 py-2 text-center">{team.wins}</td>
+                      <td className="px-2 py-2 text-center">{team.losses}</td>
+                      <td className="px-2 py-2 text-center">{team.winPct.toFixed(3).replace(/^0/, "")}</td>
+                      <td className="px-2 py-2 text-center">{team.gb}</td>
+                    </tr>
+                  ))}
+                  {withGB.length === 0 && (
+                    <tr><td colSpan={5} className="px-3 py-6 text-center text-neutral-400">No teams yet</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* League Leaders */}
+          <div className="lg:col-span-2">
+            <h2 className="text-2xl font-bold text-white mb-4">League Leaders</h2>
+            <div className="grid grid-cols-2 gap-4">
+              {/* PPG */}
+              <div className="bg-neutral-900 border-2 border-green-500 rounded-lg p-4">
+                <h3 className="text-green-400 font-bold text-lg mb-2">PPG</h3>
+                <div className="text-center py-8 text-neutral-500">No stats yet</div>
+              </div>
+              {/* APG */}
+              <div className="bg-neutral-900 border-2 border-purple-500 rounded-lg p-4">
+                <h3 className="text-purple-400 font-bold text-lg mb-2">APG</h3>
+                <div className="text-center py-8 text-neutral-500">No stats yet</div>
+              </div>
+              {/* RPG */}
+              <div className="bg-neutral-900 border-2 border-blue-500 rounded-lg p-4">
+                <h3 className="text-blue-400 font-bold text-lg mb-2">RPG</h3>
+                <div className="text-center py-8 text-neutral-500">No stats yet</div>
+              </div>
+              {/* GPA */}
+              <div className="bg-neutral-900 border-2 border-white rounded-lg p-4">
+                <h3 className="text-white font-bold text-lg mb-2">GPA</h3>
+                <div className="text-center py-8 text-neutral-500">No stats yet</div>
+              </div>
+            </div>
+            <div className="mt-4 text-right">
+              <Link href="/leaders" className="text-neutral-300 hover:text-white text-sm">View Full League Leaders →</Link>
+            </div>
+          </div>
         </div>
       </main>
     </div>
