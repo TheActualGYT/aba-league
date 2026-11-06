@@ -4,6 +4,7 @@ import NavDropdown from "@/components/NavDropdown";
 import GamesDropdown from "@/components/GamesDropdown";
 import StatsDropdown from "@/components/StatsDropdown";
 import CreationDropdown from "@/components/CreationDropdown";
+import OffseasonDropdown from "@/components/OffseasonDropdown";
 import SeasonDropdown from "@/components/SeasonDropdown";
 import "./globals.css";
 
@@ -45,6 +46,7 @@ export default function RootLayout({
               <StatsDropdown />
               <GamesDropdown />
               <CreationDropdown />
+              <OffseasonDropdown />
               <span className="text-sm text-neutral-400">Dev Mode</span>
             </div>
           </div>
