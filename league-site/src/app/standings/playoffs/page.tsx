@@ -14,10 +14,12 @@ function Team({ team, seed, placeholder }: { team?: any; seed?: number; placehol
 
 function Matchup({ top, bottom, topSeed, bottomSeed }: { top?: any; bottom?: any; topSeed?: number; bottomSeed?: number }) {
   return (
-    <div className="bg-neutral-900 border border-neutral-600 rounded w-44">
+    <div className="bg-neutral-900 border border-neutral-600 rounded w-44 relative">
       <Team team={top} seed={topSeed} placeholder={!top ? "Winner" : undefined} />
       <div className="border-t border-neutral-700" />
       <Team team={bottom} seed={bottomSeed} placeholder={!bottom ? "Winner" : undefined} />
+      {/* Line out from middle right */}
+      <div className="absolute right-0 top-1/2 w-3 h-px bg-neutral-500" style={{ transform: "translateX(100%) translateY(-50%)" }} />
     </div>
   );
 }
@@ -64,11 +66,6 @@ export default async function PlayoffPicturePage() {
     [1, 14],
   ];
 
-  // Matchup height ~57px, gap 12px, unit = 69px
-  const matchH = 57;
-  const gap = 12;
-  const unit = matchH + gap;
-
   return (
     <main className="max-w-7xl mx-auto px-6 py-8">
       <h2 className="text-3xl font-bold mb-2 text-white text-center">Playoff Picture</h2>
@@ -81,108 +78,80 @@ export default async function PlayoffPicturePage() {
       )}
 
       <div className="overflow-x-auto pb-4">
-        <div className="flex min-w-max justify-center">
+        <div className="flex gap-3 min-w-max justify-center">
           {/* Round of 16 */}
           <div>
             <div className="text-xs text-neutral-500 text-center mb-3">Round of 16</div>
-            <div className="flex flex-col" style={{ gap: `${gap}px` }}>
+            <div className="flex flex-col gap-3">
               {r1.map(([a, b], i) => (
                 <Matchup key={i} top={s[a]} bottom={s[b]} topSeed={a + 1} bottomSeed={b + 1} />
               ))}
             </div>
           </div>
 
-          {/* Lines R1 to QF */}
-          <svg width="20" height="600" className="mt-7">
-            {[0,1,2,3].map(i => {
-              const m1 = i * 2 * unit + matchH / 2;
-              const m2 = m1 + unit;
-              const qf = 50 + i * (matchH + 90) + matchH / 2;
-              return (
-                <g key={i}>
-                  <line x1="0" y1={m1} x2="10" y2={m1} stroke="#737373" strokeWidth="1" />
-                  <line x1="0" y1={m2} x2="10" y2={m2} stroke="#737373" strokeWidth="1" />
-                  <line x1="10" y1={m1} x2="10" y2={m2} stroke="#737373" strokeWidth="1" />
-                  <line x1="10" y1={(m1+m2)/2} x2="20" y2={qf} stroke="#737373" strokeWidth="1" />
-                </g>
-              );
-            })}
-          </svg>
+          {/* Connector column R1-QF */}
+          <div className="flex flex-col justify-around py-8" style={{ width: "12px" }}>
+            {[0,1,2,3].map(i => (
+              <div key={i} className="border-l border-neutral-500 h-16 relative">
+                <div className="absolute left-0 top-1/2 w-3 h-px bg-neutral-500" />
+              </div>
+            ))}
+          </div>
 
           {/* Quarterfinals */}
           <div>
             <div className="text-xs text-neutral-500 text-center mb-3">Quarterfinals</div>
-            <div className="flex flex-col" style={{ gap: "90px", marginTop: "50px" }}>
-              {[0, 1, 2, 3].map(i => (
+            <div className="flex flex-col justify-around h-full py-4">
+              {[0,1,2,3].map(i => (
                 <Matchup key={i} />
               ))}
             </div>
           </div>
 
-          {/* Lines QF to SF */}
-          <svg width="20" height="600" className="mt-7">
-            {[0,1].map(i => {
-              const q1 = 50 + i * 2 * (matchH + 90) + matchH / 2;
-              const q2 = q1 + (matchH + 90);
-              const sf = 130 + i * (matchH + 250) + matchH / 2;
-              return (
-                <g key={i}>
-                  <line x1="0" y1={q1} x2="10" y2={q1} stroke="#737373" strokeWidth="1" />
-                  <line x1="0" y1={q2} x2="10" y2={q2} stroke="#737373" strokeWidth="1" />
-                  <line x1="10" y1={q1} x2="10" y2={q2} stroke="#737373" strokeWidth="1" />
-                  <line x1="10" y1={(q1+q2)/2} x2="20" y2={sf} stroke="#737373" strokeWidth="1" />
-                </g>
-              );
-            })}
-          </svg>
+          {/* Connector column QF-SF */}
+          <div className="flex flex-col justify-around py-12" style={{ width: "12px" }}>
+            {[0,1].map(i => (
+              <div key={i} className="border-l border-neutral-500 h-24 relative">
+                <div className="absolute left-0 top-1/2 w-3 h-px bg-neutral-500" />
+              </div>
+            ))}
+          </div>
 
           {/* Semifinals */}
           <div>
             <div className="text-xs text-neutral-500 text-center mb-3">Semifinals</div>
-            <div className="flex flex-col" style={{ gap: "250px", marginTop: "130px" }}>
-              {[0, 1].map(i => (
+            <div className="flex flex-col justify-around h-full py-8">
+              {[0,1].map(i => (
                 <Matchup key={i} />
               ))}
             </div>
           </div>
 
-          {/* Lines SF to Finals */}
-          <svg width="20" height="600" className="mt-7">
-            {(() => {
-              const s1 = 130 + matchH / 2;
-              const s2 = 130 + 250 + matchH + matchH / 2;
-              const fin = 290 + matchH / 2;
-              return (
-                <g>
-                  <line x1="0" y1={s1} x2="10" y2={s1} stroke="#737373" strokeWidth="1" />
-                  <line x1="0" y1={s2} x2="10" y2={s2} stroke="#737373" strokeWidth="1" />
-                  <line x1="10" y1={s1} x2="10" y2={s2} stroke="#737373" strokeWidth="1" />
-                  <line x1="10" y1={(s1+s2)/2} x2="20" y2={fin} stroke="#737373" strokeWidth="1" />
-                </g>
-              );
-            })()}
-          </svg>
+          {/* Connector column SF-Finals */}
+          <div className="flex flex-col justify-center py-16" style={{ width: "12px" }}>
+            <div className="border-l border-neutral-500 h-32 relative">
+              <div className="absolute left-0 top-1/2 w-3 h-px bg-neutral-500" />
+            </div>
+          </div>
 
           {/* Finals */}
           <div>
             <div className="text-xs text-neutral-500 text-center mb-3">Finals</div>
-            <div style={{ marginTop: "290px" }}>
+            <div className="flex flex-col justify-center h-full">
               <Matchup />
             </div>
           </div>
 
           {/* Line to Champion */}
-          <svg width="20" height="600" className="mt-7">
-            <line x1="0" y1={290 + matchH / 2} x2="20" y2={310 + 16} stroke="#737373" strokeWidth="1" />
-          </svg>
+          <div className="flex items-center" style={{ width: "12px" }}>
+            <div className="w-full h-px bg-neutral-500" />
+          </div>
 
           {/* Champion */}
-          <div>
+          <div className="flex flex-col justify-center">
             <div className="text-xs text-neutral-500 text-center mb-3">Champion</div>
-            <div style={{ marginTop: "310px" }}>
-              <div className="bg-yellow-400 text-black font-bold text-xs px-3 py-2 rounded text-center">
-                CHAMPIONS
-              </div>
+            <div className="bg-yellow-400 text-black font-bold text-xs px-3 py-2 rounded text-center">
+              CHAMPIONS
             </div>
           </div>
         </div>
