@@ -65,8 +65,11 @@ export default async function PlayoffPicturePage() {
             <div className="w-48 text-xs text-neutral-500 text-center">Quarterfinals</div>
           </div>
 
+          {/* Spacer between label and line */}
+          <div className="h-6" />
+
           {/* Line above 10 vs 15 going to 7 seed */}
-          <div className="flex items-center mb-1">
+          <div className="flex items-center mb-2">
             <div className="w-48 h-px bg-neutral-500" />
             <div className="w-16 h-px bg-neutral-500" />
             <div className="w-4" />
