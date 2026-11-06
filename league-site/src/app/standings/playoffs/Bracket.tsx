@@ -96,17 +96,19 @@ export default function BracketView({ teams }: { teams: any[] }) {
     <g key={key}>
       {gold && (
         <rect
-          x={x - 2}
-          y={y - 2}
-          width={W + 4}
-          height={H + 4}
-          rx={5}
+          x={x - 3}
+          y={y - 3}
+          width={W + 6}
+          height={H + 6}
+          rx={6}
           fill="#facc15"
-          fillOpacity={0.18}
+          fillOpacity={0.22}
           stroke="#facc15"
           strokeWidth={2}
           filter="url(#gold-aura)"
-        />
+        >
+          <animate attributeName="opacity" values="0.35;1;0.35" dur="2.8s" repeatCount="indefinite" />
+        </rect>
       )}
       <rect x={x} y={y} width={W} height={H} rx={3} fill={gold ? "#3a3214" : "#2a2a2a"} stroke={gold ? "#facc15" : "#a3a3a3"} strokeWidth={gold ? 1.75 : 1.25} />
       <rect x={x + NUM_W} y={y + 1.25} width={W - NUM_W - 1.25} height={H - 2.5} fill={gold ? "#1c180c" : "#141414"} />
@@ -146,8 +148,8 @@ export default function BracketView({ teams }: { teams: any[] }) {
   return (
     <svg viewBox={`0 0 ${width} ${y1 + H + 24}`} width={width} height={y1 + H + 24} className="block">
       <defs>
-        <filter id="gold-aura" x="-50%" y="-80%" width="200%" height="260%">
-          <feGaussianBlur stdDeviation="5" result="blur" />
+        <filter id="gold-aura" x="-60%" y="-100%" width="220%" height="300%">
+          <feGaussianBlur stdDeviation="6" result="blur" />
           <feMerge>
             <feMergeNode in="blur" />
             <feMergeNode in="SourceGraphic" />
