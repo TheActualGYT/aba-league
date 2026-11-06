@@ -154,69 +154,111 @@ export default function BracketView({ teams }: { teams: any[] }) {
   const champY = champCenter - (H * champScale) / 2;
   const joinF = xF - 24;
   const joinC = xF + W + 36;
-  const xC = joinC + 220;
+  const xC = joinC + 170;
   const width = xC + W * champScale + 24;
 
+  const rounds = [
+    { label: "First Round", x: x1 + W / 2 },
+    { label: "Second Round", x: xQ + W / 2 },
+    { label: "Elite Eight", x: xS + W / 2 },
+    { label: "Final Four", x: xF + W / 2 },
+  ];
+
   return (
-    <svg viewBox={`0 0 ${width} ${y1 + H + 24}`} width={width} height={y1 + H + 24} className="block">
-      <defs>
-        <filter id="gold-aura" x="-60%" y="-80%" width="220%" height="260%">
-          <feGaussianBlur stdDeviation="7" result="blur" />
-          <feMerge>
-            <feMergeNode in="blur" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
-      </defs>
-
-      {box(x1, y1015, 1, 10, s[9], 15, s[14], "m1")}
-      {box(x1, y1312, 2, 13, s[12], 12, s[11], "m2")}
-      {box(x1, y1114, 3, 11, s[10], 14, s[13], "m3")}
-      {box(x1, y916, 4, 9, s[8], 16, s[15], "m4")}
-
-      {box(xQ, y7, 5, 7, s[6], undefined, ofMatch(1), "m5")}
-      {box(xQ, y6, 6, 6, s[5], undefined, ofMatch(2), "m6")}
-      {box(xQ, y5, 7, 5, s[4], undefined, ofMatch(3), "m7")}
-      {box(xQ, y8, 8, 8, s[7], undefined, ofMatch(4), "m8")}
-
-      {box(xS, y2, 9, 2, s[1], undefined, ofMatch(5), "m9")}
-      {box(xS, y3, 10, 3, s[2], undefined, ofMatch(6), "m10")}
-      {box(xS, y4, 11, 4, s[3], undefined, ofMatch(7), "m11")}
-      {box(xS, y1, 12, 1, s[0], undefined, ofMatch(8), "m12")}
-
-      {box(xF, topFinalY, 13, undefined, ofMatch(9), undefined, ofMatch(10), "m13")}
-      {box(xF, botFinalY, 14, undefined, ofMatch(11), undefined, ofMatch(12), "m14")}
-
-      <text
-        x={xC + (W * champScale) / 2}
-        y={champY - 14}
-        textAnchor="middle"
-        fontSize={16}
-        fontWeight={600}
-        fill="#facc15"
-        fontFamily="Inter, system-ui, sans-serif"
+    <div style={{ width, position: "relative" }}>
+      <div
+        className="sticky top-0 z-20"
+        style={{
+          height: 40,
+          width,
+          background: "#0a0a0a",
+          borderBottom: "1px solid #262626",
+        }}
       >
-        Championship Game
-      </text>
-      {box(xC, champY, 15, undefined, ofMatch(13), undefined, ofMatch(14), "m15", true, champScale)}
+        {rounds.map((round) => (
+          <div
+            key={round.label}
+            style={{
+              position: "absolute",
+              left: round.x,
+              top: 0,
+              height: 40,
+              display: "flex",
+              alignItems: "center",
+              transform: "translateX(-50%)",
+              color: "#e5e5e5",
+              fontSize: 13,
+              fontWeight: 600,
+              letterSpacing: "0.04em",
+              fontFamily: "Inter, system-ui, sans-serif",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {round.label}
+          </div>
+        ))}
+      </div>
 
-      {link(x1 + W, mid(y1015), xQ - 28, mid(y7), xQ)}
-      {link(x1 + W, mid(y1312), xQ - 28, mid(y6), xQ)}
-      {link(x1 + W, mid(y1114), xQ - 28, mid(y5), xQ)}
-      {link(x1 + W, mid(y916), xQ - 28, mid(y8), xQ)}
+      <svg viewBox={`0 0 ${width} ${y1 + H + 24}`} width={width} height={y1 + H + 24} className="block">
+        <defs>
+          <filter id="gold-aura" x="-60%" y="-80%" width="220%" height="260%">
+            <feGaussianBlur stdDeviation="7" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
 
-      {link(xQ + W, mid(y7), xS - 28, mid(y2), xS)}
-      {link(xQ + W, mid(y6), xS - 28, mid(y3), xS)}
-      {link(xQ + W, mid(y5), xS - 28, mid(y4), xS)}
-      {link(xQ + W, mid(y8), xS - 28, mid(y1), xS)}
+        {box(x1, y1015, 1, 10, s[9], 15, s[14], "m1")}
+        {box(x1, y1312, 2, 13, s[12], 12, s[11], "m2")}
+        {box(x1, y1114, 3, 11, s[10], 14, s[13], "m3")}
+        {box(x1, y916, 4, 9, s[8], 16, s[15], "m4")}
 
-      {link(xS + W, mid(y2), joinF, mid(topFinalY), xF)}
-      {link(xS + W, mid(y3), joinF, mid(topFinalY), xF)}
-      {link(xS + W, mid(y4), joinF, mid(botFinalY), xF)}
-      {link(xS + W, mid(y1), joinF, mid(botFinalY), xF)}
+        {box(xQ, y7, 5, 7, s[6], undefined, ofMatch(1), "m5")}
+        {box(xQ, y6, 6, 6, s[5], undefined, ofMatch(2), "m6")}
+        {box(xQ, y5, 7, 5, s[4], undefined, ofMatch(3), "m7")}
+        {box(xQ, y8, 8, 8, s[7], undefined, ofMatch(4), "m8")}
 
-      {link(xF + W, mid(topFinalY), joinC, champCenter, xC)}
-      {link(xF + W, mid(botFinalY), joinC, champCenter, xC)}
-    </svg>
+        {box(xS, y2, 9, 2, s[1], undefined, ofMatch(5), "m9")}
+        {box(xS, y3, 10, 3, s[2], undefined, ofMatch(6), "m10")}
+        {box(xS, y4, 11, 4, s[3], undefined, ofMatch(7), "m11")}
+        {box(xS, y1, 12, 1, s[0], undefined, ofMatch(8), "m12")}
+
+        {box(xF, topFinalY, 13, undefined, ofMatch(9), undefined, ofMatch(10), "m13")}
+        {box(xF, botFinalY, 14, undefined, ofMatch(11), undefined, ofMatch(12), "m14")}
+
+        <text
+          x={xC + (W * champScale) / 2}
+          y={champY - 14}
+          textAnchor="middle"
+          fontSize={16}
+          fontWeight={600}
+          fill="#facc15"
+          fontFamily="Inter, system-ui, sans-serif"
+        >
+          Championship Game
+        </text>
+        {box(xC, champY, 15, undefined, ofMatch(13), undefined, ofMatch(14), "m15", true, champScale)}
+
+        {link(x1 + W, mid(y1015), xQ - 28, mid(y7), xQ)}
+        {link(x1 + W, mid(y1312), xQ - 28, mid(y6), xQ)}
+        {link(x1 + W, mid(y1114), xQ - 28, mid(y5), xQ)}
+        {link(x1 + W, mid(y916), xQ - 28, mid(y8), xQ)}
+
+        {link(xQ + W, mid(y7), xS - 28, mid(y2), xS)}
+        {link(xQ + W, mid(y6), xS - 28, mid(y3), xS)}
+        {link(xQ + W, mid(y5), xS - 28, mid(y4), xS)}
+        {link(xQ + W, mid(y8), xS - 28, mid(y1), xS)}
+
+        {link(xS + W, mid(y2), joinF, mid(topFinalY), xF)}
+        {link(xS + W, mid(y3), joinF, mid(topFinalY), xF)}
+        {link(xS + W, mid(y4), joinF, mid(botFinalY), xF)}
+        {link(xS + W, mid(y1), joinF, mid(botFinalY), xF)}
+
+        {link(xF + W, mid(topFinalY), joinC, champCenter, xC)}
+        {link(xF + W, mid(botFinalY), joinC, champCenter, xC)}
+      </svg>
+    </div>
   );
 }
