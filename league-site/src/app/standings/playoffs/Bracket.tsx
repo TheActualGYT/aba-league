@@ -1,6 +1,24 @@
 "use client";
 
-import { Bracket, IRoundProps } from "react-brackets";
+import { Bracket, IRoundProps, Seed, SeedItem, SeedTeam } from "react-brackets";
+
+function CustomSeed({ seed, breakpoint }: any) {
+  return (
+    <Seed mobileBreakpoint={breakpoint} style={{ fontSize: 12 }}>
+      <SeedItem style={{ width: 200 }}>
+        <div>
+          <SeedTeam style={{ padding: "6px 8px", whiteSpace: "nowrap" }}>
+            {seed.teams[0]?.name || "TBD"}
+          </SeedTeam>
+          <div style={{ height: 1, backgroundColor: "#444" }} />
+          <SeedTeam style={{ padding: "6px 8px", whiteSpace: "nowrap" }}>
+            {seed.teams[1]?.name || "TBD"}
+          </SeedTeam>
+        </div>
+      </SeedItem>
+    </Seed>
+  );
+}
 
 export default function BracketView({ teams }: { teams: any[] }) {
   const sorted = [...teams].sort((a, b) => a.name.localeCompare(b.name));
@@ -51,6 +69,7 @@ export default function BracketView({ teams }: { teams: any[] }) {
       roundTitleComponent={(title: any) => (
         <div className="text-xs text-neutral-500 text-center mb-2">{title}</div>
       )}
+      renderSeedComponent={CustomSeed}
     />
   );
 }
