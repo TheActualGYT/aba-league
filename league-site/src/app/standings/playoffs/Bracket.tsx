@@ -68,7 +68,6 @@ export default function BracketView({ teams }: { teams: any[] }) {
   const xQ = 320;
   const xS = 632;
   const xF = 944;
-  const xC = 1460;
   const champScale = 1.5;
 
   const y2 = 10;
@@ -154,7 +153,8 @@ export default function BracketView({ teams }: { teams: any[] }) {
   const champCenter = (mid(topFinalY) + mid(botFinalY)) / 2;
   const champY = champCenter - (H * champScale) / 2;
   const joinF = xF - 24;
-  const joinC = xC - 36;
+  const joinC = xF + W + 36;
+  const xC = joinC + 220;
   const width = xC + W * champScale + 24;
 
   return (
