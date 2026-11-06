@@ -29,9 +29,9 @@ export default async function TeamsPage() {
               </div>
             </div>
             <p className="text-sm text-neutral-300">{team.location}</p>
-            <p className="text-sm text-neutral-400">Owner: {team.ownership}</p>
-            <p className="text-sm text-neutral-400">Head Coach: {team.head_coach || "—"}</p>
-            <p className="text-sm text-neutral-400">Assistant Coach: {team.assistant_coach || "—"}</p>
+            <p className="text-sm text-neutral-400"><span className="font-bold text-white">Owner:</span> {team.ownership}</p>
+            <p className="text-sm text-neutral-400"><span className="font-bold text-white">HC:</span> {team.head_coach || "—"}</p>
+            <p className="text-sm text-neutral-400"><span className="font-bold text-white">AC:</span> {team.assistant_coach || "—"}</p>
             <div className="flex justify-between items-end mt-3 gap-3">
               <Link href={`/teams/${team.id}`} className="text-sm text-neutral-300 hover:underline">
                 View Roster →
