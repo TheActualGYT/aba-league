@@ -1,24 +1,13 @@
 import db from "@/lib/db";
+import { STANDINGS_COLS, buildTeamRecord, gamesBehind, statValues, type Game } from "@/lib/standings";
 
 export const dynamic = "force-dynamic";
 
-const COLS = [
-  { label: "Rank", width: "72px", align: "text-left" },
-  { label: "Team Name", width: undefined, align: "text-left" },
-  { label: "W", width: "64px", align: "text-center" },
-  { label: "L", width: "64px", align: "text-center" },
-  { label: "Win %", width: "84px", align: "text-center" },
-  { label: "GB", width: "72px", align: "text-center" },
-  { label: "Pts Scored", width: "120px", align: "text-center" },
-  { label: "Pts Allowed", width: "124px", align: "text-center" },
-  { label: "Diff", width: "80px", align: "text-center" },
-];
-
 function cellClass(index: number, edges: { top?: boolean; bottom?: boolean }) {
   const left = index === 0;
-  const right = index === COLS.length - 1;
+  const right = index === STANDINGS_COLS.length - 1;
   return [
-    "px-3 py-3 bg-neutral-900 border-neutral-700",
+    "px-2 py-3 bg-neutral-900 border-neutral-700 whitespace-nowrap",
     left ? "border-l" : "",
     right ? "border-r" : "",
     "border-b",
@@ -33,6 +22,7 @@ function cellClass(index: number, edges: { top?: boolean; bottom?: boolean }) {
 function TeamRow({ team, top, bottom }: { team: any; top?: boolean; bottom?: boolean }) {
   const edges = { top, bottom };
   const inPlayoffs = team.seed <= 16;
+  const values = statValues(team);
   return (
     <tr>
       <td className={`${cellClass(0, edges)} ${inPlayoffs ? "gold-glow font-semibold" : ""}`}>{team.seed}</td>
@@ -49,13 +39,11 @@ function TeamRow({ team, top, bottom }: { team: any; top?: boolean; bottom?: boo
           </span>
         </div>
       </td>
-      <td className={`${cellClass(2, edges)} text-center`}>{team.wins}</td>
-      <td className={`${cellClass(3, edges)} text-center`}>{team.losses}</td>
-      <td className={`${cellClass(4, edges)} text-center`}>{team.winPct.toFixed(3).replace(/^0/, "")}</td>
-      <td className={`${cellClass(5, edges)} text-center`}>{team.gb}</td>
-      <td className={`${cellClass(6, edges)} text-center`}>{team.pf}</td>
-      <td className={`${cellClass(7, edges)} text-center`}>{team.pa}</td>
-      <td className={`${cellClass(8, edges)} text-center`}>{team.diff > 0 ? "+" : ""}{team.diff}</td>
+      {values.map((value, i) => (
+        <td key={STANDINGS_COLS[i + 2].label} className={`${cellClass(i + 2, edges)} text-center`}>
+          {value}
+        </td>
+      ))}
     </tr>
   );
 }
@@ -63,31 +51,16 @@ function TeamRow({ team, top, bottom }: { team: any; top?: boolean; bottom?: boo
 export default async function LeagueStandingsPage() {
   const data = await db.load();
   const teams = data.teams;
-  const games = data.games;
+  const games = data.games as Game[];
 
   const ranked = [...teams]
     .sort((a, b) => a.name.localeCompare(b.name))
     .map((team, i) => ({ ...team, overallRank: i + 1 }));
 
-  const standings = ranked.map(team => {
-    let wins = 0, losses = 0, pf = 0, pa = 0;
-    games.forEach(game => {
-      if (game.home_team_id === team.id) {
-        if (game.home_score > game.away_score) wins++;
-        else losses++;
-        pf += game.home_score;
-        pa += game.away_score;
-      } else if (game.away_team_id === team.id) {
-        if (game.away_score > game.home_score) wins++;
-        else losses++;
-        pf += game.away_score;
-        pa += game.home_score;
-      }
-    });
-    const gamesPlayed = wins + losses;
-    const winPct = gamesPlayed > 0 ? wins / gamesPlayed : 0;
-    return { ...team, wins, losses, pf, pa, diff: pf - pa, winPct, gamesPlayed };
-  });
+  const standings = ranked.map(team => ({
+    ...team,
+    ...buildTeamRecord(team.id, games),
+  }));
 
   const hasGames = games.length > 0;
   const sorted = [...standings].sort((a, b) => {
@@ -97,12 +70,12 @@ export default async function LeagueStandingsPage() {
     return a.overallRank - b.overallRank;
   });
 
-  const leaderWins = sorted[0]?.wins || 0;
-  const leaderLosses = sorted[0]?.losses || 0;
-  const withGB = sorted.map((team, i) => {
-    const gb = ((leaderWins - team.wins) + (team.losses - leaderLosses)) / 2;
-    return { ...team, seed: i + 1, gb: gb === 0 ? "—" : gb.toFixed(1) };
-  });
+  const leader = sorted[0];
+  const withGB = sorted.map((team, i) => ({
+    ...team,
+    seed: i + 1,
+    gb: leader ? gamesBehind(team, leader) : "—",
+  }));
 
   const playoff = withGB.slice(0, 16);
   const outside = withGB.slice(16);
@@ -122,18 +95,18 @@ export default async function LeagueStandingsPage() {
       ) : (
         <table className="w-full table-fixed border-separate border-spacing-0">
           <colgroup>
-            {COLS.map(col => (
+            {STANDINGS_COLS.map(col => (
               <col key={col.label} style={col.width ? { width: col.width } : undefined} />
             ))}
           </colgroup>
           <thead>
             <tr>
-              {COLS.map((col, index) => (
+              {STANDINGS_COLS.map((col, index) => (
                 <th
                   key={col.label}
-                  className={`sticky top-[81px] z-30 px-3 py-3 bg-neutral-800 text-neutral-300 text-sm font-semibold whitespace-nowrap border-y border-neutral-700 ${col.align} ${
+                  className={`sticky top-[81px] z-30 px-2 py-3 bg-neutral-800 text-neutral-300 text-xs font-semibold whitespace-nowrap border-y border-neutral-700 ${col.align} ${
                     index === 0 ? "border-l rounded-tl-lg" : ""
-                  } ${index === COLS.length - 1 ? "border-r rounded-tr-lg" : ""}`}
+                  } ${index === STANDINGS_COLS.length - 1 ? "border-r rounded-tr-lg" : ""}`}
                 >
                   {col.label}
                 </th>
@@ -146,7 +119,7 @@ export default async function LeagueStandingsPage() {
             ))}
             {outside.length > 0 && (
               <tr>
-                <td colSpan={9} className="bg-transparent py-6 text-center">
+                <td colSpan={STANDINGS_COLS.length} className="bg-transparent py-6 text-center">
                   <span className="gold-glow inline-flex items-center justify-center text-sm font-bold tracking-[0.22em]">
                     <span className="inline-flex gap-5">
                       <span>^</span>
