@@ -59,9 +59,12 @@ export default async function Home() {
     });
 
   return (
-    <main className="max-w-7xl mx-auto px-6 py-8">
-      <div className="grid grid-cols-1 lg:grid-cols-[auto_1fr] gap-8">
-        <div style={{ width: "480px" }}>
+    <main className="py-8">
+      <div
+        className="grid grid-cols-1 lg:grid-cols-[480px_1fr] gap-8"
+        style={{ paddingLeft: "max(24px, calc(50% - 703.56px))", paddingRight: 24 }}
+      >
+        <div>
           <h2 className="text-2xl font-bold text-white mb-4 uppercase tracking-wide text-center">Playoff Standings</h2>
           <div className="bg-neutral-900 border-2 border-white rounded-lg overflow-hidden">
             <table className="text-sm w-full table-fixed">

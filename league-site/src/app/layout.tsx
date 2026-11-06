@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import NavDropdown from "@/components/NavDropdown";
+import SeasonDropdown from "@/components/SeasonDropdown";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -23,17 +24,19 @@ export default function RootLayout({
       <body className="min-h-screen bg-neutral-950 text-white">
         <nav className="bg-neutral-900 border-b border-neutral-700 sticky top-0 z-50">
           <div className="relative px-6 py-2">
-            <Link
-              href="/"
-              className="flex items-center gap-2 absolute top-1/2 -translate-y-1/2"
+            <div
+              className="flex items-center gap-3 absolute top-1/2 -translate-y-1/2"
               style={{ left: "max(24px, calc(50% - 703.56px))" }}
             >
-              <img src="/logo.png" alt="ABA" className="h-16 w-auto" />
-              <div className="flex flex-col leading-tight">
-                <span className="text-2xl font-bold text-white">ABA</span>
-                <span className="text-xs text-neutral-400">NCAA 10 Basketball</span>
-              </div>
-            </Link>
+              <Link href="/" className="flex items-center gap-2">
+                <img src="/logo.png" alt="ABA" className="h-16 w-auto" />
+                <div className="flex flex-col leading-tight">
+                  <span className="text-2xl font-bold text-white">ABA</span>
+                  <span className="text-xs text-neutral-400">NCAA 10 Basketball</span>
+                </div>
+              </Link>
+              <SeasonDropdown />
+            </div>
             <div className="max-w-7xl mx-auto flex justify-end items-center gap-6 min-h-16">
               <NavDropdown />
               <Link href="/leaders" className="hover:text-neutral-300">League Leaders</Link>

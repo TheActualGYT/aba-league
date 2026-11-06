@@ -16,6 +16,7 @@ export default async function PlayoffPicturePage() {
         >
           <div>1st Annual</div>
           <div>Dates: TBD</div>
+          <div>Finals: TBD</div>
         </div>
         <div className="max-w-7xl mx-auto relative">
           <div className="text-center">
