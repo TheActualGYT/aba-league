@@ -3,7 +3,7 @@
 const LINE = "#e5e5e5";
 const H = 58;
 const W = 236;
-const NUM_W = 28;
+const NUM_W = 18;
 
 type T = { name?: string; logo?: string } | null;
 
@@ -92,17 +92,17 @@ export default function BracketView({ teams }: { teams: any[] }) {
     key: string
   ) => (
     <g key={key}>
-      <rect x={x} y={y} width={W} height={H} rx={3} fill="#3a3a3a" stroke="#a3a3a3" strokeWidth={1.25} />
+      <rect x={x} y={y} width={W} height={H} rx={3} fill="#2a2a2a" stroke="#a3a3a3" strokeWidth={1.25} />
       <rect x={x + NUM_W} y={y + 1.25} width={W - NUM_W - 1.25} height={H - 2.5} fill="#141414" />
-      <line x1={x + NUM_W} y1={y} x2={x + NUM_W} y2={y + H} stroke="#525252" />
+      <line x1={x + NUM_W} y1={y} x2={x + NUM_W} y2={y + H} stroke="#404040" />
       <line x1={x + NUM_W} y1={y + H / 2} x2={x + W} y2={y + H / 2} stroke="#525252" />
       <text
         x={x + NUM_W / 2}
-        y={y + H / 2 + 4}
+        y={y + H / 2 + 3}
         textAnchor="middle"
-        fontSize={12}
-        fontWeight={600}
-        fill="#fff"
+        fontSize={9}
+        fontWeight={500}
+        fill="#a3a3a3"
         fontFamily="Inter, system-ui, sans-serif"
       >
         {n}
