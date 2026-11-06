@@ -2,7 +2,7 @@
 
 const LINE = "#e5e5e5";
 const H = 58;
-const W = 220;
+const W = 236;
 
 type T = { name?: string; logo?: string } | null;
 
@@ -19,6 +19,7 @@ function Row({
   seed?: number;
   team: T;
 }) {
+  const winner = team?.name?.startsWith("Winner of");
   return (
     <foreignObject x={x} y={y} width={w} height={H / 2 - 1}>
       <div
@@ -27,8 +28,8 @@ function Row({
           display: "flex",
           alignItems: "center",
           gap: 6,
-          color: team?.name === "Winner" ? "#d4d4d4" : "#fff",
-          fontSize: 13,
+          color: winner ? "#d4d4d4" : "#fff",
+          fontSize: winner ? 12 : 13,
           fontFamily: "Inter, system-ui, sans-serif",
           overflow: "hidden",
           whiteSpace: "nowrap",
@@ -38,9 +39,7 @@ function Row({
       >
         {seed ? (
           <span style={{ color: "#a3a3a3", fontSize: 11, flex: "none", width: 14 }}>{seed}</span>
-        ) : (
-          <span style={{ width: 14, flex: "none" }} />
-        )}
+        ) : null}
         {team?.logo && (
           <img
             src={team.logo}
@@ -54,16 +53,16 @@ function Row({
   );
 }
 
-const WIN: T = { name: "Winner" };
+const ofMatch = (n: number): T => ({ name: `Winner of Match ${n}` });
 
 export default function BracketView({ teams }: { teams: any[] }) {
   const sorted = [...teams].sort((a: any, b: any) => a.name.localeCompare(b.name));
   const s: T[] = Array.from({ length: 16 }, (_, i) => sorted[i] || null);
 
-  const x1 = 8;
-  const xQ = 300;
-  const xS = 590;
-  const xF = 880;
+  const x1 = 36;
+  const xQ = 348;
+  const xS = 660;
+  const xF = 972;
 
   const y2 = 10;
   const y7 = 100;
@@ -84,6 +83,7 @@ export default function BracketView({ teams }: { teams: any[] }) {
   const box = (
     x: number,
     y: number,
+    n: number,
     topSeed: number | undefined,
     top: T,
     botSeed: number | undefined,
@@ -91,6 +91,17 @@ export default function BracketView({ teams }: { teams: any[] }) {
     key: string
   ) => (
     <g key={key}>
+      <text
+        x={x - 8}
+        y={y + 18}
+        textAnchor="end"
+        fontSize={11}
+        fontWeight={600}
+        fill="#a3a3a3"
+        fontFamily="Inter, system-ui, sans-serif"
+      >
+        {n}
+      </text>
       <rect x={x} y={y} width={W} height={H} rx={3} fill="#141414" stroke="#a3a3a3" strokeWidth={1.25} />
       <line x1={x} y1={y + H / 2} x2={x + W} y2={y + H / 2} stroke="#525252" />
       <Row x={x} y={y + 1} w={W} seed={topSeed} team={top} />
@@ -114,23 +125,23 @@ export default function BracketView({ teams }: { teams: any[] }) {
 
   return (
     <svg viewBox={`0 0 ${champX + 120} ${y1 + H + 24}`} width={champX + 120} height={y1 + H + 24} className="block">
-      {box(x1, y1015, 10, s[9], 15, s[14], "r-10")}
-      {box(x1, y1312, 13, s[12], 12, s[11], "r-13")}
-      {box(x1, y1114, 11, s[10], 14, s[13], "r-11")}
-      {box(x1, y916, 9, s[8], 16, s[15], "r-9")}
+      {box(x1, y1015, 1, 10, s[9], 15, s[14], "m1")}
+      {box(x1, y1312, 2, 13, s[12], 12, s[11], "m2")}
+      {box(x1, y1114, 3, 11, s[10], 14, s[13], "m3")}
+      {box(x1, y916, 4, 9, s[8], 16, s[15], "m4")}
 
-      {box(xQ, y7, 7, s[6], undefined, WIN, "q-7")}
-      {box(xQ, y6, 6, s[5], undefined, WIN, "q-6")}
-      {box(xQ, y5, 5, s[4], undefined, WIN, "q-5")}
-      {box(xQ, y8, 8, s[7], undefined, WIN, "q-8")}
+      {box(xQ, y7, 5, 7, s[6], undefined, ofMatch(1), "m5")}
+      {box(xQ, y6, 6, 6, s[5], undefined, ofMatch(2), "m6")}
+      {box(xQ, y5, 7, 5, s[4], undefined, ofMatch(3), "m7")}
+      {box(xQ, y8, 8, 8, s[7], undefined, ofMatch(4), "m8")}
 
-      {box(xS, y2, 2, s[1], undefined, WIN, "s-2")}
-      {box(xS, y3, 3, s[2], undefined, WIN, "s-3")}
-      {box(xS, y4, 4, s[3], undefined, WIN, "s-4")}
-      {box(xS, y1, 1, s[0], undefined, WIN, "s-1")}
+      {box(xS, y2, 9, 2, s[1], undefined, ofMatch(5), "m9")}
+      {box(xS, y3, 10, 3, s[2], undefined, ofMatch(6), "m10")}
+      {box(xS, y4, 11, 4, s[3], undefined, ofMatch(7), "m11")}
+      {box(xS, y1, 12, 1, s[0], undefined, ofMatch(8), "m12")}
 
-      {box(xF, topFinalY, undefined, WIN, undefined, WIN, "f-top")}
-      {box(xF, botFinalY, undefined, WIN, undefined, WIN, "f-bot")}
+      {box(xF, topFinalY, 13, undefined, ofMatch(9), undefined, ofMatch(10), "m13")}
+      {box(xF, botFinalY, 14, undefined, ofMatch(11), undefined, ofMatch(12), "m14")}
 
       {link(x1 + W, mid(y1015), xQ - 28, mid(y7), xQ)}
       {link(x1 + W, mid(y1312), xQ - 28, mid(y6), xQ)}
