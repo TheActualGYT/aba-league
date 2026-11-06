@@ -4,7 +4,7 @@ const LINE = "#e5e5e5";
 const H = 58;
 const W = 236;
 const NUM_W = 18;
-const DISPLAY_W = 1080;
+const DISPLAY_W = 1420;
 
 type T = { name?: string; logo?: string } | null;
 
