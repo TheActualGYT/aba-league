@@ -1,14 +1,16 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { useCloseOnOutside } from "@/components/useCloseOnOutside";
 
 const OWNERS = ["Garrett Jahnke", "Craig Jahnke", "Chad Jahnke"];
 
 function OwnerMenu({ value, onChange }: { value: string; onChange: (value: string) => void }) {
   const [open, setOpen] = useState(false);
+  const rootRef = useCloseOnOutside<HTMLDivElement>(open, setOpen);
 
   return (
-    <div className="relative">
+    <div className="relative" ref={rootRef}>
       <button
         type="button"
         onClick={() => setOpen(current => !current)}
