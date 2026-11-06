@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import db from "@/lib/db";
 
 export const dynamic = "force-dynamic";
@@ -14,52 +15,47 @@ const COLS = [
   { label: "Diff", width: "80px", align: "text-center" },
 ];
 
-function StandingsTable({ teams, showHeader }: { teams: any[]; showHeader: boolean }) {
+function cellClass(index: number, edges: { top?: boolean; bottom?: boolean }) {
+  const left = index === 0;
+  const right = index === COLS.length - 1;
+  return [
+    "px-3 py-3 bg-neutral-900 border-neutral-700",
+    left ? "border-l" : "",
+    right ? "border-r" : "",
+    "border-b",
+    edges.top ? "border-t" : "",
+    edges.top && left ? "rounded-tl-lg" : "",
+    edges.top && right ? "rounded-tr-lg" : "",
+    edges.bottom && left ? "rounded-bl-lg" : "",
+    edges.bottom && right ? "rounded-br-lg" : "",
+  ].filter(Boolean).join(" ");
+}
+
+function TeamRow({ team, top, bottom }: { team: any; top?: boolean; bottom?: boolean }) {
+  const edges = { top, bottom };
   return (
-    <table className="w-full table-fixed bg-neutral-900 rounded-lg border border-neutral-700">
-      <colgroup>
-        {COLS.map(col => (
-          <col key={col.label} style={col.width ? { width: col.width } : undefined} />
-        ))}
-      </colgroup>
-      {showHeader && (
-        <thead className="bg-neutral-800">
-          <tr>
-            {COLS.map(col => (
-              <th key={col.label} className={`px-3 py-3 text-neutral-300 text-sm whitespace-nowrap ${col.align}`}>
-                {col.label}
-              </th>
-            ))}
-          </tr>
-        </thead>
-      )}
-      <tbody>
-        {teams.map(team => (
-          <tr key={team.id} className="border-t border-neutral-700">
-            <td className={`px-3 py-3 ${team.seed <= 16 ? "label-glow text-white font-semibold" : ""}`}>{team.seed}</td>
-            <td className="px-3 py-3 font-semibold text-white">
-              <div className="flex items-center gap-2 min-w-0">
-                {team.logo ? (
-                  <img src={team.logo} alt="" className="h-6 w-6 object-contain flex-shrink-0" />
-                ) : (
-                  <div className="h-6 w-6 flex-shrink-0" />
-                )}
-                <span className="truncate">
-                  {team.name}<sup className="text-neutral-500 text-[9px] ml-1">{team.overallRank}</sup>
-                </span>
-              </div>
-            </td>
-            <td className="px-3 py-3 text-center">{team.wins}</td>
-            <td className="px-3 py-3 text-center">{team.losses}</td>
-            <td className="px-3 py-3 text-center">{team.winPct.toFixed(3).replace(/^0/, "")}</td>
-            <td className="px-3 py-3 text-center">{team.gb}</td>
-            <td className="px-3 py-3 text-center">{team.pf}</td>
-            <td className="px-3 py-3 text-center">{team.pa}</td>
-            <td className="px-3 py-3 text-center">{team.diff > 0 ? "+" : ""}{team.diff}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <tr>
+      <td className={`${cellClass(0, edges)} ${team.seed <= 16 ? "label-glow text-white font-semibold" : ""}`}>{team.seed}</td>
+      <td className={`${cellClass(1, edges)} font-semibold text-white`}>
+        <div className="flex items-center gap-2 min-w-0">
+          {team.logo ? (
+            <img src={team.logo} alt="" className="h-6 w-6 object-contain flex-shrink-0" />
+          ) : (
+            <div className="h-6 w-6 flex-shrink-0" />
+          )}
+          <span className="truncate">
+            {team.name}<sup className="text-neutral-500 text-[9px] ml-1">{team.overallRank}</sup>
+          </span>
+        </div>
+      </td>
+      <td className={`${cellClass(2, edges)} text-center`}>{team.wins}</td>
+      <td className={`${cellClass(3, edges)} text-center`}>{team.losses}</td>
+      <td className={`${cellClass(4, edges)} text-center`}>{team.winPct.toFixed(3).replace(/^0/, "")}</td>
+      <td className={`${cellClass(5, edges)} text-center`}>{team.gb}</td>
+      <td className={`${cellClass(6, edges)} text-center`}>{team.pf}</td>
+      <td className={`${cellClass(7, edges)} text-center`}>{team.pa}</td>
+      <td className={`${cellClass(8, edges)} text-center`}>{team.diff > 0 ? "+" : ""}{team.diff}</td>
+    </tr>
   );
 }
 
@@ -112,28 +108,53 @@ export default async function LeagueStandingsPage() {
 
   return (
     <main
-      className="pb-8"
+      className="py-8"
       style={{
         paddingLeft: "max(16px, calc(50% - 707.56px))",
         paddingRight: "max(24px, calc(50% - 640px))",
       }}
     >
-      <h2 className="standings-title label-glow text-3xl font-bold text-white text-center tracking-wide">LEAGUE STANDINGS</h2>
+      <h2 className="label-glow text-3xl font-bold mb-8 text-white text-center tracking-wide">LEAGUE STANDINGS</h2>
 
       {withGB.length === 0 ? (
         <div className="bg-neutral-900 rounded-lg border border-neutral-700 px-4 py-6 text-center text-neutral-400">No teams yet.</div>
       ) : (
-        <>
-          <StandingsTable teams={playoff} showHeader />
-          {outside.length > 0 && (
-            <>
-              <div className="py-6 text-center">
-                <span className="gold-glow text-sm font-bold tracking-[0.22em]">^  ^  ^  PLAYOFF QUALIFICATION  ^  ^  ^</span>
-              </div>
-              <StandingsTable teams={outside} showHeader={false} />
-            </>
-          )}
-        </>
+        <table className="w-full table-fixed border-separate border-spacing-0">
+          <colgroup>
+            {COLS.map(col => (
+              <col key={col.label} style={col.width ? { width: col.width } : undefined} />
+            ))}
+          </colgroup>
+          <thead>
+            <tr>
+              {COLS.map((col, index) => (
+                <th
+                  key={col.label}
+                  className={`sticky top-[81px] z-30 px-3 py-3 bg-neutral-800 text-neutral-300 text-sm font-semibold whitespace-nowrap border-y border-neutral-700 ${col.align} ${
+                    index === 0 ? "border-l rounded-tl-lg" : ""
+                  } ${index === COLS.length - 1 ? "border-r rounded-tr-lg" : ""}`}
+                >
+                  {col.label}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {playoff.map((team, i) => (
+              <TeamRow key={team.id} team={team} bottom={i === playoff.length - 1} />
+            ))}
+            {outside.length > 0 && (
+              <tr>
+                <td colSpan={9} className="bg-transparent py-6 text-center">
+                  <span className="gold-glow text-sm font-bold tracking-[0.22em]">^  ^  ^  PLAYOFF QUALIFICATION  ^  ^  ^</span>
+                </td>
+              </tr>
+            )}
+            {outside.map((team, i) => (
+              <TeamRow key={team.id} team={team} top={i === 0} bottom={i === outside.length - 1} />
+            ))}
+          </tbody>
+        </table>
       )}
     </main>
   );
