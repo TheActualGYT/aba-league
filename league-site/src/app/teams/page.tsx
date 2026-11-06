@@ -36,9 +36,9 @@ export default async function TeamsPage() {
               <Link href={`/teams/${team.id}`} className="text-sm text-neutral-300 hover:underline">
                 View Roster →
               </Link>
-              <div className="flex flex-col items-end gap-2">
+              <div className="flex flex-col items-end gap-3">
                 {team.colors && team.colors.length > 0 && (
-                  <div className="flex gap-1">
+                  <div className="flex gap-1" style={{ transform: "translateY(-4px)" }}>
                     {team.colors.map((c, i) => (
                       <div key={i} className="h-5 w-5 rounded border border-neutral-600" style={{ backgroundColor: c }} title={c} />
                     ))}
