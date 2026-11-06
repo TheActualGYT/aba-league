@@ -35,6 +35,13 @@ interface Player {
   name: string;
   team_id: number | null;
   position: string | null;
+  first_name?: string;
+  last_name?: string;
+  overall?: number;
+  height?: string;
+  weight?: number;
+  number?: string;
+  hand?: string;
 }
 
 interface Game {
