@@ -59,8 +59,9 @@ function extractColors(dataUrl: string): Promise<string[]> {
 
 const fieldClass = "w-full px-3 py-2 bg-neutral-800 border border-neutral-600 rounded text-white";
 const labelClass = "block text-xs font-semibold tracking-wide text-neutral-400 mb-1.5";
+const OWNERS = ["Garrett Jahnke", "Craig Jahnke", "Chad Jahnke"];
 
-export default function TeamForm() {
+export default function TeamForm({ teams = [] }: { teams?: { name: string; abbreviation: string }[] }) {
   const [name, setName] = useState("");
   const [abbr, setAbbr] = useState("");
   const [location, setLocation] = useState("");
@@ -75,6 +76,10 @@ export default function TeamForm() {
   const [replaceIndex, setReplaceIndex] = useState<number | null>(null);
   const [magnifier, setMagnifier] = useState<{ x: number; y: number; color: string } | null>(null);
   const logoRef = useRef<HTMLImageElement>(null);
+
+  const taken = abbr.trim()
+    ? teams.find(t => t.abbreviation?.toUpperCase() === abbr.trim().toUpperCase())
+    : undefined;
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -91,6 +96,10 @@ export default function TeamForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (taken) {
+      setMessage(`Already taken by "${taken.name}"`);
+      return;
+    }
     setMessage("Creating...");
     if (!logo) {
       setMessage("Please upload a team logo");
@@ -196,7 +205,8 @@ export default function TeamForm() {
         </div>
         <div className="lg:col-span-2">
           <label className={labelClass}>Abbreviation</label>
-          <input value={abbr} onChange={e => setAbbr(e.target.value.toUpperCase())} maxLength={4} className={fieldClass} required />
+          <input value={abbr} onChange={e => setAbbr(e.target.value.toUpperCase())} maxLength={4} className={`${fieldClass} ${taken ? "abbr-taken" : ""}`} required />
+          {taken && <p className="text-xs text-red-400 mt-1">Already taken by "{taken.name}"</p>}
         </div>
         <div className="lg:col-span-2">
           <label className={labelClass}>City and State</label>
@@ -204,7 +214,12 @@ export default function TeamForm() {
         </div>
         <div className="lg:col-span-2">
           <label className={labelClass}>Ownership</label>
-          <input value={ownership} onChange={e => setOwnership(e.target.value)} className={fieldClass} required />
+          <select value={ownership} onChange={e => setOwnership(e.target.value)} className={fieldClass} required>
+            <option value="">Select owner</option>
+            {OWNERS.map(owner => (
+              <option key={owner} value={owner}>{owner}</option>
+            ))}
+          </select>
         </div>
         <div className="lg:col-span-2">
           <label className={labelClass}>Head Coach</label>
@@ -277,7 +292,11 @@ export default function TeamForm() {
           )}
         </div>
 
-        <button type="submit" className="bg-neutral-200 hover:bg-white text-black font-bold px-5 py-2 rounded">
+        <button
+          type="submit"
+          disabled={!!taken}
+          className={`bg-neutral-200 text-black font-bold px-5 py-2 rounded ${taken ? "opacity-40 cursor-not-allowed" : "hover:bg-white"}`}
+        >
           Create Team
         </button>
       </div>
