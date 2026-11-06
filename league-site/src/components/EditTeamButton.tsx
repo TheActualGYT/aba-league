@@ -121,7 +121,7 @@ export default function EditTeamButton({ team }: { team: any }) {
 
   return (
     <>
-      <button onClick={() => setOpen(true)} className="text-xs text-neutral-300 hover:text-white">
+      <button type="button" onClick={() => setOpen(true)} className="text-xs text-neutral-300 hover:text-white">
         Edit
       </button>
 
@@ -148,11 +148,11 @@ export default function EditTeamButton({ team }: { team: any }) {
               </div>
               <div>
                 <label className="block text-sm text-neutral-300 mb-1">Head Coach</label>
-                <input value={headCoach} onChange={e => setHeadCoach(e.target.value)} className="w-full px-3 py-2 bg-neutral-800 border border-neutral-600 rounded text-white" />
+                <input value={headCoach} onChange={e => setHeadCoach(e.target.value)} placeholder="Add head coach" className="w-full px-3 py-2 bg-neutral-800 border border-neutral-600 rounded text-white" />
               </div>
               <div>
                 <label className="block text-sm text-neutral-300 mb-1">Assistant Coach</label>
-                <input value={assistantCoach} onChange={e => setAssistantCoach(e.target.value)} className="w-full px-3 py-2 bg-neutral-800 border border-neutral-600 rounded text-white" />
+                <input value={assistantCoach} onChange={e => setAssistantCoach(e.target.value)} placeholder="Add assistant coach" className="w-full px-3 py-2 bg-neutral-800 border border-neutral-600 rounded text-white" />
               </div>
               <div>
                 <label className="block text-sm text-neutral-300 mb-1">Logo</label>
@@ -208,8 +208,8 @@ export default function EditTeamButton({ team }: { team: any }) {
               </div>
             </div>
             <div className="flex justify-end gap-2 mt-5">
-              <button onClick={() => setOpen(false)} className="px-4 py-2 text-neutral-300 hover:text-white">Cancel</button>
-              <button onClick={save} className="bg-neutral-200 text-black font-bold px-4 py-2 rounded">Save</button>
+              <button type="button" onClick={() => setOpen(false)} className="px-4 py-2 text-neutral-300 hover:text-white">Cancel</button>
+              <button type="button" onClick={save} className="bg-neutral-200 text-black font-bold px-4 py-2 rounded">Save</button>
             </div>
             {message && <p className="text-sm text-amber-300 mt-2">{message}</p>}
 
