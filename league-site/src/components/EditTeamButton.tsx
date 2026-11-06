@@ -8,6 +8,8 @@ export default function EditTeamButton({ team }: { team: any }) {
   const [abbr, setAbbr] = useState(team.abbreviation);
   const [location, setLocation] = useState(team.location || "");
   const [ownership, setOwnership] = useState(team.ownership || "");
+  const [headCoach, setHeadCoach] = useState(team.head_coach || "");
+  const [assistantCoach, setAssistantCoach] = useState(team.assistant_coach || "");
   const [logo, setLogo] = useState(team.logo || "");
   const [colors, setColors] = useState<string[]>(team.colors || []);
   const [message, setMessage] = useState("");
@@ -31,7 +33,17 @@ export default function EditTeamButton({ team }: { team: any }) {
       const res = await fetch("/api/teams", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: team.id, name, abbreviation: abbr, location, ownership, logo, colors }),
+        body: JSON.stringify({
+          id: team.id,
+          name,
+          abbreviation: abbr,
+          location,
+          ownership,
+          head_coach: headCoach,
+          assistant_coach: assistantCoach,
+          logo,
+          colors,
+        }),
       });
       if (!res.ok) {
         setMessage("Failed to save");
@@ -133,6 +145,14 @@ export default function EditTeamButton({ team }: { team: any }) {
               <div>
                 <label className="block text-sm text-neutral-300 mb-1">Ownership</label>
                 <input value={ownership} onChange={e => setOwnership(e.target.value)} className="w-full px-3 py-2 bg-neutral-800 border border-neutral-600 rounded text-white" />
+              </div>
+              <div>
+                <label className="block text-sm text-neutral-300 mb-1">Head Coach</label>
+                <input value={headCoach} onChange={e => setHeadCoach(e.target.value)} className="w-full px-3 py-2 bg-neutral-800 border border-neutral-600 rounded text-white" />
+              </div>
+              <div>
+                <label className="block text-sm text-neutral-300 mb-1">Assistant Coach</label>
+                <input value={assistantCoach} onChange={e => setAssistantCoach(e.target.value)} className="w-full px-3 py-2 bg-neutral-800 border border-neutral-600 rounded text-white" />
               </div>
               <div>
                 <label className="block text-sm text-neutral-300 mb-1">Logo</label>
