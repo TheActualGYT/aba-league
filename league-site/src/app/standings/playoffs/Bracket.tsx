@@ -90,20 +90,35 @@ export default function BracketView({ teams }: { teams: any[] }) {
     top: T,
     botSeed: number | undefined,
     bot: T,
-    key: string
+    key: string,
+    gold = false
   ) => (
     <g key={key}>
-      <rect x={x} y={y} width={W} height={H} rx={3} fill="#2a2a2a" stroke="#a3a3a3" strokeWidth={1.25} />
-      <rect x={x + NUM_W} y={y + 1.25} width={W - NUM_W - 1.25} height={H - 2.5} fill="#141414" />
-      <line x1={x + NUM_W} y1={y} x2={x + NUM_W} y2={y + H} stroke="#404040" />
-      <line x1={x + NUM_W} y1={y + H / 2} x2={x + W} y2={y + H / 2} stroke="#525252" />
+      {gold && (
+        <rect
+          x={x - 2}
+          y={y - 2}
+          width={W + 4}
+          height={H + 4}
+          rx={5}
+          fill="#facc15"
+          fillOpacity={0.18}
+          stroke="#facc15"
+          strokeWidth={2}
+          filter="url(#gold-aura)"
+        />
+      )}
+      <rect x={x} y={y} width={W} height={H} rx={3} fill={gold ? "#3a3214" : "#2a2a2a"} stroke={gold ? "#facc15" : "#a3a3a3"} strokeWidth={gold ? 1.75 : 1.25} />
+      <rect x={x + NUM_W} y={y + 1.25} width={W - NUM_W - 1.25} height={H - 2.5} fill={gold ? "#1c180c" : "#141414"} />
+      <line x1={x + NUM_W} y1={y} x2={x + NUM_W} y2={y + H} stroke={gold ? "#a38a2a" : "#404040"} />
+      <line x1={x + NUM_W} y1={y + H / 2} x2={x + W} y2={y + H / 2} stroke={gold ? "#a38a2a" : "#525252"} />
       <text
         x={x + NUM_W / 2}
         y={y + H / 2 + 3}
         textAnchor="middle"
         fontSize={9}
         fontWeight={500}
-        fill="#a3a3a3"
+        fill={gold ? "#facc15" : "#a3a3a3"}
         fontFamily="Inter, system-ui, sans-serif"
       >
         {n}
@@ -130,6 +145,16 @@ export default function BracketView({ teams }: { teams: any[] }) {
 
   return (
     <svg viewBox={`0 0 ${width} ${y1 + H + 24}`} width={width} height={y1 + H + 24} className="block">
+      <defs>
+        <filter id="gold-aura" x="-50%" y="-80%" width="200%" height="260%">
+          <feGaussianBlur stdDeviation="5" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
+
       {box(x1, y1015, 1, 10, s[9], 15, s[14], "m1")}
       {box(x1, y1312, 2, 13, s[12], 12, s[11], "m2")}
       {box(x1, y1114, 3, 11, s[10], 14, s[13], "m3")}
@@ -147,7 +172,7 @@ export default function BracketView({ teams }: { teams: any[] }) {
 
       {box(xF, topFinalY, 13, undefined, ofMatch(9), undefined, ofMatch(10), "m13")}
       {box(xF, botFinalY, 14, undefined, ofMatch(11), undefined, ofMatch(12), "m14")}
-      {box(xC, champY, 15, undefined, ofMatch(13), undefined, ofMatch(14), "m15")}
+      {box(xC, champY, 15, undefined, ofMatch(13), undefined, ofMatch(14), "m15", true)}
 
       {link(x1 + W, mid(y1015), xQ - 28, mid(y7), xQ)}
       {link(x1 + W, mid(y1312), xQ - 28, mid(y6), xQ)}
