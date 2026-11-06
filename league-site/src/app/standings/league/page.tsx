@@ -48,7 +48,7 @@ export default async function LeagueStandingsPage() {
 
   return (
     <main className="max-w-7xl mx-auto px-6 py-8">
-      <h2 className="text-3xl font-bold mb-8 text-white">League Standings</h2>
+      <h2 className="label-glow text-3xl font-bold mb-8 text-white text-center tracking-wide">LEAGUE STANDINGS</h2>
 
       <div className="overflow-x-auto">
         <table className="w-full bg-neutral-900 rounded-lg border border-neutral-700">
