@@ -4,10 +4,10 @@ export const dynamic = "force-dynamic";
 
 function Slot({ team, seed, placeholder }: { team?: any; seed?: number; placeholder?: string }) {
   return (
-    <div className="bg-neutral-900 border border-neutral-600 rounded px-2 py-1.5 flex items-center gap-2 w-44 h-9">
-      {seed && <span className="text-neutral-500 text-xs w-4">{seed}</span>}
-      {team?.logo && <img src={team.logo} alt="" className="h-4 w-4 object-contain" />}
-      <span className="text-white text-xs font-medium truncate flex-1">
+    <div className="bg-neutral-900 border border-neutral-600 rounded px-2 py-1.5 flex items-center gap-2 w-40 h-8">
+      {seed && <span className="text-neutral-500 text-xs w-4 shrink-0">{seed}</span>}
+      {team?.logo && <img src={team.logo} alt="" className="h-4 w-4 object-contain shrink-0" />}
+      <span className="text-white text-xs font-medium truncate">
         {team?.name || placeholder || "TBD"}
       </span>
     </div>
@@ -59,99 +59,95 @@ export default async function PlayoffPicturePage() {
       )}
 
       <div className="overflow-x-auto pb-4">
-        <div className="flex items-stretch gap-0 min-w-max justify-center">
-          {/* Round 1 - only seeds 9-16 */}
-          <div className="flex flex-col justify-around py-4 gap-2">
-            <div className="text-xs text-neutral-500 text-center mb-1">Round 1</div>
-            <div className="space-y-0.5"><Slot team={s[8]} seed={9} /><Slot team={s[15]} seed={16} /></div>
-            <div className="h-8" />
-            <div className="space-y-0.5"><Slot team={s[9]} seed={10} /><Slot team={s[14]} seed={15} /></div>
-            <div className="h-8" />
-            <div className="space-y-0.5"><Slot team={s[10]} seed={11} /><Slot team={s[13]} seed={14} /></div>
-            <div className="h-8" />
-            <div className="space-y-0.5"><Slot team={s[11]} seed={12} /><Slot team={s[12]} seed={13} /></div>
+        <div className="flex gap-1 min-w-max justify-center items-start">
+          {/* ROUND 1 - seeds 9-16 only */}
+          <div className="flex flex-col">
+            <div className="text-xs text-neutral-500 text-center h-6">Round 1</div>
+            <div className="flex flex-col gap-6 mt-2">
+              <div className="space-y-0.5"><Slot team={s[8]} seed={9} /><Slot team={s[15]} seed={16} /></div>
+              <div className="h-16" />
+              <div className="space-y-0.5"><Slot team={s[9]} seed={10} /><Slot team={s[14]} seed={15} /></div>
+              <div className="h-16" />
+              <div className="space-y-0.5"><Slot team={s[10]} seed={11} /><Slot team={s[13]} seed={14} /></div>
+              <div className="h-16" />
+              <div className="space-y-0.5"><Slot team={s[11]} seed={12} /><Slot team={s[12]} seed={13} /></div>
+            </div>
           </div>
 
-          {/* Lines R1 to QF */}
-          <svg width="32" className="text-neutral-600 self-stretch" style={{ height: "auto" }}>
-            <line x1="0" y1="80" x2="32" y2="80" stroke="currentColor" strokeWidth="1" />
-            <line x1="0" y1="200" x2="32" y2="200" stroke="currentColor" strokeWidth="1" />
-            <line x1="32" y1="80" x2="32" y2="200" stroke="currentColor" strokeWidth="1" />
-            <line x1="0" y1="320" x2="32" y2="320" stroke="currentColor" strokeWidth="1" />
-            <line x1="0" y1="440" x2="32" y2="440" stroke="currentColor" strokeWidth="1" />
-            <line x1="32" y1="320" x2="32" y2="440" stroke="currentColor" strokeWidth="1" />
-          </svg>
-
-          {/* Quarterfinals - seeds 5-8 enter */}
-          <div className="flex flex-col justify-around py-4">
-            <div className="text-xs text-neutral-500 text-center mb-1">Quarterfinals</div>
-            <Slot team={s[4]} seed={5} />
-            <Slot placeholder="Winner" />
-            <div className="h-4" />
-            <Slot team={s[5]} seed={6} />
-            <Slot placeholder="Winner" />
-            <div className="h-4" />
-            <Slot team={s[6]} seed={7} />
-            <Slot placeholder="Winner" />
-            <div className="h-4" />
-            <Slot team={s[7]} seed={8} />
-            <Slot placeholder="Winner" />
+          {/* Connector R1 → QF */}
+          <div className="flex flex-col justify-around pt-8" style={{ height: "520px" }}>
+            {[0,1,2,3].map(i => (
+              <div key={i} className="w-6 border-t border-r border-neutral-600 h-16" />
+            ))}
           </div>
 
-          {/* Lines QF to SF */}
-          <svg width="32" className="text-neutral-600 self-stretch">
-            <line x1="0" y1="100" x2="32" y2="100" stroke="currentColor" strokeWidth="1" />
-            <line x1="0" y1="220" x2="32" y2="220" stroke="currentColor" strokeWidth="1" />
-            <line x1="32" y1="100" x2="32" y2="220" stroke="currentColor" strokeWidth="1" />
-            <line x1="0" y1="340" x2="32" y2="340" stroke="currentColor" strokeWidth="1" />
-            <line x1="0" y1="460" x2="32" y2="460" stroke="currentColor" strokeWidth="1" />
-            <line x1="32" y1="340" x2="32" y2="460" stroke="currentColor" strokeWidth="1" />
-          </svg>
-
-          {/* Semifinals - seeds 1-4 enter */}
-          <div className="flex flex-col justify-around py-4">
-            <div className="text-xs text-neutral-500 text-center mb-1">Semifinals</div>
-            <Slot team={s[0]} seed={1} />
-            <Slot placeholder="Winner" />
-            <div className="h-12" />
-            <Slot team={s[1]} seed={2} />
-            <Slot placeholder="Winner" />
-            <div className="h-12" />
-            <Slot team={s[2]} seed={3} />
-            <Slot placeholder="Winner" />
-            <div className="h-12" />
-            <Slot team={s[3]} seed={4} />
-            <Slot placeholder="Winner" />
+          {/* QUARTERFINALS - seeds 5-8 enter */}
+          <div className="flex flex-col">
+            <div className="text-xs text-neutral-500 text-center h-6">Quarterfinals</div>
+            <div className="flex flex-col gap-4 mt-2">
+              <Slot team={s[4]} seed={5} />
+              <Slot placeholder="Winner" />
+              <div className="h-8" />
+              <Slot team={s[5]} seed={6} />
+              <Slot placeholder="Winner" />
+              <div className="h-8" />
+              <Slot team={s[6]} seed={7} />
+              <Slot placeholder="Winner" />
+              <div className="h-8" />
+              <Slot team={s[7]} seed={8} />
+              <Slot placeholder="Winner" />
+            </div>
           </div>
 
-          {/* Lines SF to Final */}
-          <svg width="32" className="text-neutral-600 self-stretch">
-            <line x1="0" y1="140" x2="32" y2="140" stroke="currentColor" strokeWidth="1" />
-            <line x1="0" y1="280" x2="32" y2="280" stroke="currentColor" strokeWidth="1" />
-            <line x1="32" y1="140" x2="32" y2="280" stroke="currentColor" strokeWidth="1" />
-            <line x1="0" y1="380" x2="32" y2="380" stroke="currentColor" strokeWidth="1" />
-            <line x1="0" y1="520" x2="32" y2="520" stroke="currentColor" strokeWidth="1" />
-            <line x1="32" y1="380" x2="32" y2="520" stroke="currentColor" strokeWidth="1" />
-          </svg>
-
-          {/* Finals */}
-          <div className="flex flex-col justify-around py-4">
-            <div className="text-xs text-neutral-500 text-center mb-1">Finals</div>
-            <Slot placeholder="Winner" />
-            <div className="h-16" />
-            <Slot placeholder="Winner" />
+          {/* Connector QF → SF */}
+          <div className="flex flex-col justify-around pt-8" style={{ height: "520px" }}>
+            {[0,1,2,3].map(i => (
+              <div key={i} className="w-6 border-t border-r border-neutral-600 h-20" />
+            ))}
           </div>
 
-          {/* Line to Champion */}
-          <svg width="32" className="text-neutral-600 self-stretch">
-            <line x1="0" y1="220" x2="32" y2="220" stroke="currentColor" strokeWidth="1" />
-            <line x1="0" y1="380" x2="32" y2="380" stroke="currentColor" strokeWidth="1" />
-            <line x1="32" y1="220" x2="32" y2="380" stroke="currentColor" strokeWidth="1" />
-          </svg>
+          {/* SEMIFINALS - seeds 1-4 enter */}
+          <div className="flex flex-col">
+            <div className="text-xs text-neutral-500 text-center h-6">Semifinals</div>
+            <div className="flex flex-col gap-6 mt-2">
+              <Slot team={s[0]} seed={1} />
+              <Slot placeholder="Winner" />
+              <div className="h-12" />
+              <Slot team={s[1]} seed={2} />
+              <Slot placeholder="Winner" />
+              <div className="h-12" />
+              <Slot team={s[2]} seed={3} />
+              <Slot placeholder="Winner" />
+              <div className="h-12" />
+              <Slot team={s[3]} seed={4} />
+              <Slot placeholder="Winner" />
+            </div>
+          </div>
 
-          {/* Champion */}
-          <div className="flex flex-col justify-center py-4">
-            <div className="bg-yellow-400 text-black font-bold text-sm px-4 py-3 rounded text-center">
+          {/* Connector SF → Finals */}
+          <div className="flex flex-col justify-around pt-8" style={{ height: "520px" }}>
+            {[0,1].map(i => (
+              <div key={i} className="w-6 border-t border-r border-neutral-600 h-28" />
+            ))}
+          </div>
+
+          {/* FINALS */}
+          <div className="flex flex-col">
+            <div className="text-xs text-neutral-500 text-center h-6">Finals</div>
+            <div className="flex flex-col justify-around mt-2" style={{ height: "400px" }}>
+              <Slot placeholder="Winner" />
+              <Slot placeholder="Winner" />
+            </div>
+          </div>
+
+          {/* Connector to Champion */}
+          <div className="flex flex-col justify-center pt-8" style={{ height: "520px" }}>
+            <div className="w-6 border-t border-r border-neutral-600 h-32" />
+          </div>
+
+          {/* CHAMPION */}
+          <div className="flex flex-col justify-center pt-6">
+            <div className="bg-yellow-400 text-black font-bold text-xs px-3 py-2 rounded text-center">
               CHAMPIONS
             </div>
           </div>
