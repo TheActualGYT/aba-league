@@ -43,7 +43,6 @@ export default async function PlayoffPicturePage() {
 
   const s = Array.from({ length: 16 }, (_, i) => sorted[i] || null);
 
-  // Standard 16 team bracket matchups: 1v16, 8v9, 5v12, 4v13, 6v11, 3v14, 7v10, 2v15
   const r1 = [
     [0, 15],
     [7, 8],
@@ -67,11 +66,11 @@ export default async function PlayoffPicturePage() {
       )}
 
       <div className="overflow-x-auto pb-4">
-        <div className="flex gap-4 min-w-max justify-center">
+        <div className="flex gap-6 min-w-max justify-center items-start">
           {/* Round of 16 */}
           <div>
-            <div className="text-xs text-neutral-500 text-center mb-2">Round of 16</div>
-            <div className="flex flex-col gap-3">
+            <div className="text-xs text-neutral-500 text-center mb-3">Round of 16</div>
+            <div className="flex flex-col gap-4">
               {r1.map(([a, b], i) => (
                 <div key={i} className="space-y-0.5">
                   <Slot team={s[a]} seed={a + 1} />
@@ -81,48 +80,63 @@ export default async function PlayoffPicturePage() {
             </div>
           </div>
 
-          {/* Quarterfinals */}
+          {/* Quarterfinals - centered between pairs */}
           <div>
-            <div className="text-xs text-neutral-500 text-center mb-2">Quarterfinals</div>
-            <div className="flex flex-col justify-around h-full gap-8 pt-4">
-              {[1, 2, 3, 4].map(i => (
-                <div key={i} className="space-y-0.5">
-                  <Slot placeholder="Winner" />
-                  <Slot placeholder="Winner" />
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Semifinals */}
-          <div>
-            <div className="text-xs text-neutral-500 text-center mb-2">Semifinals</div>
-            <div className="flex flex-col justify-around h-full gap-16 pt-8">
-              {[1, 2].map(i => (
-                <div key={i} className="space-y-0.5">
-                  <Slot placeholder="Winner" />
-                  <Slot placeholder="Winner" />
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Finals */}
-          <div>
-            <div className="text-xs text-neutral-500 text-center mb-2">Finals</div>
-            <div className="flex flex-col justify-center h-full">
-              <div className="space-y-0.5">
+            <div className="text-xs text-neutral-500 text-center mb-3">Quarterfinals</div>
+            <div className="flex flex-col">
+              {/* Each QF is centered between 2 R1 matchups */}
+              {/* R1 matchup is ~68px (2*32 + 4), gap is 16px, so pair is ~152px */}
+              {/* Center of pair is at ~76px, QF should start there */}
+              <div className="mt-8 space-y-0.5">
+                <Slot placeholder="Winner" />
+                <Slot placeholder="Winner" />
+              </div>
+              <div className="mt-12 space-y-0.5">
+                <Slot placeholder="Winner" />
+                <Slot placeholder="Winner" />
+              </div>
+              <div className="mt-12 space-y-0.5">
+                <Slot placeholder="Winner" />
+                <Slot placeholder="Winner" />
+              </div>
+              <div className="mt-12 space-y-0.5">
                 <Slot placeholder="Winner" />
                 <Slot placeholder="Winner" />
               </div>
             </div>
           </div>
 
+          {/* Semifinals */}
+          <div>
+            <div className="text-xs text-neutral-500 text-center mb-3">Semifinals</div>
+            <div className="flex flex-col">
+              <div className="mt-16 space-y-0.5">
+                <Slot placeholder="Winner" />
+                <Slot placeholder="Winner" />
+              </div>
+              <div className="mt-28 space-y-0.5">
+                <Slot placeholder="Winner" />
+                <Slot placeholder="Winner" />
+              </div>
+            </div>
+          </div>
+
+          {/* Finals */}
+          <div>
+            <div className="text-xs text-neutral-500 text-center mb-3">Finals</div>
+            <div className="mt-32 space-y-0.5">
+              <Slot placeholder="Winner" />
+              <Slot placeholder="Winner" />
+            </div>
+          </div>
+
           {/* Champion */}
-          <div className="flex flex-col justify-center">
-            <div className="text-xs text-neutral-500 text-center mb-2">Champion</div>
-            <div className="bg-yellow-400 text-black font-bold text-xs px-3 py-2 rounded text-center">
-              CHAMPIONS
+          <div>
+            <div className="text-xs text-neutral-500 text-center mb-3">Champion</div>
+            <div className="mt-36">
+              <div className="bg-yellow-400 text-black font-bold text-xs px-3 py-2 rounded text-center">
+                CHAMPIONS
+              </div>
             </div>
           </div>
         </div>
