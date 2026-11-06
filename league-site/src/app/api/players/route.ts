@@ -21,30 +21,33 @@ function overallError(raw: unknown) {
   return "";
 }
 
+function heightInches(raw: string) {
+  const match = /^(\d+)'(\d+)"$/.exec(String(raw || "").trim());
+  if (!match) return null;
+  return Number(match[1]) * 12 + Number(match[2]);
+}
+
 export async function POST(req: NextRequest) {
   const body = await req.json();
   const firstName = String(body.first_name || "").trim();
   const lastName = String(body.last_name || "").trim();
   const number = String(body.number || "").trim();
   const hand = body.hand;
-  const feet = Number(body.feet);
-  const inches = Number(body.inches);
+  const height = String(body.height || "").trim();
   const weight = Number(body.weight);
   const overallMessage = overallError(body.overall);
   const numberMessage = jerseyError(number);
+  const inches = heightInches(height);
 
   if (!firstName || !lastName) {
     return NextResponse.json({ error: "First and last name are required." }, { status: 400 });
   }
   if (overallMessage) return NextResponse.json({ error: overallMessage }, { status: 400 });
-  if (!Number.isInteger(feet) || feet < 4 || feet > 8) {
-    return NextResponse.json({ error: "Enter a height in feet and inches." }, { status: 400 });
+  if (inches == null || inches < 5 * 12 + 3 || inches > 7 * 12 + 7) {
+    return NextResponse.json({ error: "Height has to be between 5'3\" and 7'7\"." }, { status: 400 });
   }
-  if (!Number.isInteger(inches) || inches < 0 || inches > 11) {
-    return NextResponse.json({ error: "Inches have to be from 0 to 11." }, { status: 400 });
-  }
-  if (!Number.isInteger(weight) || weight < 100 || weight > 450) {
-    return NextResponse.json({ error: "Enter a weight in pounds." }, { status: 400 });
+  if (!Number.isInteger(weight) || weight < 150 || weight > 400) {
+    return NextResponse.json({ error: "Weight has to be between 150 and 400." }, { status: 400 });
   }
   if (numberMessage) return NextResponse.json({ error: numberMessage }, { status: 400 });
   if (hand !== "Left" && hand !== "Right") {
@@ -66,7 +69,7 @@ export async function POST(req: NextRequest) {
     first_name: firstName,
     last_name: lastName,
     overall: Number(body.overall),
-    height: `${feet}'${inches}"`,
+    height,
     weight,
     number,
     hand,
