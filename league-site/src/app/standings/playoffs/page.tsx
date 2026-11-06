@@ -66,18 +66,30 @@ export default async function PlayoffPicturePage() {
       )}
 
       <div className="overflow-x-auto pb-4">
-        <div className="flex gap-8 min-w-max justify-center">
+        <div className="flex gap-2 min-w-max justify-center">
           {/* Round of 16 */}
           <div>
             <div className="text-xs text-neutral-500 text-center mb-3">Round of 16</div>
             <div className="flex flex-col" style={{ gap: "12px" }}>
               {r1.map(([a, b], i) => (
-                <div key={i} className="space-y-0.5">
+                <div key={i} className="space-y-0.5 relative">
                   <Slot team={s[a]} seed={a + 1} />
                   <Slot team={s[b]} seed={b + 1} />
+                  <div className="absolute right-0 top-1/2 w-3 h-px bg-neutral-500" style={{ transform: "translateX(100%) translateY(-50%)" }} />
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* Connector R1 to QF */}
+          <div className="flex flex-col justify-around" style={{ width: "12px", marginTop: "50px" }}>
+            {[0,1,2,3].map(i => (
+              <div key={i} className="flex flex-col items-center" style={{ height: "156px" }}>
+                <div className="w-px bg-neutral-500 flex-1" />
+                <div className="w-3 h-px bg-neutral-500" />
+                <div className="w-px bg-neutral-500 flex-1" />
+              </div>
+            ))}
           </div>
 
           {/* Quarterfinals */}
@@ -85,12 +97,24 @@ export default async function PlayoffPicturePage() {
             <div className="text-xs text-neutral-500 text-center mb-3">Quarterfinals</div>
             <div className="flex flex-col" style={{ gap: "90px", marginTop: "50px" }}>
               {[0, 1, 2, 3].map(i => (
-                <div key={i} className="space-y-0.5">
+                <div key={i} className="space-y-0.5 relative">
                   <Slot placeholder="Winner" />
                   <Slot placeholder="Winner" />
+                  <div className="absolute right-0 top-1/2 w-3 h-px bg-neutral-500" style={{ transform: "translateX(100%) translateY(-50%)" }} />
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* Connector QF to SF */}
+          <div className="flex flex-col" style={{ width: "12px", marginTop: "130px", gap: "250px" }}>
+            {[0,1].map(i => (
+              <div key={i} className="flex flex-col items-center" style={{ height: "156px" }}>
+                <div className="w-px bg-neutral-500 flex-1" />
+                <div className="w-3 h-px bg-neutral-500" />
+                <div className="w-px bg-neutral-500 flex-1" />
+              </div>
+            ))}
           </div>
 
           {/* Semifinals */}
@@ -98,23 +122,39 @@ export default async function PlayoffPicturePage() {
             <div className="text-xs text-neutral-500 text-center mb-3">Semifinals</div>
             <div className="flex flex-col" style={{ gap: "250px", marginTop: "130px" }}>
               {[0, 1].map(i => (
-                <div key={i} className="space-y-0.5">
+                <div key={i} className="space-y-0.5 relative">
                   <Slot placeholder="Winner" />
                   <Slot placeholder="Winner" />
+                  <div className="absolute right-0 top-1/2 w-3 h-px bg-neutral-500" style={{ transform: "translateX(100%) translateY(-50%)" }} />
                 </div>
               ))}
+            </div>
+          </div>
+
+          {/* Connector SF to Finals */}
+          <div className="flex flex-col" style={{ width: "12px", marginTop: "290px" }}>
+            <div className="flex flex-col items-center" style={{ height: "156px" }}>
+              <div className="w-px bg-neutral-500 flex-1" />
+              <div className="w-3 h-px bg-neutral-500" />
+              <div className="w-px bg-neutral-500 flex-1" />
             </div>
           </div>
 
           {/* Finals */}
           <div>
             <div className="text-xs text-neutral-500 text-center mb-3">Finals</div>
-            <div style={{ marginTop: "290px" }}>
+            <div className="relative" style={{ marginTop: "290px" }}>
               <div className="space-y-0.5">
                 <Slot placeholder="Winner" />
                 <Slot placeholder="Winner" />
               </div>
+              <div className="absolute right-0 top-1/2 w-3 h-px bg-neutral-500" style={{ transform: "translateX(100%) translateY(-50%)" }} />
             </div>
+          </div>
+
+          {/* Connector to Champion */}
+          <div className="flex items-center" style={{ width: "12px", marginTop: "310px" }}>
+            <div className="w-full h-px bg-neutral-500" />
           </div>
 
           {/* Champion */}
