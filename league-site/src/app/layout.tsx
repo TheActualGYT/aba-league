@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import NavDropdown from "@/components/NavDropdown";
+import StatsDropdown from "@/components/StatsDropdown";
 import SeasonDropdown from "@/components/SeasonDropdown";
 import "./globals.css";
 
@@ -39,7 +40,7 @@ export default function RootLayout({
             </div>
             <div className="max-w-7xl mx-auto flex justify-end items-center gap-6 min-h-16">
               <NavDropdown />
-              <Link href="/leaders" className="hover:text-neutral-300">League Leaders</Link>
+              <StatsDropdown />
               <Link href="/teams" className="hover:text-neutral-300">Teams</Link>
               <Link href="/players" className="hover:text-neutral-300">Players</Link>
               <Link href="/games" className="hover:text-neutral-300">Games</Link>
