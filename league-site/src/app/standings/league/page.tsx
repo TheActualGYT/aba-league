@@ -32,9 +32,10 @@ function cellClass(index: number, edges: { top?: boolean; bottom?: boolean }) {
 
 function TeamRow({ team, top, bottom }: { team: any; top?: boolean; bottom?: boolean }) {
   const edges = { top, bottom };
+  const inPlayoffs = team.seed <= 16;
   return (
     <tr>
-      <td className={`${cellClass(0, edges)} ${team.seed <= 16 ? "label-glow text-white font-semibold" : ""}`}>{team.seed}</td>
+      <td className={`${cellClass(0, edges)} ${inPlayoffs ? "gold-glow font-semibold" : ""}`}>{team.seed}</td>
       <td className={`${cellClass(1, edges)} font-semibold text-white`}>
         <div className="flex items-center gap-2 min-w-0">
           {team.logo ? (
@@ -43,7 +44,8 @@ function TeamRow({ team, top, bottom }: { team: any; top?: boolean; bottom?: boo
             <div className="h-6 w-6 flex-shrink-0" />
           )}
           <span className="truncate">
-            {team.name}<sup className="text-neutral-500 text-[9px] ml-1">{team.overallRank}</sup>
+            <span className={inPlayoffs ? "label-glow" : ""}>{team.name}</span>
+            <sup className="text-neutral-500 text-[9px] ml-1">{team.overallRank}</sup>
           </span>
         </div>
       </td>
