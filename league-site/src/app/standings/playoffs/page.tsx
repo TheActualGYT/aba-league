@@ -2,12 +2,12 @@ import db from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
-function Slot({ team, seed }: { team?: any; seed: number }) {
+function Slot({ team, seed, placeholder }: { team?: any; seed?: number; placeholder?: string }) {
   return (
     <div className="bg-neutral-900 border border-neutral-600 rounded px-3 py-2 flex items-center gap-2 w-48">
-      <span className="text-neutral-500 text-xs w-4">{seed}</span>
+      {seed && <span className="text-neutral-500 text-xs w-4">{seed}</span>}
       {team?.logo && <img src={team.logo} alt="" className="h-5 w-5 object-contain" />}
-      <span className="text-white text-sm font-medium truncate">{team?.name || "TBD"}</span>
+      <span className="text-white text-sm font-medium truncate">{team?.name || placeholder || "TBD"}</span>
     </div>
   );
 }
@@ -57,34 +57,52 @@ export default async function PlayoffPicturePage() {
       )}
 
       <div className="flex justify-center">
-        <div>
-          <div className="text-xs text-neutral-500 text-center mb-3">Round 1</div>
-          <div className="flex flex-col gap-6">
-            {/* 10 vs 15 */}
-            <div className="space-y-0.5">
-              <Slot team={s[9]} seed={10} />
-              <Slot team={s[14]} seed={15} />
+        <div className="flex gap-0">
+          {/* Round 1 */}
+          <div>
+            <div className="text-xs text-neutral-500 text-center mb-3">Round 1</div>
+            <div className="flex flex-col gap-6">
+              {/* 10 vs 15 */}
+              <div className="space-y-0.5 relative">
+                <Slot team={s[9]} seed={10} />
+                <Slot team={s[14]} seed={15} />
+                {/* Line going right from middle */}
+                <div className="absolute right-0 top-1/2 w-8 h-px bg-neutral-600" style={{ transform: "translateX(100%) translateY(-50%)" }} />
+              </div>
+
+              {/* 13 vs 12 */}
+              <div className="space-y-0.5">
+                <Slot team={s[12]} seed={13} />
+                <Slot team={s[11]} seed={12} />
+              </div>
+
+              {/* Space gap */}
+              <div className="h-12" />
+
+              {/* 11 vs 14 */}
+              <div className="space-y-0.5">
+                <Slot team={s[10]} seed={11} />
+                <Slot team={s[13]} seed={14} />
+              </div>
+
+              {/* 9 vs 16 */}
+              <div className="space-y-0.5">
+                <Slot team={s[8]} seed={9} />
+                <Slot team={s[15]} seed={16} />
+              </div>
             </div>
+          </div>
 
-            {/* 13 vs 12 */}
-            <div className="space-y-0.5">
-              <Slot team={s[12]} seed={13} />
-              <Slot team={s[11]} seed={12} />
-            </div>
+          {/* Connector space */}
+          <div className="w-8" />
 
-            {/* Space gap */}
-            <div className="h-12" />
-
-            {/* 11 vs 14 */}
-            <div className="space-y-0.5">
-              <Slot team={s[10]} seed={11} />
-              <Slot team={s[13]} seed={14} />
-            </div>
-
-            {/* 9 vs 16 */}
-            <div className="space-y-0.5">
-              <Slot team={s[8]} seed={9} />
-              <Slot team={s[15]} seed={16} />
+          {/* Quarterfinals - 7 seed vs Winner of 10/15 */}
+          <div>
+            <div className="text-xs text-neutral-500 text-center mb-3">Quarterfinals</div>
+            <div className="mt-0">
+              <Slot team={s[6]} seed={7} />
+              <div className="h-0.5" />
+              <Slot placeholder="Winner" />
             </div>
           </div>
         </div>
