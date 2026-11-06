@@ -4,13 +4,13 @@ import db from "@/lib/db";
 function jerseyError(raw: string) {
   const value = String(raw || "").trim();
   if (!value) return "Jersey number is required.";
-  if (!/^\d+$/.test(value) || value.length > 2 || Number(value) > 55) {
-    return "Jersey numbers cap at 55.";
-  }
-  if ([...value].some(digit => Number(digit) > 5) || !/^(?:[0-5]|00|[1-5][0-5])$/.test(value)) {
-    return "Each digit has to be 0\u20135. 17 isn't allowed.";
-  }
-  return "";
+  const digits = /^\d+$/.test(value);
+  const overCap = !digits || value.length > 2 || Number(value) > 55;
+  const badDigit = digits && [...value].some(digit => Number(digit) > 5);
+  const illegal = !/^(?:[0-5]|00|[1-5][0-5])$/.test(value);
+  if (!overCap && !badDigit && !illegal) return "";
+  if (overCap && !badDigit) return `Jersey numbers cap at 55. ${value} isn't allowed.`;
+  return `Each digit has to be 0\u20135. ${value} isn't allowed.`;
 }
 
 function overallError(raw: unknown) {
@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
   }
 
   const data = await db.load();
-  if (!data.players) data.players = [];
+  if (!data.players) data.players = [] as typeof data.players;
   if (data.nextIds.player == null) {
     data.nextIds.player = data.players.reduce((max, player) => Math.max(max, player.id), 0) + 1;
   }
