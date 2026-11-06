@@ -77,8 +77,7 @@ export default function PlayerForm({ teams }: { teams: { id: number; name: strin
         setMessage(`Error: ${json.error || "unknown"}`);
         return;
       }
-      setMessage("Created! Reloading...");
-      setTimeout(() => window.location.reload(), 600);
+      window.location.href = "/players";
     } catch (err: any) {
       setMessage("Network error: " + err.message);
     }
@@ -86,7 +85,6 @@ export default function PlayerForm({ teams }: { teams: { id: number; name: strin
 
   return (
     <form onSubmit={handleSubmit} className="bg-neutral-900 border border-neutral-700 rounded-lg p-5">
-      <h3 className="text-sm font-bold tracking-widest text-neutral-300 mb-4">CREATE PLAYER</h3>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
           <label className={labelClass}>Player Name</label>
@@ -112,7 +110,7 @@ export default function PlayerForm({ teams }: { teams: { id: number; name: strin
           />
         </div>
       </div>
-      <div className="mt-4 flex items-center justify-end gap-4">
+      <div className="mt-6 flex items-center justify-end gap-4">
         {message && <p className="text-sm text-amber-300 mr-auto">{message}</p>}
         <button type="submit" className="bg-neutral-200 text-black font-bold px-5 py-2 rounded hover:bg-white">
           Create Player
