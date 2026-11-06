@@ -8,28 +8,29 @@ export default async function PlayoffPicturePage() {
   const teams = data.teams || [];
 
   return (
-    <main className="px-6 pt-6">
-      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-6 mb-6">
-        <div />
-        <div className="text-center">
-          <h2 className="text-3xl font-bold mb-2 text-white">PLAYOFF BRACKET</h2>
-          <p className="text-neutral-400 text-sm">
-            Seeds 1–4 get 2 byes · Seeds 5–8 get 1 bye · Seeds 9–16 play in Round 1
-          </p>
+    <main className="flex flex-col h-[calc(100vh-5.125rem)]">
+      <div className="shrink-0 px-6 pt-6 pb-5" style={{ background: "#111111" }}>
+        <div className="max-w-7xl mx-auto relative">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold mb-2 text-white">PLAYOFF BRACKET</h2>
+            <p className="text-neutral-400 text-sm">
+              Seeds 1–4 get 2 byes · Seeds 5–8 get 1 bye · Seeds 9–16 play in Round 1
+            </p>
+          </div>
+          <div className="champ-box absolute right-0 top-1/2 -translate-y-1/2">
+            <div className="champ-box-label">CHAMPION:</div>
+            <div className="champ-box-name">TBD</div>
+          </div>
         </div>
-        <div className="champ-box justify-self-start">
-          <div className="champ-box-label">CHAMPION:</div>
-          <div className="champ-box-name">TBD</div>
-        </div>
+
+        {teams.length < 16 && (
+          <div className="max-w-7xl mx-auto bg-neutral-900 border border-neutral-700 rounded-lg p-3 mt-5 text-center text-neutral-400 text-sm">
+            Showing current top {teams.length} of 16 playoff spots
+          </div>
+        )}
       </div>
 
-      {teams.length < 16 && (
-        <div className="bg-neutral-900 border border-neutral-700 rounded-lg p-3 mb-6 text-center text-neutral-400 text-sm">
-          Showing current top {teams.length} of 16 playoff spots
-        </div>
-      )}
-
-      <div className="overflow-auto no-scrollbar h-[calc(100vh-11rem)] -mx-6">
+      <div className="flex-1 min-h-0 overflow-auto">
         <BracketView teams={teams} />
       </div>
     </main>
