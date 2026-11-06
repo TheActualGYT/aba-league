@@ -36,7 +36,7 @@ export const STAT_COLS: StandingsCol[] = [
 export const STANDINGS_COLS: StandingsCol[] = [...NAME_COLS, ...STAT_COLS];
 
 export function splitClass(col: { split?: boolean }) {
-  return col.split ? "shadow-[inset_2px_0_0_#c4c4c4]" : "";
+  return col.split ? "col-split" : "";
 }
 
 export function formatWinPct(winPct: number) {
