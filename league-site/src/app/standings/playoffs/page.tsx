@@ -8,7 +8,7 @@ export default async function PlayoffPicturePage() {
   const teams = data.teams || [];
 
   return (
-    <main className="max-w-[1200px] mx-auto px-6 py-8">
+    <main className="max-w-[1400px] mx-auto px-6 py-8">
       <h2 className="text-3xl font-bold mb-2 text-white text-center">Playoff Picture</h2>
       <p className="text-neutral-400 text-center mb-8 text-sm">
         Seeds 1–4 get 2 byes · Seeds 5–8 get 1 bye · Seeds 9–16 play in Round 1
