@@ -73,15 +73,15 @@ export default function BracketView({ teams }: { teams: any[] }) {
 
   const y2 = 10;
   const y7 = 100;
-  const y1015 = 175;
-  const y1312 = 255;
+  const y1015 = 190;
+  const y1312 = 270;
   const y6 = 360;
   const y3 = 450;
 
   const y4 = 570;
   const y5 = 660;
-  const y1114 = 735;
-  const y916 = 815;
+  const y1114 = 750;
+  const y916 = 830;
   const y8 = 920;
   const y1 = 1010;
 
