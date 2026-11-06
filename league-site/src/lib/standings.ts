@@ -7,26 +7,37 @@ export type Game = {
   away_score: number;
 };
 
-export const NAME_COLS = [
+export type StandingsCol = {
+  label: string;
+  width?: string;
+  align: string;
+  split?: boolean;
+};
+
+export const NAME_COLS: StandingsCol[] = [
   { label: "Rank", width: "56px", align: "text-left" },
   { label: "Team Name", width: undefined, align: "text-left" },
 ];
 
-export const STAT_COLS = [
+export const STAT_COLS: StandingsCol[] = [
   { label: "W", width: "48px", align: "text-center" },
   { label: "L", width: "48px", align: "text-center" },
   { label: "W%", width: "64px", align: "text-center" },
   { label: "GB", width: "56px", align: "text-center" },
   { label: "STRK", width: "64px", align: "text-center" },
-  { label: "HOME", width: "72px", align: "text-center" },
+  { label: "HOME", width: "72px", align: "text-center", split: true },
   { label: "AWAY", width: "72px", align: "text-center" },
-  { label: "PPG", width: "64px", align: "text-center" },
+  { label: "PPG", width: "64px", align: "text-center", split: true },
   { label: "OPP PPG", width: "88px", align: "text-center" },
   { label: "DIFF", width: "64px", align: "text-center" },
-  { label: "GPA", width: "56px", align: "text-center" },
+  { label: "GPA", width: "56px", align: "text-center", split: true },
 ];
 
-export const STANDINGS_COLS = [...NAME_COLS, ...STAT_COLS];
+export const STANDINGS_COLS: StandingsCol[] = [...NAME_COLS, ...STAT_COLS];
+
+export function splitClass(col: { split?: boolean }) {
+  return col.split ? "shadow-[inset_2px_0_0_#c4c4c4]" : "";
+}
 
 export function formatWinPct(winPct: number) {
   return winPct.toFixed(3).replace(/^0/, "");
