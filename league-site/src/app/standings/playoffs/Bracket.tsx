@@ -64,6 +64,7 @@ export default function BracketView({ teams }: { teams: any[] }) {
   const xQ = 320;
   const xS = 632;
   const xF = 944;
+  const xC = 1256;
 
   const y2 = 10;
   const y7 = 100;
@@ -122,12 +123,13 @@ export default function BracketView({ teams }: { teams: any[] }) {
 
   const topFinalY = (mid(y2) + mid(y3)) / 2 - H / 2;
   const botFinalY = (mid(y4) + mid(y1)) / 2 - H / 2;
-  const champY = (mid(topFinalY) + mid(botFinalY)) / 2;
+  const champY = (mid(topFinalY) + mid(botFinalY)) / 2 - H / 2;
   const joinF = xF - 24;
-  const champX = xF + W + 36;
+  const joinC = xC - 28;
+  const width = xC + W + 24;
 
   return (
-    <svg viewBox={`0 0 ${champX + 120} ${y1 + H + 24}`} width={champX + 120} height={y1 + H + 24} className="block">
+    <svg viewBox={`0 0 ${width} ${y1 + H + 24}`} width={width} height={y1 + H + 24} className="block">
       {box(x1, y1015, 1, 10, s[9], 15, s[14], "m1")}
       {box(x1, y1312, 2, 13, s[12], 12, s[11], "m2")}
       {box(x1, y1114, 3, 11, s[10], 14, s[13], "m3")}
@@ -145,6 +147,7 @@ export default function BracketView({ teams }: { teams: any[] }) {
 
       {box(xF, topFinalY, 13, undefined, ofMatch(9), undefined, ofMatch(10), "m13")}
       {box(xF, botFinalY, 14, undefined, ofMatch(11), undefined, ofMatch(12), "m14")}
+      {box(xC, champY, 15, undefined, ofMatch(13), undefined, ofMatch(14), "m15")}
 
       {link(x1 + W, mid(y1015), xQ - 28, mid(y7), xQ)}
       {link(x1 + W, mid(y1312), xQ - 28, mid(y6), xQ)}
@@ -161,22 +164,8 @@ export default function BracketView({ teams }: { teams: any[] }) {
       {link(xS + W, mid(y4), joinF, mid(botFinalY), xF)}
       {link(xS + W, mid(y1), joinF, mid(botFinalY), xF)}
 
-      <line x1={xF + W} y1={mid(topFinalY)} x2={champX - 16} y2={mid(topFinalY)} stroke={LINE} strokeWidth={1.5} />
-      <line x1={xF + W} y1={mid(botFinalY)} x2={champX - 16} y2={mid(botFinalY)} stroke={LINE} strokeWidth={1.5} />
-      <line x1={champX - 16} y1={mid(topFinalY)} x2={champX - 16} y2={mid(botFinalY)} stroke={LINE} strokeWidth={1.5} />
-      <line x1={champX - 16} y1={champY} x2={champX} y2={champY} stroke={LINE} strokeWidth={1.5} />
-      <rect x={champX} y={champY - 16} width={108} height={32} rx={2} fill="#facc15" />
-      <text
-        x={champX + 54}
-        y={champY + 5}
-        textAnchor="middle"
-        fontSize={12}
-        fontWeight={700}
-        fill="#111"
-        fontFamily="Inter, system-ui, sans-serif"
-      >
-        CHAMPIONS
-      </text>
+      {link(xF + W, mid(topFinalY), joinC, mid(champY), xC)}
+      {link(xF + W, mid(botFinalY), joinC, mid(champY), xC)}
     </svg>
   );
 }
