@@ -1,5 +1,5 @@
 import db from "@/lib/db";
-import { STANDINGS_COLS, buildTeamRecord, gamesBehind, statValues, type Game } from "@/lib/standings";
+import { STANDINGS_COLS, buildTeamRecord, gamesBehind, splitClass, statValues, type Game } from "@/lib/standings";
 
 export const dynamic = "force-dynamic";
 
@@ -40,7 +40,7 @@ function TeamRow({ team, top, bottom }: { team: any; top?: boolean; bottom?: boo
         </div>
       </td>
       {values.map((value, i) => (
-        <td key={STANDINGS_COLS[i + 2].label} className={`${cellClass(i + 2, edges)} text-center`}>
+        <td key={STANDINGS_COLS[i + 2].label} className={`${cellClass(i + 2, edges)} text-center ${splitClass(STANDINGS_COLS[i + 2])}`}>
           {value}
         </td>
       ))}
@@ -104,7 +104,7 @@ export default async function LeagueStandingsPage() {
               {STANDINGS_COLS.map((col, index) => (
                 <th
                   key={col.label}
-                  className={`sticky top-[81px] z-30 px-2 py-3 bg-neutral-800 text-neutral-300 text-xs font-semibold whitespace-nowrap border-y border-neutral-700 ${col.align} ${
+                  className={`sticky top-[81px] z-30 px-2 py-3 bg-neutral-800 text-neutral-300 text-xs font-semibold whitespace-nowrap border-y border-neutral-700 ${col.align} ${splitClass(col)} ${
                     index === 0 ? "border-l rounded-tl-lg" : ""
                   } ${index === STANDINGS_COLS.length - 1 ? "border-r rounded-tr-lg" : ""}`}
                 >
