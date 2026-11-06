@@ -2,7 +2,15 @@
 
 import { useState, useRef } from "react";
 
-export default function EditTeamButton({ team }: { team: any }) {
+const OWNERS = ["Garrett Jahnke", "Craig Jahnke", "Chad Jahnke"];
+
+export default function EditTeamButton({
+  team,
+  teams = [],
+}: {
+  team: any;
+  teams?: { id: number; name: string; abbreviation: string; ownership?: string }[];
+}) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState(team.name);
   const [abbr, setAbbr] = useState(team.abbreviation);
@@ -19,6 +27,11 @@ export default function EditTeamButton({ team }: { team: any }) {
   const [magnifier, setMagnifier] = useState<{ x: number; y: number; color: string } | null>(null);
   const logoRef = useRef<HTMLImageElement>(null);
 
+  const owners = OWNERS.includes(ownership) || !ownership ? OWNERS : [ownership, ...OWNERS];
+  const taken = abbr.trim()
+    ? teams.find(t => t.id !== team.id && t.abbreviation?.toUpperCase() === abbr.trim().toUpperCase())
+    : undefined;
+
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -28,6 +41,10 @@ export default function EditTeamButton({ team }: { team: any }) {
   };
 
   const save = async () => {
+    if (taken) {
+      setMessage(`Already taken by "${taken.name}"`);
+      return;
+    }
     setMessage("Saving...");
     try {
       const res = await fetch("/api/teams", {
@@ -45,8 +62,9 @@ export default function EditTeamButton({ team }: { team: any }) {
           colors,
         }),
       });
+      const json = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setMessage("Failed to save");
+        setMessage(json.error || "Failed to save");
         return;
       }
       setMessage("Saved!");
@@ -136,7 +154,8 @@ export default function EditTeamButton({ team }: { team: any }) {
               </div>
               <div>
                 <label className="block text-sm text-neutral-300 mb-1">Abbreviation</label>
-                <input value={abbr} onChange={e => setAbbr(e.target.value.toUpperCase())} maxLength={4} className="w-full px-3 py-2 bg-neutral-800 border border-neutral-600 rounded text-white" />
+                <input value={abbr} onChange={e => setAbbr(e.target.value.toUpperCase())} maxLength={4} className={`w-full px-3 py-2 bg-neutral-800 border border-neutral-600 rounded text-white ${taken ? "abbr-taken" : ""}`} />
+                {taken && <p className="text-xs text-red-400 mt-1">Already taken by "{taken.name}"</p>}
               </div>
               <div>
                 <label className="block text-sm text-neutral-300 mb-1">City and State</label>
@@ -144,7 +163,12 @@ export default function EditTeamButton({ team }: { team: any }) {
               </div>
               <div>
                 <label className="block text-sm text-neutral-300 mb-1">Ownership</label>
-                <input value={ownership} onChange={e => setOwnership(e.target.value)} className="w-full px-3 py-2 bg-neutral-800 border border-neutral-600 rounded text-white" />
+                <select value={ownership} onChange={e => setOwnership(e.target.value)} className="w-full px-3 py-2 bg-neutral-800 border border-neutral-600 rounded text-white">
+                  <option value="">Select owner</option>
+                  {owners.map(owner => (
+                    <option key={owner} value={owner}>{owner}</option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-sm text-neutral-300 mb-1">Head Coach</label>
@@ -209,7 +233,7 @@ export default function EditTeamButton({ team }: { team: any }) {
             </div>
             <div className="flex justify-end gap-2 mt-5">
               <button type="button" onClick={() => setOpen(false)} className="px-4 py-2 text-neutral-300 hover:text-white">Cancel</button>
-              <button type="button" onClick={save} className="bg-neutral-200 text-black font-bold px-4 py-2 rounded">Save</button>
+              <button type="button" onClick={save} disabled={!!taken} className={`bg-neutral-200 text-black font-bold px-4 py-2 rounded ${taken ? "opacity-40 cursor-not-allowed" : ""}`}>Save</button>
             </div>
             {message && <p className="text-sm text-amber-300 mt-2">{message}</p>}
 
