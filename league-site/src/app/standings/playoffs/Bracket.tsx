@@ -187,7 +187,16 @@ export default function BracketView({ teams }: { teams: any[] }) {
 
   const bye = (xEnd: number, y: number, seed: number, id: string) => (
     <g key={id}>
-      <line x1={x1} y1={y} x2={xEnd} y2={y} stroke={LINE} strokeWidth={STROKE} />
+      <line
+        x1={x1}
+        y1={y}
+        x2={xEnd}
+        y2={y}
+        stroke={LINE}
+        strokeWidth={STROKE}
+        strokeLinecap="round"
+        strokeDasharray="1.5 6"
+      />
       <rect x={x1 + 8} y={y - 9} width={108} height={18} rx={2} fill="#0a0a0a" />
       <text
         x={x1 + 12}
