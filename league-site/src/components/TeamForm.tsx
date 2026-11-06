@@ -61,6 +61,48 @@ const fieldClass = "w-full px-3 py-2 bg-neutral-800 border border-neutral-600 ro
 const labelClass = "block text-xs font-semibold tracking-wide text-neutral-400 mb-1.5";
 const OWNERS = ["Garrett Jahnke", "Craig Jahnke", "Chad Jahnke"];
 
+function OwnerMenu({ value, onChange }: { value: string; onChange: (value: string) => void }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen(current => !current)}
+        className={`${fieldClass} text-left flex items-center justify-between min-h-[42px]`}
+      >
+        <span>{value}</span>
+        <span className="text-neutral-400 text-[10px]">▼</span>
+      </button>
+      {open && (
+        <div className="absolute z-30 mt-1 w-full bg-neutral-800 border border-neutral-600 rounded overflow-hidden shadow-lg">
+          {OWNERS.map(owner => (
+            <button
+              key={owner}
+              type="button"
+              onClick={() => {
+                onChange(owner);
+                setOpen(false);
+              }}
+              className={`block w-full text-left px-3 py-2 text-sm text-white hover:bg-neutral-700 ${value === owner ? "bg-neutral-700" : ""}`}
+            >
+              {owner}
+            </button>
+          ))}
+        </div>
+      )}
+      <input
+        required
+        value={value}
+        onChange={() => {}}
+        className="absolute h-px w-px opacity-0 pointer-events-none"
+        tabIndex={-1}
+        aria-hidden
+      />
+    </div>
+  );
+}
+
 export default function TeamForm({ teams = [] }: { teams?: { name: string; abbreviation: string }[] }) {
   const [name, setName] = useState("");
   const [abbr, setAbbr] = useState("");
@@ -98,6 +140,10 @@ export default function TeamForm({ teams = [] }: { teams?: { name: string; abbre
     e.preventDefault();
     if (taken) {
       setMessage(`Already taken by "${taken.name}"`);
+      return;
+    }
+    if (!ownership) {
+      setMessage("Select an owner");
       return;
     }
     setMessage("Creating...");
@@ -209,17 +255,12 @@ export default function TeamForm({ teams = [] }: { teams?: { name: string; abbre
           {taken && <p className="text-xs text-red-400 mt-1">Already taken by "{taken.name}"</p>}
         </div>
         <div className="lg:col-span-2">
-          <label className={labelClass}>City and State</label>
+          <label className={labelClass}>Location (City, State)</label>
           <input value={location} onChange={e => setLocation(e.target.value)} className={fieldClass} required />
         </div>
         <div className="lg:col-span-2">
           <label className={labelClass}>Ownership</label>
-          <select value={ownership} onChange={e => setOwnership(e.target.value)} className={fieldClass} required>
-            <option value="">Select owner</option>
-            {OWNERS.map(owner => (
-              <option key={owner} value={owner}>{owner}</option>
-            ))}
-          </select>
+          <OwnerMenu value={ownership} onChange={setOwnership} />
         </div>
         <div className="lg:col-span-2">
           <label className={labelClass}>Head Coach</label>
