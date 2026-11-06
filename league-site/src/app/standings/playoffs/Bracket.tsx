@@ -68,7 +68,8 @@ export default function BracketView({ teams }: { teams: any[] }) {
   const xQ = 320;
   const xS = 632;
   const xF = 944;
-  const xC = 1256;
+  const xC = 1460;
+  const champScale = 1.5;
 
   const y2 = 10;
   const y7 = 100;
@@ -151,16 +152,16 @@ export default function BracketView({ teams }: { teams: any[] }) {
   const topFinalY = (mid(y2) + mid(y3)) / 2 - H / 2;
   const botFinalY = (mid(y4) + mid(y1)) / 2 - H / 2;
   const champCenter = (mid(topFinalY) + mid(botFinalY)) / 2;
-  const champY = champCenter - H;
+  const champY = champCenter - (H * champScale) / 2;
   const joinF = xF - 24;
-  const joinC = xC - 28;
-  const width = xC + W * 2 + 24;
+  const joinC = xC - 36;
+  const width = xC + W * champScale + 24;
 
   return (
     <svg viewBox={`0 0 ${width} ${y1 + H + 24}`} width={width} height={y1 + H + 24} className="block">
       <defs>
         <filter id="gold-aura" x="-60%" y="-80%" width="220%" height="260%">
-          <feGaussianBlur stdDeviation="8" result="blur" />
+          <feGaussianBlur stdDeviation="7" result="blur" />
           <feMerge>
             <feMergeNode in="blur" />
             <feMergeNode in="SourceGraphic" />
@@ -187,7 +188,7 @@ export default function BracketView({ teams }: { teams: any[] }) {
       {box(xF, botFinalY, 14, undefined, ofMatch(11), undefined, ofMatch(12), "m14")}
 
       <text
-        x={xC + W}
+        x={xC + (W * champScale) / 2}
         y={champY - 14}
         textAnchor="middle"
         fontSize={16}
@@ -197,7 +198,7 @@ export default function BracketView({ teams }: { teams: any[] }) {
       >
         Championship Game
       </text>
-      {box(xC, champY, 15, undefined, ofMatch(13), undefined, ofMatch(14), "m15", true, 2)}
+      {box(xC, champY, 15, undefined, ofMatch(13), undefined, ofMatch(14), "m15", true, champScale)}
 
       {link(x1 + W, mid(y1015), xQ - 28, mid(y7), xQ)}
       {link(x1 + W, mid(y1312), xQ - 28, mid(y6), xQ)}
