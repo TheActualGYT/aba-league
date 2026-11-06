@@ -20,8 +20,10 @@ export default async function PlayoffPicturePage() {
         </div>
       )}
 
-      <div className="overflow-auto h-[calc(100vh-11rem)]">
-        <BracketView teams={teams} />
+      <div className="overflow-auto h-[calc(100vh-11rem)] flex">
+        <div className="m-auto">
+          <BracketView teams={teams} />
+        </div>
       </div>
     </main>
   );
