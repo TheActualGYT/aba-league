@@ -86,6 +86,7 @@ export default function BracketView({ teams }: { teams: any[] }) {
   const y1 = 1010;
 
   const mid = (y: number) => y + H / 2;
+  const between = (a: number, b: number) => (a + b) / 2;
 
   const box = (
     x: number,
@@ -153,7 +154,9 @@ export default function BracketView({ teams }: { teams: any[] }) {
   const botFinalY = (mid(y4) + mid(y1)) / 2 - H / 2;
   const champCenter = (mid(topFinalY) + mid(botFinalY)) / 2;
   const champY = champCenter - (H * champScale) / 2;
-  const joinF = xF - 24;
+  const jQ = between(x1 + W, xQ);
+  const jS = between(xQ + W, xS);
+  const jF = between(xS + W, xF);
   const joinC = xF + W + 36;
   const xC = joinC + 170;
   const layoutW = xC + W * champScale + 24;
@@ -245,20 +248,20 @@ export default function BracketView({ teams }: { teams: any[] }) {
         </text>
         {box(xC, champY, 15, undefined, ofMatch(13), undefined, ofMatch(14), "m15", true, champScale)}
 
-        {link(x1 + W, mid(y1015), xQ - 28, mid(y7), xQ)}
-        {link(x1 + W, mid(y1312), xQ - 28, mid(y6), xQ)}
-        {link(x1 + W, mid(y1114), xQ - 28, mid(y5), xQ)}
-        {link(x1 + W, mid(y916), xQ - 28, mid(y8), xQ)}
+        {link(x1 + W, mid(y1015), jQ, mid(y7), xQ)}
+        {link(x1 + W, mid(y1312), jQ, mid(y6), xQ)}
+        {link(x1 + W, mid(y1114), jQ, mid(y5), xQ)}
+        {link(x1 + W, mid(y916), jQ, mid(y8), xQ)}
 
-        {link(xQ + W, mid(y7), xS - 28, mid(y2), xS)}
-        {link(xQ + W, mid(y6), xS - 28, mid(y3), xS)}
-        {link(xQ + W, mid(y5), xS - 28, mid(y4), xS)}
-        {link(xQ + W, mid(y8), xS - 28, mid(y1), xS)}
+        {link(xQ + W, mid(y7), jS, mid(y2), xS)}
+        {link(xQ + W, mid(y6), jS, mid(y3), xS)}
+        {link(xQ + W, mid(y5), jS, mid(y4), xS)}
+        {link(xQ + W, mid(y8), jS, mid(y1), xS)}
 
-        {link(xS + W, mid(y2), joinF, mid(topFinalY), xF)}
-        {link(xS + W, mid(y3), joinF, mid(topFinalY), xF)}
-        {link(xS + W, mid(y4), joinF, mid(botFinalY), xF)}
-        {link(xS + W, mid(y1), joinF, mid(botFinalY), xF)}
+        {link(xS + W, mid(y2), jF, mid(topFinalY), xF)}
+        {link(xS + W, mid(y3), jF, mid(topFinalY), xF)}
+        {link(xS + W, mid(y4), jF, mid(botFinalY), xF)}
+        {link(xS + W, mid(y1), jF, mid(botFinalY), xF)}
 
         {link(xF + W, mid(topFinalY), joinC, champCenter, xC)}
         {link(xF + W, mid(botFinalY), joinC, champCenter, xC)}
