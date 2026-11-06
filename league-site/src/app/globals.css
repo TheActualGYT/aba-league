@@ -81,7 +81,8 @@ body {
   animation: label-pulse 4.2s ease-in-out infinite;
 }
 
-.gold-glow {
+.gold-glow,
+.gold-glow span {
   color: #facc15;
   animation: gold-text-pulse 2.8s ease-in-out infinite;
 }
