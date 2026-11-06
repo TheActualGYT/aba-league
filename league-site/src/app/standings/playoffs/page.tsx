@@ -2,12 +2,22 @@ import db from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
-function Slot({ team, seed, placeholder }: { team?: any; seed?: number; placeholder?: string }) {
+function Team({ team, seed, placeholder }: { team?: any; seed?: number; placeholder?: string }) {
   return (
-    <div className="bg-neutral-900 border border-neutral-600 rounded px-2 py-1.5 flex items-center gap-2 w-44 h-8">
+    <div className="flex items-center gap-2 px-2 h-7">
       {seed && <span className="text-neutral-500 text-xs w-4">{seed}</span>}
       {team?.logo && <img src={team.logo} alt="" className="h-4 w-4 object-contain" />}
       <span className="text-white text-xs font-medium truncate">{team?.name || placeholder || "TBD"}</span>
+    </div>
+  );
+}
+
+function Matchup({ top, bottom, topSeed, bottomSeed }: { top?: any; bottom?: any; topSeed?: number; bottomSeed?: number }) {
+  return (
+    <div className="bg-neutral-900 border border-neutral-600 rounded w-44">
+      <Team team={top} seed={topSeed} placeholder={!top ? "Winner" : undefined} />
+      <div className="border-t border-neutral-700" />
+      <Team team={bottom} seed={bottomSeed} placeholder={!bottom ? "Winner" : undefined} />
     </div>
   );
 }
@@ -72,22 +82,17 @@ export default async function PlayoffPicturePage() {
             <div className="text-xs text-neutral-500 text-center mb-3">Round of 16</div>
             <div className="flex flex-col" style={{ gap: "12px" }}>
               {r1.map(([a, b], i) => (
-                <div key={i} className="space-y-0.5">
-                  <Slot team={s[a]} seed={a + 1} />
-                  <Slot team={s[b]} seed={b + 1} />
-                </div>
+                <Matchup key={i} top={s[a]} bottom={s[b]} topSeed={a + 1} bottomSeed={b + 1} />
               ))}
             </div>
           </div>
 
           {/* Lines R1 to QF */}
           <svg width="24" height="650" className="mt-8">
-            {/* Each R1 matchup is ~66px + 12px gap = 78px */}
-            {/* QF starts at 50px, each QF is 66px + 90px gap = 156px */}
             {[0,1,2,3].map(i => {
-              const r1Top = i * 2 * 78 + 33;
-              const r1Bot = r1Top + 78;
-              const qfMid = 50 + i * 156 + 33;
+              const r1Top = i * 2 * 70 + 28;
+              const r1Bot = r1Top + 70;
+              const qfMid = 50 + i * 148 + 28;
               return (
                 <g key={i}>
                   <line x1="0" y1={r1Top} x2="12" y2={r1Top} stroke="#737373" strokeWidth="1" />
@@ -104,10 +109,7 @@ export default async function PlayoffPicturePage() {
             <div className="text-xs text-neutral-500 text-center mb-3">Quarterfinals</div>
             <div className="flex flex-col" style={{ gap: "90px", marginTop: "50px" }}>
               {[0, 1, 2, 3].map(i => (
-                <div key={i} className="space-y-0.5">
-                  <Slot placeholder="Winner" />
-                  <Slot placeholder="Winner" />
-                </div>
+                <Matchup key={i} />
               ))}
             </div>
           </div>
@@ -115,9 +117,9 @@ export default async function PlayoffPicturePage() {
           {/* Lines QF to SF */}
           <svg width="24" height="650" className="mt-8">
             {[0,1].map(i => {
-              const qfTop = 50 + i * 2 * 156 + 33;
-              const qfBot = qfTop + 156;
-              const sfMid = 130 + i * 316 + 33;
+              const qfTop = 50 + i * 2 * 148 + 28;
+              const qfBot = qfTop + 148;
+              const sfMid = 130 + i * 300 + 28;
               return (
                 <g key={i}>
                   <line x1="0" y1={qfTop} x2="12" y2={qfTop} stroke="#737373" strokeWidth="1" />
@@ -134,10 +136,7 @@ export default async function PlayoffPicturePage() {
             <div className="text-xs text-neutral-500 text-center mb-3">Semifinals</div>
             <div className="flex flex-col" style={{ gap: "250px", marginTop: "130px" }}>
               {[0, 1].map(i => (
-                <div key={i} className="space-y-0.5">
-                  <Slot placeholder="Winner" />
-                  <Slot placeholder="Winner" />
-                </div>
+                <Matchup key={i} />
               ))}
             </div>
           </div>
@@ -145,9 +144,9 @@ export default async function PlayoffPicturePage() {
           {/* Lines SF to Finals */}
           <svg width="24" height="650" className="mt-8">
             {(() => {
-              const sfTop = 130 + 33;
-              const sfBot = 130 + 250 + 66 + 33;
-              const finMid = 290 + 33;
+              const sfTop = 130 + 28;
+              const sfBot = 130 + 250 + 56 + 28;
+              const finMid = 290 + 28;
               return (
                 <g>
                   <line x1="0" y1={sfTop} x2="12" y2={sfTop} stroke="#737373" strokeWidth="1" />
@@ -163,16 +162,13 @@ export default async function PlayoffPicturePage() {
           <div>
             <div className="text-xs text-neutral-500 text-center mb-3">Finals</div>
             <div style={{ marginTop: "290px" }}>
-              <div className="space-y-0.5">
-                <Slot placeholder="Winner" />
-                <Slot placeholder="Winner" />
-              </div>
+              <Matchup />
             </div>
           </div>
 
           {/* Line to Champion */}
           <svg width="24" height="650" className="mt-8">
-            <line x1="0" y1="323" x2="24" y2="343" stroke="#737373" strokeWidth="1" />
+            <line x1="0" y1="318" x2="24" y2="338" stroke="#737373" strokeWidth="1" />
           </svg>
 
           {/* Champion */}
