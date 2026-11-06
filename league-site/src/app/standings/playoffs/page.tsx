@@ -57,20 +57,15 @@ export default async function PlayoffPicturePage() {
       )}
 
       <div className="flex justify-center">
-        <div className="flex gap-0 items-start">
+        <div className="flex gap-4 items-start">
           {/* Round 1 */}
           <div>
-            <div className="text-xs text-neutral-500 text-center mb-3">Round 1</div>
+            <div className="text-xs text-neutral-500 text-center mb-3 h-5">Round 1</div>
             <div className="flex flex-col gap-6">
-              {/* 10 vs 15 with connecting line above */}
-              <div className="relative">
-                {/* Line above going right */}
-                <div className="absolute -top-6 left-0 right-0 h-px bg-neutral-600" style={{ width: "calc(100% + 32px)" }} />
-                <div className="absolute -top-6 right-0 w-px h-6 bg-neutral-600" style={{ transform: "translateX(32px)" }} />
-                <div className="space-y-0.5">
-                  <Slot team={s[9]} seed={10} />
-                  <Slot team={s[14]} seed={15} />
-                </div>
+              {/* 10 vs 15 */}
+              <div className="space-y-0.5 relative">
+                <Slot team={s[9]} seed={10} />
+                <Slot team={s[14]} seed={15} />
               </div>
 
               {/* 13 vs 12 */}
@@ -96,15 +91,18 @@ export default async function PlayoffPicturePage() {
             </div>
           </div>
 
-          {/* Spacer for line */}
-          <div className="w-8" />
+          {/* Connector line */}
+          <div className="flex flex-col pt-8">
+            <div className="h-4 flex items-center">
+              <div className="w-8 h-px bg-neutral-600" />
+            </div>
+          </div>
 
-          {/* Quarterfinals - 7 seed positioned higher */}
+          {/* Quarterfinals */}
           <div>
-            <div className="text-xs text-neutral-500 text-center mb-3">Quarterfinals</div>
-            <div className="-mt-6">
+            <div className="text-xs text-neutral-500 text-center mb-3 h-5">Quarterfinals</div>
+            <div className="space-y-0.5">
               <Slot team={s[6]} seed={7} />
-              <div className="h-0.5" />
               <Slot placeholder="Winner" />
             </div>
           </div>
