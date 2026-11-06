@@ -217,8 +217,9 @@ export default function BracketView({ teams }: { teams: any[] }) {
   const jS = between(xQ + W, xS);
   const jF = between(xS + W, xF);
   const joinC = xF + W + 36;
-  const xC = joinC + 170;
-  const layoutW = xC + W * champScale + 24;
+  const layoutW = 1764;
+  const fitForAlign = DISPLAY_W / layoutW;
+  const xC = (DISPLAY_W / 2 + 640) / fitForAlign - W * champScale;
   const layoutH = y2 + H + 24;
   const fit = DISPLAY_W / layoutW;
   const displayH = layoutH * fit;
