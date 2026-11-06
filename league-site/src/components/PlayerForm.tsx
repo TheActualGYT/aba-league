@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useCloseOnOutside } from "@/components/useCloseOnOutside";
 
 const fieldClass = "w-full px-3 py-2 bg-neutral-800 border border-neutral-600 rounded text-white";
 const labelClass = "block text-xs font-semibold tracking-wide text-neutral-400 mb-1.5";
@@ -83,10 +84,11 @@ function Menu({
   invalid?: boolean;
 }) {
   const [open, setOpen] = useState(false);
+  const rootRef = useCloseOnOutside<HTMLDivElement>(open, setOpen);
   const current = options.find(option => option.value === value);
 
   return (
-    <div className="relative">
+    <div className="relative" ref={rootRef}>
       <button
         type="button"
         onClick={() => setOpen(currentOpen => !currentOpen)}
