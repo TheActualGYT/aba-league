@@ -62,6 +62,8 @@ export default function TeamForm() {
   const [abbr, setAbbr] = useState("");
   const [location, setLocation] = useState("");
   const [ownership, setOwnership] = useState("");
+  const [headCoach, setHeadCoach] = useState("");
+  const [assistantCoach, setAssistantCoach] = useState("");
   const [logo, setLogo] = useState<string | null>(null);
   const [colors, setColors] = useState<string[]>([]);
   const [message, setMessage] = useState("");
@@ -95,7 +97,17 @@ export default function TeamForm() {
       const res = await fetch("/api/teams", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, abbreviation: abbr, division: "Auto", logo, location, ownership, colors }),
+        body: JSON.stringify({
+          name,
+          abbreviation: abbr,
+          division: "Auto",
+          logo,
+          location,
+          ownership,
+          head_coach: headCoach,
+          assistant_coach: assistantCoach,
+          colors,
+        }),
       });
       const json = await res.json();
       if (!res.ok) {
@@ -187,6 +199,14 @@ export default function TeamForm() {
       <div>
         <label className="block text-sm mb-1 text-neutral-300">Ownership</label>
         <input value={ownership} onChange={e => setOwnership(e.target.value)} className="px-3 py-2 bg-neutral-800 border border-neutral-600 rounded text-white" required />
+      </div>
+      <div>
+        <label className="block text-sm mb-1 text-neutral-300">Head Coach</label>
+        <input value={headCoach} onChange={e => setHeadCoach(e.target.value)} className="px-3 py-2 bg-neutral-800 border border-neutral-600 rounded text-white" required />
+      </div>
+      <div>
+        <label className="block text-sm mb-1 text-neutral-300">Assistant Coach</label>
+        <input value={assistantCoach} onChange={e => setAssistantCoach(e.target.value)} className="px-3 py-2 bg-neutral-800 border border-neutral-600 rounded text-white" required />
       </div>
       <div>
         <label className="block text-sm mb-1 text-neutral-300">Team Logo *</label>
