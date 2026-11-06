@@ -57,13 +57,20 @@ export default async function PlayoffPicturePage() {
       )}
 
       <div className="flex justify-center">
-        <div className="flex gap-4 items-start">
-          {/* Round 1 */}
-          <div>
-            <div className="text-xs text-neutral-500 text-center mb-3 h-5">Round 1</div>
+        <div className="relative">
+          {/* Headers */}
+          <div className="flex">
+            <div className="w-48 text-xs text-neutral-500 text-center">Round 1</div>
+            <div className="w-16" />
+            <div className="w-48 text-xs text-neutral-500 text-center">Quarterfinals</div>
+          </div>
+
+          {/* Bracket area */}
+          <div className="flex mt-2">
+            {/* Round 1 column */}
             <div className="flex flex-col gap-6">
               {/* 10 vs 15 */}
-              <div className="space-y-0.5 relative">
+              <div className="space-y-0.5">
                 <Slot team={s[9]} seed={10} />
                 <Slot team={s[14]} seed={15} />
               </div>
@@ -74,7 +81,6 @@ export default async function PlayoffPicturePage() {
                 <Slot team={s[11]} seed={12} />
               </div>
 
-              {/* Space gap */}
               <div className="h-12" />
 
               {/* 11 vs 14 */}
@@ -89,21 +95,23 @@ export default async function PlayoffPicturePage() {
                 <Slot team={s[15]} seed={16} />
               </div>
             </div>
-          </div>
 
-          {/* Connector line */}
-          <div className="flex flex-col pt-8">
-            <div className="h-4 flex items-center">
-              <div className="w-8 h-px bg-neutral-600" />
+            {/* Connector lines */}
+            <div className="relative w-16">
+              {/* Horizontal line from top of 10vs15 going right */}
+              <div className="absolute top-4 left-0 w-8 h-px bg-neutral-500" />
+              {/* Vertical line going up */}
+              <div className="absolute top-0 left-8 w-px h-4 bg-neutral-500" />
+              {/* Horizontal line to 7 seed */}
+              <div className="absolute top-0 left-8 w-8 h-px bg-neutral-500" />
             </div>
-          </div>
 
-          {/* Quarterfinals */}
-          <div>
-            <div className="text-xs text-neutral-500 text-center mb-3 h-5">Quarterfinals</div>
-            <div className="space-y-0.5">
-              <Slot team={s[6]} seed={7} />
-              <Slot placeholder="Winner" />
+            {/* Quarterfinals - 7 seed positioned at top */}
+            <div className="flex flex-col">
+              <div className="space-y-0.5">
+                <Slot team={s[6]} seed={7} />
+                <Slot placeholder="Winner" />
+              </div>
             </div>
           </div>
         </div>
