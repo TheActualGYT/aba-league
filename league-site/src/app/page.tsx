@@ -73,12 +73,12 @@ export default async function Home() {
             <table className="text-sm w-full table-fixed">
               <thead className="bg-neutral-800">
                 <tr>
-                  <th className="label-glow px-2 py-2 text-center text-neutral-300" style={{ width: "40px" }}>RK</th>
-                  <th className="label-glow px-3 py-2 text-left text-neutral-300">Team</th>
-                  <th className="label-glow px-2 py-2 text-center text-neutral-300" style={{ width: "36px" }}>W</th>
-                  <th className="label-glow px-2 py-2 text-center text-neutral-300" style={{ width: "36px" }}>L</th>
-                  <th className="label-glow px-2 py-2 text-center text-neutral-300" style={{ width: "48px" }}>W%</th>
-                  <th className="label-glow px-2 py-2 text-center text-neutral-300" style={{ width: "40px" }}>GB</th>
+                  <th className="px-2 py-2 text-center text-neutral-300" style={{ width: "40px" }}>RK</th>
+                  <th className="px-3 py-2 text-left text-neutral-300">Team</th>
+                  <th className="px-2 py-2 text-center text-neutral-300" style={{ width: "36px" }}>W</th>
+                  <th className="px-2 py-2 text-center text-neutral-300" style={{ width: "36px" }}>L</th>
+                  <th className="px-2 py-2 text-center text-neutral-300" style={{ width: "48px" }}>W%</th>
+                  <th className="px-2 py-2 text-center text-neutral-300" style={{ width: "40px" }}>GB</th>
                 </tr>
               </thead>
               <tbody>
@@ -119,19 +119,19 @@ export default async function Home() {
             <h2 className="label-glow text-2xl font-bold text-white mb-4 uppercase tracking-wide text-center">League Leaders</h2>
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-neutral-900 border-2 border-white rounded-lg p-4">
-                <h3 className="label-glow text-white font-bold text-lg mb-2">Points Per Game</h3>
+                <h3 className="text-white font-bold text-lg mb-2">Points Per Game</h3>
                 <div className="text-center py-8 text-neutral-500">No stats yet</div>
               </div>
               <div className="bg-neutral-900 border-2 border-white rounded-lg p-4">
-                <h3 className="label-glow text-white font-bold text-lg mb-2">Assists Per Game</h3>
+                <h3 className="text-white font-bold text-lg mb-2">Assists Per Game</h3>
                 <div className="text-center py-8 text-neutral-500">No stats yet</div>
               </div>
               <div className="bg-neutral-900 border-2 border-white rounded-lg p-4">
-                <h3 className="label-glow text-white font-bold text-lg mb-2">Rebounds Per Game</h3>
+                <h3 className="text-white font-bold text-lg mb-2">Rebounds Per Game</h3>
                 <div className="text-center py-8 text-neutral-500">No stats yet</div>
               </div>
               <div className="bg-neutral-900 border-2 border-white rounded-lg p-4">
-                <h3 className="label-glow text-white font-bold text-lg mb-2">GPA</h3>
+                <h3 className="text-white font-bold text-lg mb-2">GPA</h3>
                 <div className="text-center py-8 text-neutral-500">No stats yet</div>
               </div>
             </div>
