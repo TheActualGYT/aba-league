@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const fieldClass = "w-full px-3 py-2 bg-neutral-800 border border-neutral-600 rounded text-white";
 const labelClass = "block text-xs font-semibold tracking-wide text-neutral-400 mb-1.5";
@@ -53,6 +53,22 @@ function weightError(raw: string) {
     return "Weight has to be between 150 and 400.";
   }
   return "";
+}
+
+function useSettledError(value: string, error: string) {
+  const [shown, setShown] = useState("");
+
+  useEffect(() => {
+    if (!error) {
+      setShown("");
+      return;
+    }
+    setShown("");
+    const timer = window.setTimeout(() => setShown(error), 3000);
+    return () => window.clearTimeout(timer);
+  }, [value, error]);
+
+  return shown;
 }
 
 function Menu({
@@ -110,10 +126,17 @@ export default function PlayerForm() {
   const [hand, setHand] = useState("");
   const [message, setMessage] = useState("");
   const [tried, setTried] = useState(false);
+  const [revealNow, setRevealNow] = useState(false);
 
   const overallMessage = overallError(overall);
   const numberMessage = jerseyError(number);
   const weightMessage = weightError(weight);
+  const settledOverall = useSettledError(overall, overallMessage);
+  const settledNumber = useSettledError(number, numberMessage);
+  const settledWeight = useSettledError(weight, weightMessage);
+  const shownOverall = revealNow ? overallMessage : settledOverall;
+  const shownNumber = revealNow ? numberMessage : settledNumber;
+  const shownWeight = revealNow ? weightMessage : settledWeight;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -123,6 +146,7 @@ export default function PlayerForm() {
       return;
     }
     if (overallMessage || numberMessage || weightMessage) {
+      setRevealNow(true);
       setMessage("Fix the highlighted fields.");
       return;
     }
@@ -169,11 +193,14 @@ export default function PlayerForm() {
           <input
             value={overall}
             maxLength={3}
-            onChange={e => setOverall(digitsOnly(e.target.value, 3))}
+            onChange={e => {
+              setRevealNow(false);
+              setOverall(digitsOnly(e.target.value, 3));
+            }}
             inputMode="numeric"
-            className={`${fieldClass} ${overallMessage ? "abbr-taken" : ""}`}
+            className={`${fieldClass} ${shownOverall ? "abbr-taken" : ""}`}
           />
-          {overallMessage && <p className="text-xs text-red-400 mt-1">{overallMessage}</p>}
+          {shownOverall && <p className="text-xs text-red-400 mt-1">{shownOverall}</p>}
         </div>
         <div className="lg:col-span-2">
           <label className={labelClass}>HT</label>
@@ -189,22 +216,28 @@ export default function PlayerForm() {
           <input
             value={weight}
             maxLength={3}
-            onChange={e => setWeight(digitsOnly(e.target.value, 3))}
+            onChange={e => {
+              setRevealNow(false);
+              setWeight(digitsOnly(e.target.value, 3));
+            }}
             inputMode="numeric"
-            className={`${fieldClass} ${weightMessage ? "abbr-taken" : ""}`}
+            className={`${fieldClass} ${shownWeight ? "abbr-taken" : ""}`}
           />
-          {weightMessage && <p className="text-xs text-red-400 mt-1">{weightMessage}</p>}
+          {shownWeight && <p className="text-xs text-red-400 mt-1">{shownWeight}</p>}
         </div>
         <div>
           <label className={labelClass}>#</label>
           <input
             value={number}
             maxLength={2}
-            onChange={e => setNumber(digitsOnly(e.target.value, 2))}
+            onChange={e => {
+              setRevealNow(false);
+              setNumber(digitsOnly(e.target.value, 2));
+            }}
             inputMode="numeric"
-            className={`${fieldClass} ${numberMessage ? "abbr-taken" : ""}`}
+            className={`${fieldClass} ${shownNumber ? "abbr-taken" : ""}`}
           />
-          {numberMessage && <p className="text-xs text-red-400 mt-1">{numberMessage}</p>}
+          {shownNumber && <p className="text-xs text-red-400 mt-1">{shownNumber}</p>}
         </div>
         <div className="lg:col-span-2">
           <label className={labelClass}>HAND</label>
