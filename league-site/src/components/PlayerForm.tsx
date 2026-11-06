@@ -5,6 +5,18 @@ import { useState } from "react";
 const fieldClass = "w-full px-3 py-2 bg-neutral-800 border border-neutral-600 rounded text-white";
 const labelClass = "block text-xs font-semibold tracking-wide text-neutral-400 mb-1.5";
 
+const HEIGHTS = (() => {
+  const options: string[] = [];
+  for (let feet = 5; feet <= 7; feet++) {
+    const minInches = feet === 5 ? 3 : 0;
+    const maxInches = feet === 7 ? 7 : 11;
+    for (let inches = minInches; inches <= maxInches; inches++) {
+      options.push(`${feet}'${inches}"`);
+    }
+  }
+  return options;
+})();
+
 function jerseyError(raw: string) {
   const value = raw.trim();
   if (!value) return "";
@@ -22,6 +34,15 @@ function overallError(raw: string) {
   if (!value) return "";
   if (!/^\d+$/.test(value) || Number(value) < 10 || Number(value) > 99) {
     return "Overall has to be between 10 and 99.";
+  }
+  return "";
+}
+
+function weightError(raw: string) {
+  const value = raw.trim();
+  if (!value) return "";
+  if (!/^\d+$/.test(value) || Number(value) < 150 || Number(value) > 400) {
+    return "Weight has to be between 150 and 400.";
   }
   return "";
 }
@@ -51,7 +72,7 @@ function Menu({
         <span className="text-neutral-400 text-[10px]">▼</span>
       </button>
       {open && (
-        <div className="absolute z-30 mt-1 w-full bg-neutral-800 border border-neutral-600 rounded overflow-hidden shadow-lg">
+        <div className="absolute z-30 mt-1 w-full bg-neutral-800 border border-neutral-600 rounded overflow-hidden shadow-lg max-h-60 overflow-y-auto">
           {options.map(option => (
             <button
               key={option.value}
@@ -75,8 +96,7 @@ export default function PlayerForm() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [overall, setOverall] = useState("");
-  const [feet, setFeet] = useState("");
-  const [inches, setInches] = useState("");
+  const [height, setHeight] = useState("");
   const [weight, setWeight] = useState("");
   const [number, setNumber] = useState("");
   const [hand, setHand] = useState("");
@@ -85,19 +105,16 @@ export default function PlayerForm() {
 
   const overallMessage = overallError(overall);
   const numberMessage = jerseyError(number);
-  const inchValue = Number(inches);
-  const inchMessage = inches.trim() && (!Number.isInteger(inchValue) || inchValue < 0 || inchValue > 11)
-    ? "Inches have to be from 0 to 11."
-    : "";
+  const weightMessage = weightError(weight);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setTried(true);
-    if (!firstName.trim() || !lastName.trim() || !overall.trim() || !feet.trim() || !inches.trim() || !weight.trim() || !number.trim() || !hand) {
+    if (!firstName.trim() || !lastName.trim() || !overall.trim() || !height || !weight.trim() || !number.trim() || !hand) {
       setMessage("Fill out every vitals field.");
       return;
     }
-    if (overallMessage || numberMessage || inchMessage) {
+    if (overallMessage || numberMessage || weightMessage) {
       setMessage("Fix the highlighted fields.");
       return;
     }
@@ -110,8 +127,7 @@ export default function PlayerForm() {
           first_name: firstName,
           last_name: lastName,
           overall,
-          feet,
-          inches,
+          height,
           weight,
           number,
           hand,
@@ -130,7 +146,7 @@ export default function PlayerForm() {
 
   return (
     <form onSubmit={handleSubmit} className="bg-neutral-900 border border-neutral-700 rounded-lg p-5">
-      <h3 className="text-sm font-bold tracking-widest text-neutral-300 mb-4">VITALS</h3>
+      <h3 className="label-glow text-white text-lg font-bold tracking-widest mb-4">VITALS</h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
         <div className="lg:col-span-2">
           <label className={labelClass}>First Name</label>
@@ -152,22 +168,22 @@ export default function PlayerForm() {
         </div>
         <div className="lg:col-span-2">
           <label className={labelClass}>HT</label>
-          <div className="flex items-center gap-2">
-            <input value={feet} onChange={e => setFeet(e.target.value)} inputMode="numeric" className={fieldClass} />
-            <span className="text-neutral-400">'</span>
-            <input
-              value={inches}
-              onChange={e => setInches(e.target.value)}
-              inputMode="numeric"
-              className={`${fieldClass} ${inchMessage ? "!border-red-500" : ""}`}
-            />
-            <span className="text-neutral-400">"</span>
-          </div>
-          {inchMessage && <p className="text-xs text-red-400 mt-1">{inchMessage}</p>}
+          <Menu
+            value={height}
+            onChange={setHeight}
+            invalid={tried && !height}
+            options={HEIGHTS.map(option => ({ value: option, label: option }))}
+          />
         </div>
         <div>
           <label className={labelClass}>WT</label>
-          <input value={weight} onChange={e => setWeight(e.target.value)} inputMode="numeric" className={fieldClass} />
+          <input
+            value={weight}
+            onChange={e => setWeight(e.target.value)}
+            inputMode="numeric"
+            className={`${fieldClass} ${weightMessage ? "!border-red-500" : ""}`}
+          />
+          {weightMessage && <p className="text-xs text-red-400 mt-1">{weightMessage}</p>}
         </div>
         <div>
           <label className={labelClass}>#</label>
