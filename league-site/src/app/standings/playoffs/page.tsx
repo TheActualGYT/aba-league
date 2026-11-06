@@ -69,7 +69,7 @@ export default async function PlayoffPicturePage() {
           <div className="h-6" />
 
           {/* Line above 10 vs 15 going to 7 seed */}
-          <div className="flex items-center mb-2">
+          <div className="flex items-center mb-6">
             <div className="w-48 h-px bg-neutral-500" />
             <div className="w-16 h-px bg-neutral-500" />
             <div className="w-4" />
@@ -78,7 +78,7 @@ export default async function PlayoffPicturePage() {
           {/* Bracket */}
           <div className="flex">
             {/* Round 1 - pushed down */}
-            <div className="flex flex-col gap-6 mt-2">
+            <div className="flex flex-col gap-6">
               {/* 10 vs 15 */}
               <div className="space-y-0.5">
                 <Slot team={s[9]} seed={10} />
