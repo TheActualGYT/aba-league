@@ -1,4 +1,3 @@
-import { Fragment } from "react";
 import db from "@/lib/db";
 
 export const dynamic = "force-dynamic";
