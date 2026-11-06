@@ -92,6 +92,10 @@ body {
   animation: abbr-taken-pulse 1.4s ease-in-out infinite;
 }
 
+.col-split {
+  border-left: 2px solid #e8e8e8 !important;
+}
+
 .champ-box {
   background: #1c180c;
   border: 1.75px solid #facc15;
