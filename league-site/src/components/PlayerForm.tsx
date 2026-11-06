@@ -17,12 +17,12 @@ const HEIGHTS = (() => {
   return options;
 })();
 
-function digitsOnly(value: string) {
-  return value.replace(/\D/g, "");
+function digitsOnly(value: string, max: number) {
+  return value.replace(/\D/g, "").slice(0, max);
 }
 
-function lettersOnly(value: string) {
-  return value.replace(/\d/g, "");
+function lettersOnly(value: string, max: number) {
+  return value.replace(/\d/g, "").slice(0, max);
 }
 
 function jerseyError(raw: string) {
@@ -158,17 +158,18 @@ export default function PlayerForm() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
         <div className="lg:col-span-2">
           <label className={labelClass}>First Name</label>
-          <input value={firstName} onChange={e => setFirstName(lettersOnly(e.target.value))} className={fieldClass} />
+          <input value={firstName} maxLength={11} onChange={e => setFirstName(lettersOnly(e.target.value, 11))} className={fieldClass} />
         </div>
         <div className="lg:col-span-2">
           <label className={labelClass}>Last Name</label>
-          <input value={lastName} onChange={e => setLastName(lettersOnly(e.target.value))} className={fieldClass} />
+          <input value={lastName} maxLength={11} onChange={e => setLastName(lettersOnly(e.target.value, 11))} className={fieldClass} />
         </div>
         <div className="lg:col-span-2">
           <label className={labelClass}>Overall</label>
           <input
             value={overall}
-            onChange={e => setOverall(digitsOnly(e.target.value))}
+            maxLength={3}
+            onChange={e => setOverall(digitsOnly(e.target.value, 3))}
             inputMode="numeric"
             className={`${fieldClass} ${overallMessage ? "abbr-taken" : ""}`}
           />
@@ -187,7 +188,8 @@ export default function PlayerForm() {
           <label className={labelClass}>WT</label>
           <input
             value={weight}
-            onChange={e => setWeight(digitsOnly(e.target.value))}
+            maxLength={3}
+            onChange={e => setWeight(digitsOnly(e.target.value, 3))}
             inputMode="numeric"
             className={`${fieldClass} ${weightMessage ? "abbr-taken" : ""}`}
           />
@@ -197,7 +199,8 @@ export default function PlayerForm() {
           <label className={labelClass}>#</label>
           <input
             value={number}
-            onChange={e => setNumber(digitsOnly(e.target.value))}
+            maxLength={2}
+            onChange={e => setNumber(digitsOnly(e.target.value, 2))}
             inputMode="numeric"
             className={`${fieldClass} ${numberMessage ? "abbr-taken" : ""}`}
           />
