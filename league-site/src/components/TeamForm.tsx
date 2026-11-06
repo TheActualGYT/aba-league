@@ -194,12 +194,12 @@ export default function TeamForm() {
           <label className={labelClass}>Team Name</label>
           <input value={name} onChange={e => setName(e.target.value)} className={fieldClass} required />
         </div>
-        <div>
-          <label className={labelClass}>Abbr</label>
+        <div className="lg:col-span-2">
+          <label className={labelClass}>Abbreviation</label>
           <input value={abbr} onChange={e => setAbbr(e.target.value.toUpperCase())} maxLength={4} className={fieldClass} required />
         </div>
-        <div className="lg:col-span-3">
-          <label className={labelClass}>Location (City)</label>
+        <div className="lg:col-span-2">
+          <label className={labelClass}>City and State</label>
           <input value={location} onChange={e => setLocation(e.target.value)} className={fieldClass} required />
         </div>
         <div className="lg:col-span-2">
