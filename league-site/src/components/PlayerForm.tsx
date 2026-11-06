@@ -64,7 +64,7 @@ function useSettledError(value: string, error: string) {
       return;
     }
     setShown("");
-    const timer = window.setTimeout(() => setShown(error), 3000);
+    const timer = window.setTimeout(() => setShown(error), 2000);
     return () => window.clearTimeout(timer);
   }, [value, error]);
 
