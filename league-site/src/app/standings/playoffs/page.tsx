@@ -2,13 +2,14 @@ import db from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
-function TeamSlot({ team, seed, bye }: { team: any; seed: number; bye?: string }) {
+function Slot({ team, seed, placeholder }: { team?: any; seed?: number; placeholder?: string }) {
   return (
-    <div className="bg-neutral-900 border border-neutral-700 rounded px-3 py-2 flex items-center gap-2 min-w-[180px]">
-      <span className="text-neutral-400 text-xs w-5">{seed}</span>
-      {team?.logo && <img src={team.logo} alt="" className="h-5 w-5 object-contain" />}
-      <span className="text-white text-sm font-medium truncate flex-1">{team?.name || "TBD"}</span>
-      {bye && <span className="text-[10px] text-neutral-500 uppercase">{bye}</span>}
+    <div className="bg-neutral-900 border border-neutral-600 rounded px-2 py-1.5 flex items-center gap-2 w-44 h-9">
+      {seed && <span className="text-neutral-500 text-xs w-4">{seed}</span>}
+      {team?.logo && <img src={team.logo} alt="" className="h-4 w-4 object-contain" />}
+      <span className="text-white text-xs font-medium truncate flex-1">
+        {team?.name || placeholder || "TBD"}
+      </span>
     </div>
   );
 }
@@ -42,14 +43,7 @@ export default async function PlayoffPicturePage() {
     return a.overallRank - b.overallRank;
   });
 
-  const top16 = sorted.slice(0, 16);
-  const seeds = Array.from({ length: 16 }, (_, i) => top16[i] || null);
-
-  // Bracket structure:
-  // R1: 9v16, 10v15, 11v14, 12v13
-  // QF: 5 vs W(12v13), 6 vs W(11v14), 7 vs W(10v15), 8 vs W(9v16)
-  // SF: 1 vs W(8), 2 vs W(7), 3 vs W(6), 4 vs W(5)
-  // Final: W(1) vs W(2), W(3) vs W(4) → Championship
+  const s = Array.from({ length: 16 }, (_, i) => sorted[i] || null);
 
   return (
     <main className="max-w-7xl mx-auto px-6 py-8">
@@ -58,97 +52,129 @@ export default async function PlayoffPicturePage() {
         Seeds 1–4 get 2 byes · Seeds 5–8 get 1 bye · Seeds 9–16 play in Round 1
       </p>
 
-      {top16.length < 16 && (
-        <div className="bg-neutral-900 border border-neutral-700 rounded-lg p-4 mb-6 text-center text-neutral-400 text-sm">
-          Showing current top {top16.length} of 16 playoff spots
+      {sorted.length < 16 && (
+        <div className="bg-neutral-900 border border-neutral-700 rounded-lg p-3 mb-6 text-center text-neutral-400 text-sm">
+          Showing current top {sorted.length} of 16 playoff spots
         </div>
       )}
 
       <div className="overflow-x-auto pb-4">
-        <div className="flex gap-6 min-w-max justify-center">
-          {/* Round 1 */}
-          <div className="flex flex-col justify-around gap-4">
-            <div className="text-center text-xs text-neutral-500 uppercase mb-2">Round 1</div>
-            {[
-              [8, 15],
-              [9, 14],
-              [10, 13],
-              [11, 12],
-            ].map(([a, b], i) => (
-              <div key={i} className="space-y-1">
-                <TeamSlot team={seeds[a]} seed={a + 1} />
-                <TeamSlot team={seeds[b]} seed={b + 1} />
-              </div>
-            ))}
-          </div>
-
-          {/* Quarterfinals */}
-          <div className="flex flex-col justify-around gap-8">
-            <div className="text-center text-xs text-neutral-500 uppercase mb-2">Quarterfinals</div>
-            {[
-              [4, "W of 9/16"],
-              [5, "W of 10/15"],
-              [6, "W of 11/14"],
-              [7, "W of 12/13"],
-            ].map(([seed, opp], i) => (
-              <div key={i} className="space-y-1">
-                <TeamSlot team={seeds[seed as number]} seed={(seed as number) + 1} bye="BYE" />
-                <div className="bg-neutral-800 border border-neutral-700 rounded px-3 py-2 text-neutral-400 text-sm text-center min-w-[180px]">
-                  {opp}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Semifinals */}
-          <div className="flex flex-col justify-around gap-16">
-            <div className="text-center text-xs text-neutral-500 uppercase mb-2">Semifinals</div>
-            {[
-              [0, "W of 8"],
-              [1, "W of 7"],
-              [2, "W of 6"],
-              [3, "W of 5"],
-            ].map(([seed, opp], i) => (
-              <div key={i} className="space-y-1">
-                <TeamSlot team={seeds[seed as number]} seed={(seed as number) + 1} bye="2 BYES" />
-                <div className="bg-neutral-800 border border-neutral-700 rounded px-3 py-2 text-neutral-400 text-sm text-center min-w-[180px]">
-                  {opp}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Finals */}
-          <div className="flex flex-col justify-center gap-8">
-            <div className="text-center text-xs text-neutral-500 uppercase mb-2">Finals</div>
-            <div className="space-y-4">
-              <div className="bg-neutral-800 border border-neutral-700 rounded px-3 py-2 text-neutral-400 text-sm text-center min-w-[180px]">
-                Winner SF1
-              </div>
-              <div className="bg-neutral-800 border border-neutral-700 rounded px-3 py-2 text-neutral-400 text-sm text-center min-w-[180px]">
-                Winner SF2
-              </div>
-              <div className="text-center text-neutral-500 text-xs py-2">vs</div>
-              <div className="bg-neutral-800 border border-neutral-700 rounded px-3 py-2 text-neutral-400 text-sm text-center min-w-[180px]">
-                Winner SF3
-              </div>
-              <div className="bg-neutral-800 border border-neutral-700 rounded px-3 py-2 text-neutral-400 text-sm text-center min-w-[180px]">
-                Winner SF4
-              </div>
+        <div className="flex items-center gap-0 min-w-max justify-center text-white">
+          {/* Column 1: Round 1 matchups + bye teams */}
+          <div className="flex flex-col justify-around h-[720px]">
+            <Slot team={s[1]} seed={2} />
+            <Slot team={s[6]} seed={7} />
+            <div className="space-y-0.5">
+              <Slot team={s[9]} seed={10} />
+              <Slot team={s[14]} seed={15} />
             </div>
+            <div className="space-y-0.5">
+              <Slot team={s[12]} seed={13} />
+              <Slot team={s[11]} seed={12} />
+            </div>
+            <Slot team={s[5]} seed={6} />
+            <Slot team={s[2]} seed={3} />
+            <Slot team={s[3]} seed={4} />
+            <Slot team={s[4]} seed={5} />
+            <div className="space-y-0.5">
+              <Slot team={s[10]} seed={11} />
+              <Slot team={s[13]} seed={14} />
+            </div>
+            <div className="space-y-0.5">
+              <Slot team={s[8]} seed={9} />
+              <Slot team={s[15]} seed={16} />
+            </div>
+            <Slot team={s[7]} seed={8} />
+            <Slot team={s[0]} seed={1} />
           </div>
+
+          {/* Connector lines */}
+          <svg width="40" height="720" className="text-neutral-600">
+            <line x1="0" y1="30" x2="40" y2="30" stroke="currentColor" strokeWidth="1" />
+            <line x1="0" y1="90" x2="40" y2="90" stroke="currentColor" strokeWidth="1" />
+            <line x1="40" y1="30" x2="40" y2="90" stroke="currentColor" strokeWidth="1" />
+            <line x1="40" y1="60" x2="40" y2="60" stroke="currentColor" strokeWidth="1" />
+            <line x1="0" y1="150" x2="40" y2="150" stroke="currentColor" strokeWidth="1" />
+            <line x1="0" y1="210" x2="40" y2="210" stroke="currentColor" strokeWidth="1" />
+            <line x1="40" y1="150" x2="40" y2="210" stroke="currentColor" strokeWidth="1" />
+            <line x1="0" y1="270" x2="40" y2="270" stroke="currentColor" strokeWidth="1" />
+            <line x1="0" y1="330" x2="40" y2="330" stroke="currentColor" strokeWidth="1" />
+            <line x1="40" y1="270" x2="40" y2="330" stroke="currentColor" strokeWidth="1" />
+            <line x1="0" y1="390" x2="40" y2="390" stroke="currentColor" strokeWidth="1" />
+            <line x1="0" y1="450" x2="40" y2="450" stroke="currentColor" strokeWidth="1" />
+            <line x1="40" y1="390" x2="40" y2="450" stroke="currentColor" strokeWidth="1" />
+            <line x1="0" y1="510" x2="40" y2="510" stroke="currentColor" strokeWidth="1" />
+            <line x1="0" y1="570" x2="40" y2="570" stroke="currentColor" strokeWidth="1" />
+            <line x1="40" y1="510" x2="40" y2="570" stroke="currentColor" strokeWidth="1" />
+            <line x1="0" y1="630" x2="40" y2="630" stroke="currentColor" strokeWidth="1" />
+            <line x1="0" y1="690" x2="40" y2="690" stroke="currentColor" strokeWidth="1" />
+            <line x1="40" y1="630" x2="40" y2="690" stroke="currentColor" strokeWidth="1" />
+          </svg>
+
+          {/* Column 2: Quarterfinals */}
+          <div className="flex flex-col justify-around h-[720px]">
+            <Slot placeholder="Winner" />
+            <Slot placeholder="Winner" />
+            <Slot placeholder="Winner" />
+            <Slot placeholder="Winner" />
+            <Slot placeholder="Winner" />
+            <Slot placeholder="Winner" />
+          </div>
+
+          {/* Connector */}
+          <svg width="40" height="720" className="text-neutral-600">
+            <line x1="0" y1="60" x2="40" y2="60" stroke="currentColor" strokeWidth="1" />
+            <line x1="0" y1="180" x2="40" y2="180" stroke="currentColor" strokeWidth="1" />
+            <line x1="40" y1="60" x2="40" y2="180" stroke="currentColor" strokeWidth="1" />
+            <line x1="0" y1="300" x2="40" y2="300" stroke="currentColor" strokeWidth="1" />
+            <line x1="0" y1="420" x2="40" y2="420" stroke="currentColor" strokeWidth="1" />
+            <line x1="40" y1="300" x2="40" y2="420" stroke="currentColor" strokeWidth="1" />
+            <line x1="0" y1="540" x2="40" y2="540" stroke="currentColor" strokeWidth="1" />
+            <line x1="0" y1="660" x2="40" y2="660" stroke="currentColor" strokeWidth="1" />
+            <line x1="40" y1="540" x2="40" y2="660" stroke="currentColor" strokeWidth="1" />
+          </svg>
+
+          {/* Column 3: Semifinals */}
+          <div className="flex flex-col justify-around h-[720px]">
+            <Slot placeholder="Winner" />
+            <Slot placeholder="Winner" />
+            <Slot placeholder="Winner" />
+            <Slot placeholder="Winner" />
+          </div>
+
+          {/* Connector */}
+          <svg width="40" height="720" className="text-neutral-600">
+            <line x1="0" y1="120" x2="40" y2="120" stroke="currentColor" strokeWidth="1" />
+            <line x1="0" y1="360" x2="40" y2="360" stroke="currentColor" strokeWidth="1" />
+            <line x1="40" y1="120" x2="40" y2="360" stroke="currentColor" strokeWidth="1" />
+            <line x1="0" y1="480" x2="40" y2="480" stroke="currentColor" strokeWidth="1" />
+            <line x1="0" y1="600" x2="40" y2="600" stroke="currentColor" strokeWidth="1" />
+            <line x1="40" y1="480" x2="40" y2="600" stroke="currentColor" strokeWidth="1" />
+          </svg>
+
+          {/* Column 4: Finals */}
+          <div className="flex flex-col justify-around h-[720px]">
+            <Slot placeholder="Winner" />
+            <Slot placeholder="Winner" />
+          </div>
+
+          {/* Connector to champion */}
+          <svg width="40" height="720" className="text-neutral-600">
+            <line x1="0" y1="240" x2="40" y2="240" stroke="currentColor" strokeWidth="1" />
+            <line x1="0" y1="480" x2="40" y2="480" stroke="currentColor" strokeWidth="1" />
+            <line x1="40" y1="240" x2="40" y2="480" stroke="currentColor" strokeWidth="1" />
+          </svg>
 
           {/* Champion */}
-          <div className="flex flex-col justify-center">
-            <div className="text-center text-xs text-neutral-500 uppercase mb-2">Champion</div>
-            <div className="bg-neutral-900 border-2 border-white rounded-lg px-4 py-6 text-center min-w-[160px]">
-              <div className="text-neutral-400 text-sm">TBD</div>
+          <div className="flex flex-col justify-center h-[720px]">
+            <div className="bg-yellow-400 text-black font-bold text-sm px-4 py-3 rounded text-center">
+              CHAMPIONS
             </div>
           </div>
         </div>
       </div>
 
-      <div className="mt-8 text-center text-neutral-500 text-xs">
+      <div className="mt-6 text-center text-neutral-500 text-xs">
         Bracket updates automatically based on current standings
       </div>
     </main>
