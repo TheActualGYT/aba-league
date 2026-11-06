@@ -265,7 +265,7 @@ export default function BracketView({ teams }: { teams: any[] }) {
         ))}
       </div>
 
-      <svg viewBox={`0 0 ${layoutW} ${layoutH}`} width={DISPLAY_W} height={displayH} className="block">
+      <svg viewBox={`0 0 ${layoutW} ${layoutH}`} width={DISPLAY_W} height={displayH} className="block" style={{ marginTop: 48 }}>
         <defs>
           <filter id="gold-aura" x="-60%" y="-80%" width="220%" height="260%">
             <feGaussianBlur stdDeviation="7" result="blur" />
