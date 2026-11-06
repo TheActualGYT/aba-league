@@ -20,7 +20,7 @@ export default function CreationDropdown() {
       onMouseLeave={() => setOpen(false)}
     >
       <button className="hover:text-neutral-300 flex items-center gap-1 py-2">
-        Creation
+        Create
         <span className="text-xs">▾</span>
       </button>
       {open && (
