@@ -15,8 +15,8 @@ export default function BracketView({ teams }: { teams: any[] }) {
     id: i + 1,
     date: "",
     teams: [
-      { name: seeds[a]?.name || "TBD" },
-      { name: seeds[b]?.name || "TBD" },
+      { name: seeds[a] ? `${a + 1}. ${seeds[a].name}` : "TBD" },
+      { name: seeds[b] ? `${b + 1}. ${seeds[b].name}` : "TBD" },
     ],
   }));
 
