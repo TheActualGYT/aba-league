@@ -11,41 +11,45 @@ function Row({
   x,
   y,
   w,
+  h,
   seed,
   team,
+  scale = 1,
 }: {
   x: number;
   y: number;
   w: number;
+  h: number;
   seed?: number;
   team: T;
+  scale?: number;
 }) {
   const winner = team?.name?.startsWith("Winner of");
   return (
-    <foreignObject x={x} y={y} width={w} height={H / 2 - 1}>
+    <foreignObject x={x} y={y} width={w} height={h / 2 - 1}>
       <div
         style={{
           height: "100%",
           display: "flex",
           alignItems: "center",
-          gap: 6,
+          gap: 6 * scale,
           color: winner ? "#d4d4d4" : "#fff",
-          fontSize: winner ? 12 : 13,
+          fontSize: (winner ? 12 : 13) * scale,
           fontFamily: "Inter, system-ui, sans-serif",
           overflow: "hidden",
           whiteSpace: "nowrap",
-          paddingLeft: 8,
-          paddingRight: 8,
+          paddingLeft: 8 * scale,
+          paddingRight: 8 * scale,
         }}
       >
         {seed ? (
-          <span style={{ color: "#a3a3a3", fontSize: 11, flex: "none", width: 14 }}>{seed}</span>
+          <span style={{ color: "#a3a3a3", fontSize: 11 * scale, flex: "none", width: 14 * scale }}>{seed}</span>
         ) : null}
         {team?.logo && (
           <img
             src={team.logo}
             alt=""
-            style={{ width: 16, height: 16, objectFit: "contain", flex: "none" }}
+            style={{ width: 16 * scale, height: 16 * scale, objectFit: "contain", flex: "none" }}
           />
         )}
         <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{team?.name || "TBD"}</span>
@@ -91,44 +95,50 @@ export default function BracketView({ teams }: { teams: any[] }) {
     botSeed: number | undefined,
     bot: T,
     key: string,
-    gold = false
-  ) => (
-    <g key={key}>
-      {gold && (
-        <rect
-          x={x - 3}
-          y={y - 3}
-          width={W + 6}
-          height={H + 6}
-          rx={6}
-          fill="#facc15"
-          fillOpacity={0.22}
-          stroke="#facc15"
-          strokeWidth={2}
-          filter="url(#gold-aura)"
+    gold = false,
+    scale = 1
+  ) => {
+    const w = W * scale;
+    const h = H * scale;
+    const numW = NUM_W * scale;
+    return (
+      <g key={key}>
+        {gold && (
+          <rect
+            x={x - 4}
+            y={y - 4}
+            width={w + 8}
+            height={h + 8}
+            rx={8}
+            fill="#facc15"
+            fillOpacity={0.22}
+            stroke="#facc15"
+            strokeWidth={2}
+            filter="url(#gold-aura)"
+          >
+            <animate attributeName="opacity" values="0.35;1;0.35" dur="2.8s" repeatCount="indefinite" />
+          </rect>
+        )}
+        <rect x={x} y={y} width={w} height={h} rx={4} fill={gold ? "#3a3214" : "#2a2a2a"} stroke={gold ? "#facc15" : "#a3a3a3"} strokeWidth={gold ? 1.75 : 1.25} />
+        <rect x={x + numW} y={y + 1.25} width={w - numW - 1.25} height={h - 2.5} fill={gold ? "#1c180c" : "#141414"} />
+        <line x1={x + numW} y1={y} x2={x + numW} y2={y + h} stroke={gold ? "#a38a2a" : "#404040"} />
+        <line x1={x + numW} y1={y + h / 2} x2={x + w} y2={y + h / 2} stroke={gold ? "#a38a2a" : "#525252"} />
+        <text
+          x={x + numW / 2}
+          y={y + h / 2 + 3 * scale}
+          textAnchor="middle"
+          fontSize={9 * scale}
+          fontWeight={500}
+          fill={gold ? "#facc15" : "#a3a3a3"}
+          fontFamily="Inter, system-ui, sans-serif"
         >
-          <animate attributeName="opacity" values="0.35;1;0.35" dur="2.8s" repeatCount="indefinite" />
-        </rect>
-      )}
-      <rect x={x} y={y} width={W} height={H} rx={3} fill={gold ? "#3a3214" : "#2a2a2a"} stroke={gold ? "#facc15" : "#a3a3a3"} strokeWidth={gold ? 1.75 : 1.25} />
-      <rect x={x + NUM_W} y={y + 1.25} width={W - NUM_W - 1.25} height={H - 2.5} fill={gold ? "#1c180c" : "#141414"} />
-      <line x1={x + NUM_W} y1={y} x2={x + NUM_W} y2={y + H} stroke={gold ? "#a38a2a" : "#404040"} />
-      <line x1={x + NUM_W} y1={y + H / 2} x2={x + W} y2={y + H / 2} stroke={gold ? "#a38a2a" : "#525252"} />
-      <text
-        x={x + NUM_W / 2}
-        y={y + H / 2 + 3}
-        textAnchor="middle"
-        fontSize={9}
-        fontWeight={500}
-        fill={gold ? "#facc15" : "#a3a3a3"}
-        fontFamily="Inter, system-ui, sans-serif"
-      >
-        {n}
-      </text>
-      <Row x={x + NUM_W} y={y + 1} w={W - NUM_W} seed={topSeed} team={top} />
-      <Row x={x + NUM_W} y={y + H / 2} w={W - NUM_W} seed={botSeed} team={bot} />
-    </g>
-  );
+          {n}
+        </text>
+        <Row x={x + numW} y={y + 1} w={w - numW} h={h} seed={topSeed} team={top} scale={scale} />
+        <Row x={x + numW} y={y + h / 2} w={w - numW} h={h} seed={botSeed} team={bot} scale={scale} />
+      </g>
+    );
+  };
 
   const link = (xFrom: number, yFrom: number, xTo: number, yTo: number, into: number) => (
     <g key={`${xFrom}-${yFrom}-${xTo}-${yTo}`}>
@@ -140,16 +150,17 @@ export default function BracketView({ teams }: { teams: any[] }) {
 
   const topFinalY = (mid(y2) + mid(y3)) / 2 - H / 2;
   const botFinalY = (mid(y4) + mid(y1)) / 2 - H / 2;
-  const champY = (mid(topFinalY) + mid(botFinalY)) / 2 - H / 2;
+  const champCenter = (mid(topFinalY) + mid(botFinalY)) / 2;
+  const champY = champCenter - H;
   const joinF = xF - 24;
   const joinC = xC - 28;
-  const width = xC + W + 24;
+  const width = xC + W * 2 + 24;
 
   return (
     <svg viewBox={`0 0 ${width} ${y1 + H + 24}`} width={width} height={y1 + H + 24} className="block">
       <defs>
-        <filter id="gold-aura" x="-60%" y="-100%" width="220%" height="300%">
-          <feGaussianBlur stdDeviation="6" result="blur" />
+        <filter id="gold-aura" x="-60%" y="-80%" width="220%" height="260%">
+          <feGaussianBlur stdDeviation="8" result="blur" />
           <feMerge>
             <feMergeNode in="blur" />
             <feMergeNode in="SourceGraphic" />
@@ -174,7 +185,19 @@ export default function BracketView({ teams }: { teams: any[] }) {
 
       {box(xF, topFinalY, 13, undefined, ofMatch(9), undefined, ofMatch(10), "m13")}
       {box(xF, botFinalY, 14, undefined, ofMatch(11), undefined, ofMatch(12), "m14")}
-      {box(xC, champY, 15, undefined, ofMatch(13), undefined, ofMatch(14), "m15", true)}
+
+      <text
+        x={xC + W}
+        y={champY - 14}
+        textAnchor="middle"
+        fontSize={16}
+        fontWeight={600}
+        fill="#facc15"
+        fontFamily="Inter, system-ui, sans-serif"
+      >
+        Championship Game
+      </text>
+      {box(xC, champY, 15, undefined, ofMatch(13), undefined, ofMatch(14), "m15", true, 2)}
 
       {link(x1 + W, mid(y1015), xQ - 28, mid(y7), xQ)}
       {link(x1 + W, mid(y1312), xQ - 28, mid(y6), xQ)}
@@ -191,8 +214,8 @@ export default function BracketView({ teams }: { teams: any[] }) {
       {link(xS + W, mid(y4), joinF, mid(botFinalY), xF)}
       {link(xS + W, mid(y1), joinF, mid(botFinalY), xF)}
 
-      {link(xF + W, mid(topFinalY), joinC, mid(champY), xC)}
-      {link(xF + W, mid(botFinalY), joinC, mid(champY), xC)}
+      {link(xF + W, mid(topFinalY), joinC, champCenter, xC)}
+      {link(xF + W, mid(botFinalY), joinC, champCenter, xC)}
     </svg>
   );
 }
