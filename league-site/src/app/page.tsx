@@ -62,7 +62,10 @@ export default async function Home() {
     <main className="py-8">
       <div
         className="grid grid-cols-1 lg:grid-cols-[480px_1fr] gap-8"
-        style={{ paddingLeft: "max(24px, calc(50% - 703.56px))", paddingRight: 24 }}
+        style={{
+          paddingLeft: "max(24px, calc(50% - 703.56px))",
+          paddingRight: "max(24px, calc(50% - 640px))",
+        }}
       >
         <div>
           <h2 className="text-2xl font-bold text-white mb-4 uppercase tracking-wide text-center">Playoff Standings</h2>
@@ -111,7 +114,7 @@ export default async function Home() {
           </div>
         </div>
 
-        <div className="space-y-8">
+        <div className="space-y-8 min-w-0">
           <div>
             <h2 className="text-2xl font-bold text-white mb-4 uppercase tracking-wide text-center">League Leaders</h2>
             <div className="grid grid-cols-2 gap-4">

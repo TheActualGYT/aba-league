@@ -25,7 +25,7 @@ export default function RootLayout({
         <nav className="bg-neutral-900 border-b border-neutral-700 sticky top-0 z-50">
           <div className="relative px-6 py-2">
             <div
-              className="flex items-center gap-3 absolute top-1/2 -translate-y-1/2"
+              className="flex items-center gap-6 absolute top-1/2 -translate-y-1/2"
               style={{ left: "max(24px, calc(50% - 703.56px))" }}
             >
               <Link href="/" className="flex items-center gap-2">
