@@ -57,17 +57,20 @@ export default async function PlayoffPicturePage() {
       )}
 
       <div className="flex justify-center">
-        <div className="flex gap-0">
+        <div className="flex gap-0 items-start">
           {/* Round 1 */}
           <div>
             <div className="text-xs text-neutral-500 text-center mb-3">Round 1</div>
             <div className="flex flex-col gap-6">
-              {/* 10 vs 15 */}
-              <div className="space-y-0.5 relative">
-                <Slot team={s[9]} seed={10} />
-                <Slot team={s[14]} seed={15} />
-                {/* Line going right from middle */}
-                <div className="absolute right-0 top-1/2 w-8 h-px bg-neutral-600" style={{ transform: "translateX(100%) translateY(-50%)" }} />
+              {/* 10 vs 15 with connecting line above */}
+              <div className="relative">
+                {/* Line above going right */}
+                <div className="absolute -top-6 left-0 right-0 h-px bg-neutral-600" style={{ width: "calc(100% + 32px)" }} />
+                <div className="absolute -top-6 right-0 w-px h-6 bg-neutral-600" style={{ transform: "translateX(32px)" }} />
+                <div className="space-y-0.5">
+                  <Slot team={s[9]} seed={10} />
+                  <Slot team={s[14]} seed={15} />
+                </div>
               </div>
 
               {/* 13 vs 12 */}
@@ -93,13 +96,13 @@ export default async function PlayoffPicturePage() {
             </div>
           </div>
 
-          {/* Connector space */}
+          {/* Spacer for line */}
           <div className="w-8" />
 
-          {/* Quarterfinals - 7 seed vs Winner of 10/15 */}
+          {/* Quarterfinals - 7 seed positioned higher */}
           <div>
             <div className="text-xs text-neutral-500 text-center mb-3">Quarterfinals</div>
-            <div className="mt-0">
+            <div className="-mt-6">
               <Slot team={s[6]} seed={7} />
               <div className="h-0.5" />
               <Slot placeholder="Winner" />
