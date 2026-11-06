@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useCloseOnOutside } from "@/components/useCloseOnOutside";
 
 const items = [
   { href: "/games/schedule", label: "Schedule" },
@@ -11,9 +12,11 @@ const items = [
 
 export default function GamesDropdown() {
   const [open, setOpen] = useState(false);
+  const rootRef = useCloseOnOutside<HTMLDivElement>(open, setOpen);
 
   return (
     <div
+      ref={rootRef}
       className="relative"
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
