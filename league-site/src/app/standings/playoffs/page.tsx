@@ -59,114 +59,98 @@ export default async function PlayoffPicturePage() {
       )}
 
       <div className="overflow-x-auto pb-4">
-        <div className="flex items-center gap-0 min-w-max justify-center text-white">
-          {/* Column 1: Round 1 matchups + bye teams */}
-          <div className="flex flex-col justify-around h-[720px]">
-            <Slot team={s[1]} seed={2} />
-            <Slot team={s[6]} seed={7} />
-            <div className="space-y-0.5">
-              <Slot team={s[9]} seed={10} />
-              <Slot team={s[14]} seed={15} />
-            </div>
-            <div className="space-y-0.5">
-              <Slot team={s[12]} seed={13} />
-              <Slot team={s[11]} seed={12} />
-            </div>
-            <Slot team={s[5]} seed={6} />
-            <Slot team={s[2]} seed={3} />
-            <Slot team={s[3]} seed={4} />
+        <div className="flex items-stretch gap-0 min-w-max justify-center">
+          {/* Round 1 - only seeds 9-16 */}
+          <div className="flex flex-col justify-around py-4 gap-2">
+            <div className="text-xs text-neutral-500 text-center mb-1">Round 1</div>
+            <div className="space-y-0.5"><Slot team={s[8]} seed={9} /><Slot team={s[15]} seed={16} /></div>
+            <div className="h-8" />
+            <div className="space-y-0.5"><Slot team={s[9]} seed={10} /><Slot team={s[14]} seed={15} /></div>
+            <div className="h-8" />
+            <div className="space-y-0.5"><Slot team={s[10]} seed={11} /><Slot team={s[13]} seed={14} /></div>
+            <div className="h-8" />
+            <div className="space-y-0.5"><Slot team={s[11]} seed={12} /><Slot team={s[12]} seed={13} /></div>
+          </div>
+
+          {/* Lines R1 to QF */}
+          <svg width="32" className="text-neutral-600 self-stretch" style={{ height: "auto" }}>
+            <line x1="0" y1="80" x2="32" y2="80" stroke="currentColor" strokeWidth="1" />
+            <line x1="0" y1="200" x2="32" y2="200" stroke="currentColor" strokeWidth="1" />
+            <line x1="32" y1="80" x2="32" y2="200" stroke="currentColor" strokeWidth="1" />
+            <line x1="0" y1="320" x2="32" y2="320" stroke="currentColor" strokeWidth="1" />
+            <line x1="0" y1="440" x2="32" y2="440" stroke="currentColor" strokeWidth="1" />
+            <line x1="32" y1="320" x2="32" y2="440" stroke="currentColor" strokeWidth="1" />
+          </svg>
+
+          {/* Quarterfinals - seeds 5-8 enter */}
+          <div className="flex flex-col justify-around py-4">
+            <div className="text-xs text-neutral-500 text-center mb-1">Quarterfinals</div>
             <Slot team={s[4]} seed={5} />
-            <div className="space-y-0.5">
-              <Slot team={s[10]} seed={11} />
-              <Slot team={s[13]} seed={14} />
-            </div>
-            <div className="space-y-0.5">
-              <Slot team={s[8]} seed={9} />
-              <Slot team={s[15]} seed={16} />
-            </div>
+            <Slot placeholder="Winner" />
+            <div className="h-4" />
+            <Slot team={s[5]} seed={6} />
+            <Slot placeholder="Winner" />
+            <div className="h-4" />
+            <Slot team={s[6]} seed={7} />
+            <Slot placeholder="Winner" />
+            <div className="h-4" />
             <Slot team={s[7]} seed={8} />
+            <Slot placeholder="Winner" />
+          </div>
+
+          {/* Lines QF to SF */}
+          <svg width="32" className="text-neutral-600 self-stretch">
+            <line x1="0" y1="100" x2="32" y2="100" stroke="currentColor" strokeWidth="1" />
+            <line x1="0" y1="220" x2="32" y2="220" stroke="currentColor" strokeWidth="1" />
+            <line x1="32" y1="100" x2="32" y2="220" stroke="currentColor" strokeWidth="1" />
+            <line x1="0" y1="340" x2="32" y2="340" stroke="currentColor" strokeWidth="1" />
+            <line x1="0" y1="460" x2="32" y2="460" stroke="currentColor" strokeWidth="1" />
+            <line x1="32" y1="340" x2="32" y2="460" stroke="currentColor" strokeWidth="1" />
+          </svg>
+
+          {/* Semifinals - seeds 1-4 enter */}
+          <div className="flex flex-col justify-around py-4">
+            <div className="text-xs text-neutral-500 text-center mb-1">Semifinals</div>
             <Slot team={s[0]} seed={1} />
+            <Slot placeholder="Winner" />
+            <div className="h-12" />
+            <Slot team={s[1]} seed={2} />
+            <Slot placeholder="Winner" />
+            <div className="h-12" />
+            <Slot team={s[2]} seed={3} />
+            <Slot placeholder="Winner" />
+            <div className="h-12" />
+            <Slot team={s[3]} seed={4} />
+            <Slot placeholder="Winner" />
           </div>
 
-          {/* Connector lines */}
-          <svg width="40" height="720" className="text-neutral-600">
-            <line x1="0" y1="30" x2="40" y2="30" stroke="currentColor" strokeWidth="1" />
-            <line x1="0" y1="90" x2="40" y2="90" stroke="currentColor" strokeWidth="1" />
-            <line x1="40" y1="30" x2="40" y2="90" stroke="currentColor" strokeWidth="1" />
-            <line x1="40" y1="60" x2="40" y2="60" stroke="currentColor" strokeWidth="1" />
-            <line x1="0" y1="150" x2="40" y2="150" stroke="currentColor" strokeWidth="1" />
-            <line x1="0" y1="210" x2="40" y2="210" stroke="currentColor" strokeWidth="1" />
-            <line x1="40" y1="150" x2="40" y2="210" stroke="currentColor" strokeWidth="1" />
-            <line x1="0" y1="270" x2="40" y2="270" stroke="currentColor" strokeWidth="1" />
-            <line x1="0" y1="330" x2="40" y2="330" stroke="currentColor" strokeWidth="1" />
-            <line x1="40" y1="270" x2="40" y2="330" stroke="currentColor" strokeWidth="1" />
-            <line x1="0" y1="390" x2="40" y2="390" stroke="currentColor" strokeWidth="1" />
-            <line x1="0" y1="450" x2="40" y2="450" stroke="currentColor" strokeWidth="1" />
-            <line x1="40" y1="390" x2="40" y2="450" stroke="currentColor" strokeWidth="1" />
-            <line x1="0" y1="510" x2="40" y2="510" stroke="currentColor" strokeWidth="1" />
-            <line x1="0" y1="570" x2="40" y2="570" stroke="currentColor" strokeWidth="1" />
-            <line x1="40" y1="510" x2="40" y2="570" stroke="currentColor" strokeWidth="1" />
-            <line x1="0" y1="630" x2="40" y2="630" stroke="currentColor" strokeWidth="1" />
-            <line x1="0" y1="690" x2="40" y2="690" stroke="currentColor" strokeWidth="1" />
-            <line x1="40" y1="630" x2="40" y2="690" stroke="currentColor" strokeWidth="1" />
+          {/* Lines SF to Final */}
+          <svg width="32" className="text-neutral-600 self-stretch">
+            <line x1="0" y1="140" x2="32" y2="140" stroke="currentColor" strokeWidth="1" />
+            <line x1="0" y1="280" x2="32" y2="280" stroke="currentColor" strokeWidth="1" />
+            <line x1="32" y1="140" x2="32" y2="280" stroke="currentColor" strokeWidth="1" />
+            <line x1="0" y1="380" x2="32" y2="380" stroke="currentColor" strokeWidth="1" />
+            <line x1="0" y1="520" x2="32" y2="520" stroke="currentColor" strokeWidth="1" />
+            <line x1="32" y1="380" x2="32" y2="520" stroke="currentColor" strokeWidth="1" />
           </svg>
 
-          {/* Column 2: Quarterfinals */}
-          <div className="flex flex-col justify-around h-[720px]">
+          {/* Finals */}
+          <div className="flex flex-col justify-around py-4">
+            <div className="text-xs text-neutral-500 text-center mb-1">Finals</div>
             <Slot placeholder="Winner" />
-            <Slot placeholder="Winner" />
-            <Slot placeholder="Winner" />
-            <Slot placeholder="Winner" />
-            <Slot placeholder="Winner" />
+            <div className="h-16" />
             <Slot placeholder="Winner" />
           </div>
 
-          {/* Connector */}
-          <svg width="40" height="720" className="text-neutral-600">
-            <line x1="0" y1="60" x2="40" y2="60" stroke="currentColor" strokeWidth="1" />
-            <line x1="0" y1="180" x2="40" y2="180" stroke="currentColor" strokeWidth="1" />
-            <line x1="40" y1="60" x2="40" y2="180" stroke="currentColor" strokeWidth="1" />
-            <line x1="0" y1="300" x2="40" y2="300" stroke="currentColor" strokeWidth="1" />
-            <line x1="0" y1="420" x2="40" y2="420" stroke="currentColor" strokeWidth="1" />
-            <line x1="40" y1="300" x2="40" y2="420" stroke="currentColor" strokeWidth="1" />
-            <line x1="0" y1="540" x2="40" y2="540" stroke="currentColor" strokeWidth="1" />
-            <line x1="0" y1="660" x2="40" y2="660" stroke="currentColor" strokeWidth="1" />
-            <line x1="40" y1="540" x2="40" y2="660" stroke="currentColor" strokeWidth="1" />
-          </svg>
-
-          {/* Column 3: Semifinals */}
-          <div className="flex flex-col justify-around h-[720px]">
-            <Slot placeholder="Winner" />
-            <Slot placeholder="Winner" />
-            <Slot placeholder="Winner" />
-            <Slot placeholder="Winner" />
-          </div>
-
-          {/* Connector */}
-          <svg width="40" height="720" className="text-neutral-600">
-            <line x1="0" y1="120" x2="40" y2="120" stroke="currentColor" strokeWidth="1" />
-            <line x1="0" y1="360" x2="40" y2="360" stroke="currentColor" strokeWidth="1" />
-            <line x1="40" y1="120" x2="40" y2="360" stroke="currentColor" strokeWidth="1" />
-            <line x1="0" y1="480" x2="40" y2="480" stroke="currentColor" strokeWidth="1" />
-            <line x1="0" y1="600" x2="40" y2="600" stroke="currentColor" strokeWidth="1" />
-            <line x1="40" y1="480" x2="40" y2="600" stroke="currentColor" strokeWidth="1" />
-          </svg>
-
-          {/* Column 4: Finals */}
-          <div className="flex flex-col justify-around h-[720px]">
-            <Slot placeholder="Winner" />
-            <Slot placeholder="Winner" />
-          </div>
-
-          {/* Connector to champion */}
-          <svg width="40" height="720" className="text-neutral-600">
-            <line x1="0" y1="240" x2="40" y2="240" stroke="currentColor" strokeWidth="1" />
-            <line x1="0" y1="480" x2="40" y2="480" stroke="currentColor" strokeWidth="1" />
-            <line x1="40" y1="240" x2="40" y2="480" stroke="currentColor" strokeWidth="1" />
+          {/* Line to Champion */}
+          <svg width="32" className="text-neutral-600 self-stretch">
+            <line x1="0" y1="220" x2="32" y2="220" stroke="currentColor" strokeWidth="1" />
+            <line x1="0" y1="380" x2="32" y2="380" stroke="currentColor" strokeWidth="1" />
+            <line x1="32" y1="220" x2="32" y2="380" stroke="currentColor" strokeWidth="1" />
           </svg>
 
           {/* Champion */}
-          <div className="flex flex-col justify-center h-[720px]">
+          <div className="flex flex-col justify-center py-4">
             <div className="bg-yellow-400 text-black font-bold text-sm px-4 py-3 rounded text-center">
               CHAMPIONS
             </div>
