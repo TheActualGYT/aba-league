@@ -4,6 +4,18 @@ export const dynamic = "force-dynamic";
 
 const DIVISION_NAMES = ["Alpha Division", "Delta Division", "Gamma Division", "Omega Division"];
 
+const COLS = [
+  { label: "Rank", width: "72px", align: "text-left" },
+  { label: "Team Name", width: undefined, align: "text-left" },
+  { label: "W", width: "64px", align: "text-center" },
+  { label: "L", width: "64px", align: "text-center" },
+  { label: "Win %", width: "84px", align: "text-center" },
+  { label: "GB", width: "72px", align: "text-center" },
+  { label: "Pts Scored", width: "120px", align: "text-center" },
+  { label: "Pts Allowed", width: "124px", align: "text-center" },
+  { label: "Diff", width: "80px", align: "text-center" },
+];
+
 function assignDivisions(teams: any[]) {
   const sorted = [...teams].sort((a, b) => a.name.localeCompare(b.name));
   const divisions: any[][] = [[], [], [], []];
@@ -61,7 +73,7 @@ export default async function StandingsPage() {
     <main
       className="py-8"
       style={{
-        paddingLeft: "max(16px, calc(50% - 717.56px))",
+        paddingLeft: "max(16px, calc(50% - 697.56px))",
         paddingRight: "max(24px, calc(50% - 640px))",
       }}
     >
@@ -71,18 +83,19 @@ export default async function StandingsPage() {
         <div key={division} className="mb-10">
           <h3 className="text-2xl font-semibold text-white mb-3">{division}</h3>
           <div className="overflow-x-auto">
-            <table className="w-full bg-neutral-900 rounded-lg border border-neutral-700">
+            <table className="w-full table-fixed bg-neutral-900 rounded-lg border border-neutral-700">
+              <colgroup>
+                {COLS.map(col => (
+                  <col key={col.label} style={col.width ? { width: col.width } : undefined} />
+                ))}
+              </colgroup>
               <thead className="bg-neutral-800">
                 <tr>
-                  <th className="px-3 py-3 text-left text-neutral-300 text-sm">Rank</th>
-                  <th className="px-3 py-3 text-left text-neutral-300 text-sm">Team Name</th>
-                  <th className="px-3 py-3 text-center text-neutral-300 text-sm">W</th>
-                  <th className="px-3 py-3 text-center text-neutral-300 text-sm">L</th>
-                  <th className="px-3 py-3 text-center text-neutral-300 text-sm">Win %</th>
-                  <th className="px-3 py-3 text-center text-neutral-300 text-sm">GB</th>
-                  <th className="px-3 py-3 text-center text-neutral-300 text-sm">Pts Scored</th>
-                  <th className="px-3 py-3 text-center text-neutral-300 text-sm">Pts Allowed</th>
-                  <th className="px-3 py-3 text-center text-neutral-300 text-sm">Diff</th>
+                  {COLS.map(col => (
+                    <th key={col.label} className={`px-3 py-3 text-neutral-300 text-sm whitespace-nowrap ${col.align}`}>
+                      {col.label}
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
@@ -90,9 +103,13 @@ export default async function StandingsPage() {
                   <tr key={team.id} className="border-t border-neutral-700">
                     <td className="px-3 py-3">{i + 1}</td>
                     <td className="px-3 py-3 font-semibold text-white">
-                      <div className="flex items-center gap-2">
-                        {team.logo && <img src={team.logo} alt="" className="h-6 w-6 object-contain" />}
-                        <span>
+                      <div className="flex items-center gap-2 min-w-0">
+                        {team.logo ? (
+                          <img src={team.logo} alt="" className="h-6 w-6 object-contain flex-shrink-0" />
+                        ) : (
+                          <div className="h-6 w-6 flex-shrink-0" />
+                        )}
+                        <span className="truncate">
                           {team.name}<sup className="text-neutral-500 text-[9px] ml-1">{team.overallRank}</sup>
                         </span>
                       </div>
