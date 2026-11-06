@@ -62,7 +62,7 @@ export default async function Home() {
     <main className="max-w-7xl mx-auto px-6 py-8">
       <div className="grid grid-cols-1 lg:grid-cols-[auto_1fr] gap-8">
         <div style={{ width: "480px" }}>
-          <h2 className="text-2xl font-bold text-white mb-4 uppercase tracking-wide">Playoff Standings</h2>
+          <h2 className="text-2xl font-bold text-white mb-4 uppercase tracking-wide text-center">Playoff Standings</h2>
           <div className="bg-neutral-900 border-2 border-white rounded-lg overflow-hidden">
             <table className="text-sm w-full table-fixed">
               <thead className="bg-neutral-800">
@@ -110,18 +110,18 @@ export default async function Home() {
 
         <div className="space-y-8">
           <div>
-            <h2 className="text-2xl font-bold text-white mb-4 uppercase tracking-wide">League Leaders</h2>
+            <h2 className="text-2xl font-bold text-white mb-4 uppercase tracking-wide text-center">League Leaders</h2>
             <div className="grid grid-cols-2 gap-4">
-              <div className="bg-neutral-900 border-2 border-green-500 rounded-lg p-4">
-                <h3 className="text-green-400 font-bold text-lg mb-2">Points Per Game</h3>
+              <div className="bg-neutral-900 border-2 border-white rounded-lg p-4">
+                <h3 className="text-white font-bold text-lg mb-2">Points Per Game</h3>
                 <div className="text-center py-8 text-neutral-500">No stats yet</div>
               </div>
-              <div className="bg-neutral-900 border-2 border-red-500 rounded-lg p-4">
-                <h3 className="text-red-400 font-bold text-lg mb-2">Assists Per Game</h3>
+              <div className="bg-neutral-900 border-2 border-white rounded-lg p-4">
+                <h3 className="text-white font-bold text-lg mb-2">Assists Per Game</h3>
                 <div className="text-center py-8 text-neutral-500">No stats yet</div>
               </div>
-              <div className="bg-neutral-900 border-2 border-blue-500 rounded-lg p-4">
-                <h3 className="text-blue-400 font-bold text-lg mb-2">Rebounds Per Game</h3>
+              <div className="bg-neutral-900 border-2 border-white rounded-lg p-4">
+                <h3 className="text-white font-bold text-lg mb-2">Rebounds Per Game</h3>
                 <div className="text-center py-8 text-neutral-500">No stats yet</div>
               </div>
               <div className="bg-neutral-900 border-2 border-white rounded-lg p-4">
@@ -135,7 +135,7 @@ export default async function Home() {
           </div>
 
           <div>
-            <h2 className="text-2xl font-bold text-white mb-4 uppercase tracking-wide">Final Scores</h2>
+            <h2 className="text-2xl font-bold text-white mb-4 uppercase tracking-wide text-center">Final Scores</h2>
             <div className="space-y-3">
               {recentGames.map(game => (
                 <div key={game.id} className="bg-neutral-900 border border-neutral-700 rounded-lg p-4 flex justify-between items-center">
