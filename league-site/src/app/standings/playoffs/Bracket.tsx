@@ -222,7 +222,6 @@ export default function BracketView({ teams }: { teams: any[] }) {
   const layoutH = y2 + H + 24;
   const fit = DISPLAY_W / layoutW;
   const displayH = layoutH * fit;
-  const championName = "TBD";
 
   const rounds = [
     { label: "First Round", x: x1 + W / 2 },
@@ -236,62 +235,34 @@ export default function BracketView({ teams }: { teams: any[] }) {
       <div
         className="sticky top-0 z-20"
         style={{
+          height: 32,
           width: DISPLAY_W,
           background: "#0a0a0a",
+          borderBottom: "1px solid #262626",
         }}
       >
-        <div style={{ position: "relative", height: 36 }}>
+        {rounds.map((round) => (
           <div
-            className="champ-glow"
+            key={round.label}
             style={{
               position: "absolute",
-              left: (xC + (W * champScale) / 2) * fit,
+              left: round.x * fit,
               top: 0,
-              height: 36,
+              height: 32,
               display: "flex",
               alignItems: "center",
               transform: "translateX(-50%)",
-              color: "#facc15",
-              fontWeight: 700,
-              fontSize: 18,
-              letterSpacing: "0.08em",
+              color: "#e5e5e5",
+              fontSize: Math.max(11, 13 * fit),
+              fontWeight: 600,
+              letterSpacing: "0.03em",
               fontFamily: "Inter, system-ui, sans-serif",
               whiteSpace: "nowrap",
             }}
           >
-            {championName}
+            {round.label}
           </div>
-        </div>
-        <div
-          style={{
-            position: "relative",
-            height: 32,
-            borderBottom: "1px solid #262626",
-          }}
-        >
-          {rounds.map((round) => (
-            <div
-              key={round.label}
-              style={{
-                position: "absolute",
-                left: round.x * fit,
-                top: 0,
-                height: 32,
-                display: "flex",
-                alignItems: "center",
-                transform: "translateX(-50%)",
-                color: "#e5e5e5",
-                fontSize: Math.max(11, 13 * fit),
-                fontWeight: 600,
-                letterSpacing: "0.03em",
-                fontFamily: "Inter, system-ui, sans-serif",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {round.label}
-            </div>
-          ))}
-        </div>
+        ))}
       </div>
 
       <svg viewBox={`0 0 ${layoutW} ${layoutH}`} width={DISPLAY_W} height={displayH} className="block" style={{ marginTop: 48 }}>
