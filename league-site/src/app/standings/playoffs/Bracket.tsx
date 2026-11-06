@@ -2,6 +2,7 @@
 
 const LINE = "#f3f3f3";
 const STROKE = 1.5;
+const CURVE = 12;
 const H = 58;
 const W = 236;
 const NUM_W = 18;
@@ -150,17 +151,43 @@ export default function BracketView({ teams }: { teams: any[] }) {
     );
   };
 
-  const link = (xFrom: number, yFrom: number, xTo: number, yTo: number, into: number) => (
-    <g key={`${xFrom}-${yFrom}-${xTo}-${yTo}`}>
-      <line x1={xFrom} y1={yFrom} x2={xTo} y2={yFrom} stroke={LINE} strokeWidth={STROKE} strokeLinecap="square" />
-      <line x1={xTo} y1={yFrom} x2={xTo} y2={yTo} stroke={LINE} strokeWidth={STROKE} strokeLinecap="square" />
-      <line x1={xTo} y1={yTo} x2={into} y2={yTo} stroke={LINE} strokeWidth={STROKE} strokeLinecap="square" />
-    </g>
-  );
+  const elbow = (
+    xFrom: number,
+    yFrom: number,
+    xTo: number,
+    yTo: number,
+    into: number,
+    drawTail: boolean,
+    key: string
+  ) => {
+    const dy = yTo - yFrom;
+    if (Math.abs(dy) < 1) {
+      return (
+        <line key={key} x1={xFrom} y1={yFrom} x2={into} y2={yTo} stroke={LINE} strokeWidth={STROKE} fill="none" />
+      );
+    }
+    const dir = dy > 0 ? 1 : -1;
+    const sIn = xTo >= xFrom ? 1 : -1;
+    const sOut = into >= xTo ? 1 : -1;
+    const rad = Math.min(CURVE, Math.abs(xTo - xFrom) / 2, Math.abs(dy) / 2, Math.abs(into - xTo) / 2);
+    const xBendIn = xTo - sIn * rad;
+    const yBendIn = yFrom + dir * rad;
+    const yBendOut = yTo - dir * rad;
+    const xBendOut = xTo + sOut * rad;
+    const d = [
+      `M ${xFrom} ${yFrom}`,
+      `L ${xBendIn} ${yFrom}`,
+      `Q ${xTo} ${yFrom} ${xTo} ${yBendIn}`,
+      `L ${xTo} ${yBendOut}`,
+      `Q ${xTo} ${yTo} ${xBendOut} ${yTo}`,
+      drawTail ? `L ${into} ${yTo}` : "",
+    ].join(" ");
+    return <path key={key} d={d} fill="none" stroke={LINE} strokeWidth={STROKE} />;
+  };
 
   const bye = (xEnd: number, y: number, seed: number, id: string) => (
     <g key={id}>
-      <line x1={x1} y1={y} x2={xEnd} y2={y} stroke={LINE} strokeWidth={STROKE} strokeLinecap="square" />
+      <line x1={x1} y1={y} x2={xEnd} y2={y} stroke={LINE} strokeWidth={STROKE} />
       <rect x={x1 + 8} y={y - 9} width={108} height={18} rx={2} fill="#0a0a0a" />
       <text
         x={x1 + 12}
@@ -241,14 +268,14 @@ export default function BracketView({ teams }: { teams: any[] }) {
           </filter>
         </defs>
 
-        {bye(jS, mid(y2), 2, "bye-2")}
-        {bye(jQ, mid(y7), 7, "bye-7")}
-        {bye(jQ, mid(y6), 6, "bye-6")}
-        {bye(jS, mid(y3), 3, "bye-3")}
-        {bye(jS, mid(y4), 4, "bye-4")}
-        {bye(jQ, mid(y5), 5, "bye-5")}
-        {bye(jQ, mid(y8), 8, "bye-8")}
-        {bye(jS, mid(y1), 1, "bye-1")}
+        {bye(xQ, mid(y7), 7, "bye-7")}
+        {bye(xQ, mid(y6), 6, "bye-6")}
+        {bye(xQ, mid(y5), 5, "bye-5")}
+        {bye(xQ, mid(y8), 8, "bye-8")}
+        {bye(xS, mid(y2), 2, "bye-2")}
+        {bye(xS, mid(y3), 3, "bye-3")}
+        {bye(xS, mid(y4), 4, "bye-4")}
+        {bye(xS, mid(y1), 1, "bye-1")}
 
         {box(x1, y1015, 1, 10, s[9], 15, s[14], "m1")}
         {box(x1, y1312, 2, 13, s[12], 12, s[11], "m2")}
@@ -281,23 +308,23 @@ export default function BracketView({ teams }: { teams: any[] }) {
         </text>
         {box(xC, champY, 15, undefined, ofMatch(13), undefined, ofMatch(14), "m15", true, champScale)}
 
-        {link(x1 + W, mid(y1015), jQ, mid(y7), xQ)}
-        {link(x1 + W, mid(y1312), jQ, mid(y6), xQ)}
-        {link(x1 + W, mid(y1114), jQ, mid(y5), xQ)}
-        {link(x1 + W, mid(y916), jQ, mid(y8), xQ)}
+        {elbow(x1 + W, mid(y1015), jQ, mid(y7), xQ, false, "e1")}
+        {elbow(x1 + W, mid(y1312), jQ, mid(y6), xQ, false, "e2")}
+        {elbow(x1 + W, mid(y1114), jQ, mid(y5), xQ, false, "e3")}
+        {elbow(x1 + W, mid(y916), jQ, mid(y8), xQ, false, "e4")}
 
-        {link(xQ + W, mid(y7), jS, mid(y2), xS)}
-        {link(xQ + W, mid(y6), jS, mid(y3), xS)}
-        {link(xQ + W, mid(y5), jS, mid(y4), xS)}
-        {link(xQ + W, mid(y8), jS, mid(y1), xS)}
+        {elbow(xQ + W, mid(y7), jS, mid(y2), xS, false, "e5")}
+        {elbow(xQ + W, mid(y6), jS, mid(y3), xS, false, "e6")}
+        {elbow(xQ + W, mid(y5), jS, mid(y4), xS, false, "e7")}
+        {elbow(xQ + W, mid(y8), jS, mid(y1), xS, false, "e8")}
 
-        {link(xS + W, mid(y2), jF, mid(topFinalY), xF)}
-        {link(xS + W, mid(y3), jF, mid(topFinalY), xF)}
-        {link(xS + W, mid(y4), jF, mid(botFinalY), xF)}
-        {link(xS + W, mid(y1), jF, mid(botFinalY), xF)}
+        {elbow(xS + W, mid(y2), jF, mid(topFinalY), xF, true, "e9")}
+        {elbow(xS + W, mid(y3), jF, mid(topFinalY), xF, false, "e10")}
+        {elbow(xS + W, mid(y4), jF, mid(botFinalY), xF, true, "e11")}
+        {elbow(xS + W, mid(y1), jF, mid(botFinalY), xF, false, "e12")}
 
-        {link(xF + W, mid(topFinalY), joinC, champCenter, xC)}
-        {link(xF + W, mid(botFinalY), joinC, champCenter, xC)}
+        {elbow(xF + W, mid(topFinalY), joinC, champCenter, xC, true, "e13")}
+        {elbow(xF + W, mid(botFinalY), joinC, champCenter, xC, false, "e14")}
       </svg>
     </div>
   );
