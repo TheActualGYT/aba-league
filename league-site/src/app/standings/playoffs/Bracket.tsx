@@ -185,21 +185,10 @@ export default function BracketView({ teams }: { teams: any[] }) {
     return <path key={key} d={d} fill="none" stroke={LINE} strokeWidth={STROKE} />;
   };
 
-  const bye = (xEnd: number, y: number, seed: number, id: string) => (
+  const bye = (y: number, seed: number, meet: number, id: string) => (
     <g key={id}>
-      <line
-        x1={x1}
-        y1={y}
-        x2={xEnd}
-        y2={y}
-        stroke={LINE}
-        strokeWidth={STROKE}
-        strokeLinecap="round"
-        strokeDasharray="1.5 6"
-      />
-      <rect x={x1 + 8} y={y - 9} width={108} height={18} rx={2} fill="#0a0a0a" />
       <text
-        x={x1 + 12}
+        x={x1}
         y={y + 4}
         fontSize={12}
         fill={LINE}
@@ -207,6 +196,16 @@ export default function BracketView({ teams }: { teams: any[] }) {
       >
         {ordinal(seed)} Seed Bye
       </text>
+      <line
+        x1={x1 + 112}
+        y1={y}
+        x2={meet}
+        y2={y}
+        stroke={LINE}
+        strokeWidth={STROKE}
+        strokeLinecap="round"
+        strokeDasharray="1.5 6"
+      />
     </g>
   );
 
@@ -277,14 +276,14 @@ export default function BracketView({ teams }: { teams: any[] }) {
           </filter>
         </defs>
 
-        {bye(xQ, mid(y7), 7, "bye-7")}
-        {bye(xQ, mid(y6), 6, "bye-6")}
-        {bye(xQ, mid(y5), 5, "bye-5")}
-        {bye(xQ, mid(y8), 8, "bye-8")}
-        {bye(xS, mid(y2), 2, "bye-2")}
-        {bye(xS, mid(y3), 3, "bye-3")}
-        {bye(xS, mid(y4), 4, "bye-4")}
-        {bye(xS, mid(y1), 1, "bye-1")}
+        {bye(mid(y7), 7, jQ + CURVE, "bye-7")}
+        {bye(mid(y6), 6, jQ + CURVE, "bye-6")}
+        {bye(mid(y5), 5, jQ + CURVE, "bye-5")}
+        {bye(mid(y8), 8, jQ + CURVE, "bye-8")}
+        {bye(mid(y2), 2, jS + CURVE, "bye-2")}
+        {bye(mid(y3), 3, jS + CURVE, "bye-3")}
+        {bye(mid(y4), 4, jS + CURVE, "bye-4")}
+        {bye(mid(y1), 1, jS + CURVE, "bye-1")}
 
         {box(x1, y1015, 1, 10, s[9], 15, s[14], "m1")}
         {box(x1, y1312, 2, 13, s[12], 12, s[11], "m2")}
@@ -317,15 +316,15 @@ export default function BracketView({ teams }: { teams: any[] }) {
         </text>
         {box(xC, champY, 15, undefined, ofMatch(13), undefined, ofMatch(14), "m15", true, champScale)}
 
-        {elbow(x1 + W, mid(y1015), jQ, mid(y7), xQ, false, "e1")}
-        {elbow(x1 + W, mid(y1312), jQ, mid(y6), xQ, false, "e2")}
-        {elbow(x1 + W, mid(y1114), jQ, mid(y5), xQ, false, "e3")}
-        {elbow(x1 + W, mid(y916), jQ, mid(y8), xQ, false, "e4")}
+        {elbow(x1 + W, mid(y1015), jQ, mid(y7), xQ, true, "e1")}
+        {elbow(x1 + W, mid(y1312), jQ, mid(y6), xQ, true, "e2")}
+        {elbow(x1 + W, mid(y1114), jQ, mid(y5), xQ, true, "e3")}
+        {elbow(x1 + W, mid(y916), jQ, mid(y8), xQ, true, "e4")}
 
-        {elbow(xQ + W, mid(y7), jS, mid(y2), xS, false, "e5")}
-        {elbow(xQ + W, mid(y6), jS, mid(y3), xS, false, "e6")}
-        {elbow(xQ + W, mid(y5), jS, mid(y4), xS, false, "e7")}
-        {elbow(xQ + W, mid(y8), jS, mid(y1), xS, false, "e8")}
+        {elbow(xQ + W, mid(y7), jS, mid(y2), xS, true, "e5")}
+        {elbow(xQ + W, mid(y6), jS, mid(y3), xS, true, "e6")}
+        {elbow(xQ + W, mid(y5), jS, mid(y4), xS, true, "e7")}
+        {elbow(xQ + W, mid(y8), jS, mid(y1), xS, true, "e8")}
 
         {elbow(xS + W, mid(y2), jF, mid(topFinalY), xF, true, "e9")}
         {elbow(xS + W, mid(y3), jF, mid(topFinalY), xF, false, "e10")}
