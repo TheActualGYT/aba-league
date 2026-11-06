@@ -12,7 +12,13 @@ export default async function TeamsPage() {
   const teams = sorted.map((team, i) => ({ ...team, overallRank: i + 1 }));
 
   return (
-    <main className="max-w-7xl mx-auto px-6 py-8">
+    <main
+      className="py-8"
+      style={{
+        paddingLeft: "max(16px, calc(50% - 707.56px))",
+        paddingRight: "max(24px, calc(50% - 640px))",
+      }}
+    >
       <h2 className="label-glow text-3xl font-bold mb-8 text-white text-center tracking-wide">TEAM DIRECTORY</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {teams.map(team => (
@@ -29,9 +35,9 @@ export default async function TeamsPage() {
               </div>
             </div>
             <p className="text-sm text-neutral-300">{team.location}</p>
-            <p className="text-sm text-neutral-400"><span className="font-bold text-white">Owner:</span> {team.ownership}</p>
-            <p className="text-sm text-neutral-400"><span className="font-bold text-white">HC:</span> {team.head_coach || "—"}</p>
-            <p className="text-sm text-neutral-400"><span className="font-bold text-white">AC:</span> {team.assistant_coach || "—"}</p>
+            <p className="text-sm text-neutral-400"><span className="font-bold">Owner:</span> {team.ownership}</p>
+            <p className="text-sm text-neutral-400"><span className="font-bold">HC:</span> {team.head_coach || "—"}</p>
+            <p className="text-sm text-neutral-400"><span className="font-bold">AC:</span> {team.assistant_coach || "—"}</p>
             <div className="flex justify-between items-end mt-3 gap-3">
               <Link href={`/teams/${team.id}`} className="text-sm text-neutral-300 hover:underline">
                 View Roster →
