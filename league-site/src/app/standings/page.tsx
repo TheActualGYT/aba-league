@@ -59,7 +59,7 @@ export default async function StandingsPage() {
 
   return (
     <main className="max-w-7xl mx-auto px-6 py-8">
-      <h2 className="text-3xl font-bold mb-8 text-white">League Standings</h2>
+      <h2 className="label-glow text-3xl font-bold mb-8 text-white text-center tracking-wide">DIVISIONAL STANDINGS</h2>
 
       {standingsByDivision.map(({ division, teams: divTeams }) => (
         <div key={division} className="mb-10">
