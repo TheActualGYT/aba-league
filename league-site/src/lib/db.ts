@@ -24,6 +24,8 @@ interface Team {
   logo: string;
   location: string;
   ownership: string;
+  head_coach?: string;
+  assistant_coach?: string;
   colors: string[]; // hex colors extracted from logo
   created_by: number;
 }

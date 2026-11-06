@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import db from "@/lib/db";
 
 export async function POST(req: NextRequest) {
-  const { name, abbreviation, division, logo, location, ownership, colors } = await req.json();
-  if (!name || !abbreviation || !division || !logo || !location || !ownership) {
+  const { name, abbreviation, division, logo, location, ownership, head_coach, assistant_coach, colors } = await req.json();
+  if (!name || !abbreviation || !division || !logo || !location || !ownership || !head_coach || !assistant_coach) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 
@@ -17,6 +17,8 @@ export async function POST(req: NextRequest) {
     logo,
     location,
     ownership,
+    head_coach,
+    assistant_coach,
     colors: colors || [],
     created_by: 1,
   });
@@ -25,7 +27,7 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  const { id, name, abbreviation, logo, location, ownership, colors } = await req.json();
+  const { id, name, abbreviation, logo, location, ownership, head_coach, assistant_coach, colors } = await req.json();
   if (!id) return NextResponse.json({ error: "Missing team id" }, { status: 400 });
 
   const data = await db.load();
@@ -37,6 +39,8 @@ export async function PATCH(req: NextRequest) {
   if (logo) team.logo = logo;
   if (location) team.location = location;
   if (ownership) team.ownership = ownership;
+  if (head_coach !== undefined) team.head_coach = head_coach;
+  if (assistant_coach !== undefined) team.assistant_coach = assistant_coach;
   if (colors) team.colors = colors;
 
   await db.save(data);

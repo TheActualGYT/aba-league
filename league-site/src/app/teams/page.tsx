@@ -30,20 +30,24 @@ export default async function TeamsPage() {
             </div>
             <p className="text-sm text-neutral-300">{team.location}</p>
             <p className="text-sm text-neutral-400">Owner: {team.ownership}</p>
-            {team.colors && team.colors.length > 0 && (
-              <div className="flex gap-1 mt-2">
-                {team.colors.map((c, i) => (
-                  <div key={i} className="h-5 w-5 rounded border border-neutral-600" style={{ backgroundColor: c }} title={c} />
-                ))}
-              </div>
-            )}
-            <div className="flex justify-between items-center mt-3">
+            <p className="text-sm text-neutral-400">Head Coach: {team.head_coach || "—"}</p>
+            <p className="text-sm text-neutral-400">Assistant Coach: {team.assistant_coach || "—"}</p>
+            <div className="flex justify-between items-end mt-3 gap-3">
               <Link href={`/teams/${team.id}`} className="text-sm text-neutral-300 hover:underline">
                 View Roster →
               </Link>
-              <div className="flex gap-3">
-                <EditTeamButton team={team} />
-                <DeleteTeamButton teamId={team.id} teamName={team.name} />
+              <div className="flex flex-col items-end gap-2">
+                {team.colors && team.colors.length > 0 && (
+                  <div className="flex gap-1">
+                    {team.colors.map((c, i) => (
+                      <div key={i} className="h-5 w-5 rounded border border-neutral-600" style={{ backgroundColor: c }} title={c} />
+                    ))}
+                  </div>
+                )}
+                <div className="flex gap-3">
+                  <EditTeamButton team={team} />
+                  <DeleteTeamButton teamId={team.id} teamName={team.name} />
+                </div>
               </div>
             </div>
           </div>
