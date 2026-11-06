@@ -115,20 +115,20 @@ export default function BracketView({ teams }: { teams: any[] }) {
 
       {H(r1r, qL, boxA + 29)}
       {V(qL, boxA + 29, dukeY)}
-      {H(qL, qR, dukeY)}
+      {H(r1x, qR, dukeY)}
       {bye(qL, dukeY, qR - qL - 16, 6)}
 
       {H(r1r, qL, boxB + 29)}
       {V(qL, boxB + 29, marqY)}
-      {H(qL, qR, marqY)}
+      {H(r1x, qR, marqY)}
       {bye(qL, marqY, qR - qL - 16, 5)}
 
       {V(qR, dukeY, moY)}
-      {H(sL, sR, moY)}
+      {H(r1x, sR, moY)}
       {bye(sL, moY, qR - sL - 8, 1)}
 
       {V(qR, marqY, texY)}
-      {H(sL, sR, texY)}
+      {H(r1x, sR, texY)}
       {bye(sL, texY, qR - sL - 8, 2)}
 
       {V(sR, moY, texY)}
@@ -136,20 +136,20 @@ export default function BracketView({ teams }: { teams: any[] }) {
 
       {H(r1r, qL, boxC + 29)}
       {V(qL, bayY, boxC + 29)}
-      {H(qL, qR, bayY)}
+      {H(r1x, qR, bayY)}
       {bye(qL, bayY, qR - qL - 16, 4)}
 
       {H(r1r, qL, boxD + 29)}
       {V(qL, boxD + 29, michY)}
-      {H(qL, qR, michY)}
+      {H(r1x, qR, michY)}
       {bye(qL, michY, qR - qL - 16, 7)}
 
       {V(qR, bayY, bufY)}
-      {H(sL, sR, bufY)}
+      {H(r1x, sR, bufY)}
       {bye(sL, bufY, qR - sL - 8, 3)}
 
       {V(qR, michY, kenY)}
-      {H(sL, sR, kenY)}
+      {H(r1x, sR, kenY)}
       {bye(sL, kenY, qR - sL - 8, 0)}
 
       {V(sR, bufY, kenY)}
