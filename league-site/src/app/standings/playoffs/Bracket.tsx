@@ -1,81 +1,114 @@
 "use client";
 
-import { Bracket, IRoundProps, Seed, SeedItem, SeedTeam } from "react-brackets";
-
-function CustomSeed({ seed, breakpoint }: any) {
-  return (
-    <Seed mobileBreakpoint={breakpoint} style={{ fontSize: 12 }}>
-      <SeedItem style={{ width: 200 }}>
-        <div>
-          <SeedTeam style={{ padding: "6px 8px", whiteSpace: "nowrap" }}>
-            {seed.teams[0]?.name || "TBD"}
-          </SeedTeam>
-          <div style={{ height: 1, backgroundColor: "#444" }} />
-          <SeedTeam style={{ padding: "6px 8px", whiteSpace: "nowrap" }}>
-            {seed.teams[1]?.name || "TBD"}
-          </SeedTeam>
-        </div>
-      </SeedItem>
-    </Seed>
-  );
-}
-
 export default function BracketView({ teams }: { teams: any[] }) {
   const sorted = [...teams].sort((a, b) => a.name.localeCompare(b.name));
   const seeds = Array.from({ length: 16 }, (_, i) => sorted[i] || null);
 
-  const name = (idx: number) => seeds[idx] ? `${idx + 1}. ${seeds[idx].name}` : "TBD";
+  const name = (idx: number) => seeds[idx]?.name || "TBD";
+  const logo = (idx: number) => seeds[idx]?.logo;
 
-  // Round 1: seeds 9-16 (4 matchups)
-  const r1Seeds = [
-    { id: 1, date: "", teams: [{ name: name(9) }, { name: name(14) }] },
-    { id: 2, date: "", teams: [{ name: name(12) }, { name: name(11) }] },
-    { id: 3, date: "", teams: [{ name: name(10) }, { name: name(13) }] },
-    { id: 4, date: "", teams: [{ name: name(8) }, { name: name(15) }] },
-  ];
-
-  // Quarterfinals: seeds 5-8 enter (4 matchups)
-  const qfSeeds = [
-    { id: 11, date: "", teams: [{ name: name(4) }, { name: "Winner" }] },
-    { id: 12, date: "", teams: [{ name: name(5) }, { name: "Winner" }] },
-    { id: 13, date: "", teams: [{ name: name(6) }, { name: "Winner" }] },
-    { id: 14, date: "", teams: [{ name: name(7) }, { name: "Winner" }] },
-  ];
-
-  // Semifinals: seeds 1-4 enter (4 matchups)
-  const sfSeeds = [
-    { id: 21, date: "", teams: [{ name: name(0) }, { name: "Winner" }] },
-    { id: 22, date: "", teams: [{ name: name(1) }, { name: "Winner" }] },
-    { id: 23, date: "", teams: [{ name: name(2) }, { name: "Winner" }] },
-    { id: 24, date: "", teams: [{ name: name(3) }, { name: "Winner" }] },
-  ];
-
-  // Finals: 2 matchups
-  const finSeeds = [
-    { id: 31, date: "", teams: [{ name: "Winner" }, { name: "Winner" }] },
-    { id: 32, date: "", teams: [{ name: "Winner" }, { name: "Winner" }] },
-  ];
-
-  // Championship: 1 matchup
-  const champSeeds = [
-    { id: 40, date: "", teams: [{ name: "Winner" }, { name: "Winner" }] },
-  ];
-
-  const rounds: IRoundProps[] = [
-    { title: "Round 1", seeds: r1Seeds },
-    { title: "Quarterfinals", seeds: qfSeeds },
-    { title: "Semifinals", seeds: sfSeeds },
-    { title: "Finals", seeds: finSeeds },
-    { title: "Championship", seeds: champSeeds },
-  ];
+  const Slot = ({ idx, seed }: { idx?: number; seed?: number }) => (
+    <div className="bg-neutral-900 border border-neutral-600 rounded px-2 py-1.5 flex items-center gap-2 w-44 h-8">
+      {seed && <span className="text-neutral-500 text-xs w-4">{seed}</span>}
+      {idx !== undefined && logo(idx) && <img src={logo(idx)} alt="" className="h-4 w-4 object-contain" />}
+      <span className="text-white text-xs font-medium truncate">{idx !== undefined ? name(idx) : "Winner"}</span>
+    </div>
+  );
 
   return (
-    <Bracket
-      rounds={rounds}
-      roundTitleComponent={(title: any) => (
-        <div className="text-xs text-neutral-500 text-center mb-2">{title}</div>
-      )}
-      renderSeedComponent={CustomSeed}
-    />
+    <div className="flex gap-1 items-start text-white">
+      {/* Column 1: Round 1 matchups */}
+      <div className="flex flex-col" style={{ gap: "8px" }}>
+        <div className="text-xs text-neutral-500 text-center mb-1">Round 1</div>
+        {/* 10 vs 15 */}
+        <div className="space-y-0.5"><Slot idx={9} seed={10} /><Slot idx={14} seed={15} /></div>
+        <div className="h-8" />
+        {/* 13 vs 12 */}
+        <div className="space-y-0.5"><Slot idx={12} seed={13} /><Slot idx={11} seed={12} /></div>
+        <div className="h-8" />
+        {/* 11 vs 14 */}
+        <div className="space-y-0.5"><Slot idx={10} seed={11} /><Slot idx={13} seed={14} /></div>
+        <div className="h-8" />
+        {/* 9 vs 16 */}
+        <div className="space-y-0.5"><Slot idx={8} seed={9} /><Slot idx={15} seed={16} /></div>
+      </div>
+
+      {/* Connector */}
+      <div className="flex flex-col justify-around pt-6" style={{ width: "16px", height: "400px" }}>
+        <div className="border-t border-r border-neutral-500 h-8" />
+        <div className="border-t border-r border-neutral-500 h-8" />
+        <div className="border-t border-r border-neutral-500 h-8" />
+        <div className="border-t border-r border-neutral-500 h-8" />
+      </div>
+
+      {/* Column 2: Seeds 5-8 (1 bye) */}
+      <div className="flex flex-col" style={{ gap: "8px" }}>
+        <div className="text-xs text-neutral-500 text-center mb-1">Quarterfinals</div>
+        <Slot idx={6} seed={7} />
+        <Slot />
+        <div className="h-4" />
+        <Slot idx={5} seed={6} />
+        <Slot />
+        <div className="h-4" />
+        <Slot idx={4} seed={5} />
+        <Slot />
+        <div className="h-4" />
+        <Slot idx={7} seed={8} />
+        <Slot />
+      </div>
+
+      {/* Connector */}
+      <div className="flex flex-col justify-around pt-6" style={{ width: "16px", height: "400px" }}>
+        <div className="border-t border-r border-neutral-500 h-12" />
+        <div className="border-t border-r border-neutral-500 h-12" />
+        <div className="border-t border-r border-neutral-500 h-12" />
+        <div className="border-t border-r border-neutral-500 h-12" />
+      </div>
+
+      {/* Column 3: Seeds 1-4 (2 byes) */}
+      <div className="flex flex-col" style={{ gap: "8px" }}>
+        <div className="text-xs text-neutral-500 text-center mb-1">Semifinals</div>
+        <Slot idx={1} seed={2} />
+        <Slot />
+        <div className="h-8" />
+        <Slot idx={2} seed={3} />
+        <Slot />
+        <div className="h-8" />
+        <Slot idx={3} seed={4} />
+        <Slot />
+        <div className="h-8" />
+        <Slot idx={0} seed={1} />
+        <Slot />
+      </div>
+
+      {/* Connector */}
+      <div className="flex flex-col justify-around pt-6" style={{ width: "16px", height: "400px" }}>
+        <div className="border-t border-r border-neutral-500 h-16" />
+        <div className="border-t border-r border-neutral-500 h-16" />
+      </div>
+
+      {/* Column 4: Finals */}
+      <div className="flex flex-col" style={{ gap: "8px" }}>
+        <div className="text-xs text-neutral-500 text-center mb-1">Finals</div>
+        <div className="h-16" />
+        <Slot />
+        <Slot />
+        <div className="h-16" />
+        <Slot />
+        <Slot />
+      </div>
+
+      {/* Connector to Champion */}
+      <div className="flex flex-col justify-center pt-6" style={{ width: "16px", height: "400px" }}>
+        <div className="border-t border-r border-neutral-500 h-20" />
+      </div>
+
+      {/* Champion */}
+      <div className="flex flex-col justify-center" style={{ height: "400px" }}>
+        <div className="bg-yellow-400 text-black font-bold text-xs px-3 py-2 rounded text-center">
+          CHAMPIONS
+        </div>
+      </div>
+    </div>
   );
 }
