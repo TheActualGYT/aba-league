@@ -9,7 +9,14 @@ export default async function PlayoffPicturePage() {
 
   return (
     <main className="flex flex-col h-[calc(100vh-5.125rem)]">
-      <div className="shrink-0 px-6 pt-6 pb-5" style={{ background: "#111111" }}>
+      <div className="shrink-0 relative px-6 pt-6 pb-5" style={{ background: "#111111" }}>
+        <div
+          className="absolute text-neutral-400 leading-tight"
+          style={{ left: "max(24px, calc(50% - 703.56px))", top: 18, fontSize: 12 }}
+        >
+          <div>1st Annual</div>
+          <div>Dates: TBD</div>
+        </div>
         <div className="max-w-7xl mx-auto relative">
           <div className="text-center">
             <h2 className="text-3xl font-bold mb-2 text-white">PLAYOFF BRACKET</h2>
