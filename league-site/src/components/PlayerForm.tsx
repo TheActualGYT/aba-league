@@ -20,13 +20,13 @@ const HEIGHTS = (() => {
 function jerseyError(raw: string) {
   const value = raw.trim();
   if (!value) return "";
-  if (!/^\d+$/.test(value) || value.length > 2 || Number(value) > 55) {
-    return "Jersey numbers cap at 55.";
-  }
-  if ([...value].some(digit => Number(digit) > 5) || !/^(?:[0-5]|00|[1-5][0-5])$/.test(value)) {
-    return "Each digit has to be 0\u20135. 17 isn't allowed.";
-  }
-  return "";
+  const digits = /^\d+$/.test(value);
+  const overCap = !digits || value.length > 2 || Number(value) > 55;
+  const badDigit = digits && [...value].some(digit => Number(digit) > 5);
+  const illegal = !/^(?:[0-5]|00|[1-5][0-5])$/.test(value);
+  if (!overCap && !badDigit && !illegal) return "";
+  if (overCap && !badDigit) return `Jersey numbers cap at 55. ${value} isn't allowed.`;
+  return `Each digit has to be 0\u20135. ${value} isn't allowed.`;
 }
 
 function overallError(raw: string) {
@@ -66,7 +66,7 @@ function Menu({
       <button
         type="button"
         onClick={() => setOpen(currentOpen => !currentOpen)}
-        className={`${fieldClass} text-left flex items-center justify-between min-h-[42px] ${invalid ? "!border-red-500" : ""}`}
+        className={`${fieldClass} text-left flex items-center justify-between min-h-[42px] ${invalid ? "abbr-taken" : ""}`}
       >
         <span>{current?.label || ""}</span>
         <span className="text-neutral-400 text-[10px]">▼</span>
@@ -162,7 +162,7 @@ export default function PlayerForm() {
             value={overall}
             onChange={e => setOverall(e.target.value)}
             inputMode="numeric"
-            className={`${fieldClass} ${overallMessage ? "!border-red-500" : ""}`}
+            className={`${fieldClass} ${overallMessage ? "abbr-taken" : ""}`}
           />
           {overallMessage && <p className="text-xs text-red-400 mt-1">{overallMessage}</p>}
         </div>
@@ -181,7 +181,7 @@ export default function PlayerForm() {
             value={weight}
             onChange={e => setWeight(e.target.value)}
             inputMode="numeric"
-            className={`${fieldClass} ${weightMessage ? "!border-red-500" : ""}`}
+            className={`${fieldClass} ${weightMessage ? "abbr-taken" : ""}`}
           />
           {weightMessage && <p className="text-xs text-red-400 mt-1">{weightMessage}</p>}
         </div>
@@ -191,7 +191,7 @@ export default function PlayerForm() {
             value={number}
             onChange={e => setNumber(e.target.value)}
             inputMode="numeric"
-            className={`${fieldClass} ${numberMessage ? "!border-red-500" : ""}`}
+            className={`${fieldClass} ${numberMessage ? "abbr-taken" : ""}`}
           />
           {numberMessage && <p className="text-xs text-red-400 mt-1">{numberMessage}</p>}
         </div>
