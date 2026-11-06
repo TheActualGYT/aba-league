@@ -1,20 +1,9 @@
 import db from "@/lib/db";
+import { STANDINGS_COLS, buildTeamRecord, gamesBehind, statValues, type Game } from "@/lib/standings";
 
 export const dynamic = "force-dynamic";
 
 const DIVISION_NAMES = ["Alpha Division", "Delta Division", "Gamma Division", "Omega Division"];
-
-const COLS = [
-  { label: "Rank", width: "72px", align: "text-left" },
-  { label: "Team Name", width: undefined, align: "text-left" },
-  { label: "W", width: "64px", align: "text-center" },
-  { label: "L", width: "64px", align: "text-center" },
-  { label: "Win %", width: "84px", align: "text-center" },
-  { label: "GB", width: "72px", align: "text-center" },
-  { label: "Pts Scored", width: "120px", align: "text-center" },
-  { label: "Pts Allowed", width: "124px", align: "text-center" },
-  { label: "Diff", width: "80px", align: "text-center" },
-];
 
 function assignDivisions(teams: any[]) {
   const sorted = [...teams].sort((a, b) => a.name.localeCompare(b.name));
@@ -34,37 +23,21 @@ function assignDivisions(teams: any[]) {
 export default async function StandingsPage() {
   const data = await db.load();
   const teams = data.teams;
-  const games = data.games;
+  const games = data.games as Game[];
 
   const divisionTeams = assignDivisions(teams);
 
   const standingsByDivision = divisionTeams.map((divTeams, idx) => {
-    const standings = divTeams.map(team => {
-      let wins = 0, losses = 0, pf = 0, pa = 0;
-      games.forEach(game => {
-        if (game.home_team_id === team.id) {
-          if (game.home_score > game.away_score) wins++;
-          else losses++;
-          pf += game.home_score;
-          pa += game.away_score;
-        } else if (game.away_team_id === team.id) {
-          if (game.away_score > game.home_score) wins++;
-          else losses++;
-          pf += game.away_score;
-          pa += game.home_score;
-        }
-      });
-      const gamesPlayed = wins + losses;
-      const winPct = gamesPlayed > 0 ? wins / gamesPlayed : 0;
-      return { ...team, wins, losses, pf, pa, diff: pf - pa, winPct, gamesPlayed };
-    }).sort((a, b) => b.wins - a.wins || b.diff - a.diff);
+    const standings = divTeams.map(team => ({
+      ...team,
+      ...buildTeamRecord(team.id, games),
+    })).sort((a, b) => b.wins - a.wins || a.losses - b.losses || b.diff - a.diff);
 
-    const leaderWins = standings[0]?.wins || 0;
-    const leaderLosses = standings[0]?.losses || 0;
-    const withGB = standings.map(team => {
-      const gb = ((leaderWins - team.wins) + (team.losses - leaderLosses)) / 2;
-      return { ...team, gb: gb === 0 ? "—" : gb.toFixed(1) };
-    });
+    const leader = standings[0];
+    const withGB = standings.map(team => ({
+      ...team,
+      gb: leader ? gamesBehind(team, leader) : "—",
+    }));
 
     return { division: DIVISION_NAMES[idx], teams: withGB };
   });
@@ -85,14 +58,14 @@ export default async function StandingsPage() {
           <div className="overflow-x-auto">
             <table className="w-full table-fixed bg-neutral-900 rounded-lg border border-neutral-700">
               <colgroup>
-                {COLS.map(col => (
+                {STANDINGS_COLS.map(col => (
                   <col key={col.label} style={col.width ? { width: col.width } : undefined} />
                 ))}
               </colgroup>
               <thead className="bg-neutral-800">
                 <tr>
-                  {COLS.map(col => (
-                    <th key={col.label} className={`px-3 py-3 text-neutral-300 text-sm whitespace-nowrap ${col.align}`}>
+                  {STANDINGS_COLS.map(col => (
+                    <th key={col.label} className={`px-2 py-3 text-neutral-300 text-xs whitespace-nowrap ${col.align}`}>
                       {col.label}
                     </th>
                   ))}
@@ -101,8 +74,8 @@ export default async function StandingsPage() {
               <tbody>
                 {divTeams.map((team, i) => (
                   <tr key={team.id} className="border-t border-neutral-700">
-                    <td className="px-3 py-3">{i + 1}</td>
-                    <td className="px-3 py-3 font-semibold text-white">
+                    <td className="px-2 py-3 whitespace-nowrap">{i + 1}</td>
+                    <td className="px-2 py-3 font-semibold text-white">
                       <div className="flex items-center gap-2 min-w-0">
                         {team.logo ? (
                           <img src={team.logo} alt="" className="h-6 w-6 object-contain flex-shrink-0" />
@@ -114,17 +87,15 @@ export default async function StandingsPage() {
                         </span>
                       </div>
                     </td>
-                    <td className="px-3 py-3 text-center">{team.wins}</td>
-                    <td className="px-3 py-3 text-center">{team.losses}</td>
-                    <td className="px-3 py-3 text-center">{team.winPct.toFixed(3).replace(/^0/, "")}</td>
-                    <td className="px-3 py-3 text-center">{team.gb}</td>
-                    <td className="px-3 py-3 text-center">{team.pf}</td>
-                    <td className="px-3 py-3 text-center">{team.pa}</td>
-                    <td className="px-3 py-3 text-center">{team.diff > 0 ? "+" : ""}{team.diff}</td>
+                    {statValues(team).map((value, index) => (
+                      <td key={STANDINGS_COLS[index + 2].label} className="px-2 py-3 text-center whitespace-nowrap">
+                        {value}
+                      </td>
+                    ))}
                   </tr>
                 ))}
                 {divTeams.length === 0 && (
-                  <tr><td colSpan={9} className="px-4 py-6 text-center text-neutral-400">No teams in this division yet.</td></tr>
+                  <tr><td colSpan={STANDINGS_COLS.length} className="px-4 py-6 text-center text-neutral-400">No teams in this division yet.</td></tr>
                 )}
               </tbody>
             </table>
