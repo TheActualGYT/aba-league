@@ -54,6 +54,10 @@ export default async function PlayoffPicturePage() {
     [1, 14],
   ];
 
+  // Slot height = 32px, gap between teams in matchup = 2px, gap between matchups = 12px
+  // Matchup height = 32 + 2 + 32 = 66px
+  // Total unit = 66 + 12 = 78px
+
   return (
     <main className="max-w-7xl mx-auto px-6 py-8">
       <h2 className="text-3xl font-bold mb-2 text-white text-center">Playoff Picture</h2>
@@ -66,11 +70,11 @@ export default async function PlayoffPicturePage() {
       )}
 
       <div className="overflow-x-auto pb-4">
-        <div className="flex gap-6 min-w-max justify-center items-start">
-          {/* Round of 16 */}
+        <div className="flex gap-8 min-w-max justify-center">
+          {/* Round of 16 - 8 matchups */}
           <div>
             <div className="text-xs text-neutral-500 text-center mb-3">Round of 16</div>
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col" style={{ gap: "12px" }}>
               {r1.map(([a, b], i) => (
                 <div key={i} className="space-y-0.5">
                   <Slot team={s[a]} seed={a + 1} />
@@ -80,60 +84,51 @@ export default async function PlayoffPicturePage() {
             </div>
           </div>
 
-          {/* Quarterfinals - centered between pairs */}
+          {/* Quarterfinals - 4 matchups, each centered between 2 R1 matchups */}
+          {/* Center of first 2 R1 matchups: (66+12+66)/2 = 72px from top of first matchup */}
+          {/* Offset for QF first matchup: 72 - 33 = 39px */}
           <div>
             <div className="text-xs text-neutral-500 text-center mb-3">Quarterfinals</div>
-            <div className="flex flex-col">
-              {/* Each QF is centered between 2 R1 matchups */}
-              {/* R1 matchup is ~68px (2*32 + 4), gap is 16px, so pair is ~152px */}
-              {/* Center of pair is at ~76px, QF should start there */}
-              <div className="mt-8 space-y-0.5">
-                <Slot placeholder="Winner" />
-                <Slot placeholder="Winner" />
-              </div>
-              <div className="mt-12 space-y-0.5">
-                <Slot placeholder="Winner" />
-                <Slot placeholder="Winner" />
-              </div>
-              <div className="mt-12 space-y-0.5">
-                <Slot placeholder="Winner" />
-                <Slot placeholder="Winner" />
-              </div>
-              <div className="mt-12 space-y-0.5">
-                <Slot placeholder="Winner" />
-                <Slot placeholder="Winner" />
-              </div>
+            <div className="flex flex-col" style={{ gap: "90px", marginTop: "39px" }}>
+              {[0, 1, 2, 3].map(i => (
+                <div key={i} className="space-y-0.5">
+                  <Slot placeholder="Winner" />
+                  <Slot placeholder="Winner" />
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* Semifinals */}
+          {/* Semifinals - 2 matchups, each centered between 2 QF matchups */}
+          {/* QF unit = 66 + 90 = 156px, center of 2 QF = 156/2 + 39 = 117px */}
           <div>
             <div className="text-xs text-neutral-500 text-center mb-3">Semifinals</div>
-            <div className="flex flex-col">
-              <div className="mt-16 space-y-0.5">
-                <Slot placeholder="Winner" />
-                <Slot placeholder="Winner" />
-              </div>
-              <div className="mt-28 space-y-0.5">
-                <Slot placeholder="Winner" />
-                <Slot placeholder="Winner" />
-              </div>
+            <div className="flex flex-col" style={{ gap: "200px", marginTop: "117px" }}>
+              {[0, 1].map(i => (
+                <div key={i} className="space-y-0.5">
+                  <Slot placeholder="Winner" />
+                  <Slot placeholder="Winner" />
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* Finals */}
+          {/* Finals - 1 matchup, centered between 2 SF */}
+          {/* SF unit = 66 + 200 = 266px, center = 266/2 + 117 = 250px */}
           <div>
             <div className="text-xs text-neutral-500 text-center mb-3">Finals</div>
-            <div className="mt-32 space-y-0.5">
-              <Slot placeholder="Winner" />
-              <Slot placeholder="Winner" />
+            <div style={{ marginTop: "250px" }}>
+              <div className="space-y-0.5">
+                <Slot placeholder="Winner" />
+                <Slot placeholder="Winner" />
+              </div>
             </div>
           </div>
 
           {/* Champion */}
           <div>
             <div className="text-xs text-neutral-500 text-center mb-3">Champion</div>
-            <div className="mt-36">
+            <div style={{ marginTop: "270px" }}>
               <div className="bg-yellow-400 text-black font-bold text-xs px-3 py-2 rounded text-center">
                 CHAMPIONS
               </div>
