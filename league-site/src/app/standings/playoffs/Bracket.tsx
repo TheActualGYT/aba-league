@@ -150,6 +150,22 @@ export default function BracketView({ teams }: { teams: any[] }) {
     </g>
   );
 
+  const bye = (xEnd: number, y: number, seed: number, id: string) => (
+    <g key={id}>
+      <line x1={x1} y1={y} x2={xEnd} y2={y} stroke={LINE} strokeWidth={1.5} />
+      <rect x={x1 + 12} y={y - 9} width={52} height={18} rx={2} fill="#0a0a0a" />
+      <text
+        x={x1 + 16}
+        y={y + 4}
+        fontSize={12}
+        fill="#ffffff"
+        fontFamily="Inter, system-ui, sans-serif"
+      >
+        {seed} Bye
+      </text>
+    </g>
+  );
+
   const topFinalY = (mid(y2) + mid(y3)) / 2 - H / 2;
   const botFinalY = (mid(y4) + mid(y1)) / 2 - H / 2;
   const champCenter = (mid(topFinalY) + mid(botFinalY)) / 2;
@@ -216,6 +232,15 @@ export default function BracketView({ teams }: { teams: any[] }) {
             </feMerge>
           </filter>
         </defs>
+
+        {bye(xS, mid(y2), 2, "bye-2")}
+        {bye(xQ, mid(y7), 7, "bye-7")}
+        {bye(xQ, mid(y6), 6, "bye-6")}
+        {bye(xS, mid(y3), 3, "bye-3")}
+        {bye(xS, mid(y4), 4, "bye-4")}
+        {bye(xQ, mid(y5), 5, "bye-5")}
+        {bye(xQ, mid(y8), 8, "bye-8")}
+        {bye(xS, mid(y1), 1, "bye-1")}
 
         {box(x1, y1015, 1, 10, s[9], 15, s[14], "m1")}
         {box(x1, y1312, 2, 13, s[12], 12, s[11], "m2")}
