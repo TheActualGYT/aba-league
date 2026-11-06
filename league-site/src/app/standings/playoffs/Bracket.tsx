@@ -322,7 +322,7 @@ export default function BracketView({ teams }: { teams: any[] }) {
           fill="#facc15"
           fontFamily="Inter, system-ui, sans-serif"
         >
-          Championship Game
+          CHAMPIONSHIP GAME
         </text>
         {box(xC, champY, 15, undefined, ofMatch(13), undefined, ofMatch(14), "m15", true, champScale)}
 
