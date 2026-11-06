@@ -145,7 +145,19 @@ export default async function LeagueStandingsPage() {
             {outside.length > 0 && (
               <tr>
                 <td colSpan={9} className="bg-transparent py-6 text-center">
-                  <span className="gold-glow text-sm font-bold tracking-[0.22em]">^  ^  ^  PLAYOFF QUALIFICATION  ^  ^  ^</span>
+                  <span className="gold-glow inline-flex items-center justify-center text-sm font-bold tracking-[0.22em]">
+                    <span className="inline-flex gap-5">
+                      <span>^</span>
+                      <span>^</span>
+                      <span>^</span>
+                    </span>
+                    <span className="mx-6">PLAYOFF QUALIFICATION</span>
+                    <span className="inline-flex gap-5">
+                      <span>^</span>
+                      <span>^</span>
+                      <span>^</span>
+                    </span>
+                  </span>
                 </td>
               </tr>
             )}
