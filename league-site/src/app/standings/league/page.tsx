@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import db from "@/lib/db";
 
 export const dynamic = "force-dynamic";
@@ -48,13 +49,13 @@ export default async function LeagueStandingsPage() {
 
   return (
     <main
-      className="py-8"
+      className="pb-8"
       style={{
         paddingLeft: "max(16px, calc(50% - 707.56px))",
         paddingRight: "max(24px, calc(50% - 640px))",
       }}
     >
-      <h2 className="label-glow text-3xl font-bold mb-8 text-white text-center tracking-wide">LEAGUE STANDINGS</h2>
+      <h2 className="standings-title label-glow text-3xl font-bold text-white text-center tracking-wide">LEAGUE STANDINGS</h2>
 
       <div className="overflow-x-auto">
         <table className="w-full bg-neutral-900 rounded-lg border border-neutral-700">
@@ -73,24 +74,33 @@ export default async function LeagueStandingsPage() {
           </thead>
           <tbody>
             {withGB.map((team, i) => (
-              <tr key={team.id} className="border-t border-neutral-700">
-                <td className="px-3 py-3">{i + 1}</td>
-                <td className="px-3 py-3 font-semibold text-white">
-                  <div className="flex items-center gap-2">
-                    {team.logo && <img src={team.logo} alt="" className="h-6 w-6 object-contain" />}
-                    <span>
-                      {team.name}<sup className="text-neutral-500 text-[9px] ml-1">{team.overallRank}</sup>
-                    </span>
-                  </div>
-                </td>
-                <td className="px-3 py-3 text-center">{team.wins}</td>
-                <td className="px-3 py-3 text-center">{team.losses}</td>
-                <td className="px-3 py-3 text-center">{team.winPct.toFixed(3).replace(/^0/, "")}</td>
-                <td className="px-3 py-3 text-center">{team.gb}</td>
-                <td className="px-3 py-3 text-center">{team.pf}</td>
-                <td className="px-3 py-3 text-center">{team.pa}</td>
-                <td className="px-3 py-3 text-center">{team.diff > 0 ? "+" : ""}{team.diff}</td>
-              </tr>
+              <Fragment key={team.id}>
+                {i === 16 && (
+                  <tr>
+                    <td colSpan={9} className="bg-[#0a0a0a] px-3 py-6 text-center">
+                      <span className="gold-glow text-sm font-bold tracking-[0.22em]">^ ^ ^ PLAYOFF QUALIFICATION ^ ^ ^</span>
+                    </td>
+                  </tr>
+                )}
+                <tr className="border-t border-neutral-700">
+                  <td className={`px-3 py-3 ${i < 16 ? "label-glow text-white font-semibold" : ""}`}>{i + 1}</td>
+                  <td className="px-3 py-3 font-semibold text-white">
+                    <div className="flex items-center gap-2">
+                      {team.logo && <img src={team.logo} alt="" className="h-6 w-6 object-contain" />}
+                      <span>
+                        {team.name}<sup className="text-neutral-500 text-[9px] ml-1">{team.overallRank}</sup>
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-3 py-3 text-center">{team.wins}</td>
+                  <td className="px-3 py-3 text-center">{team.losses}</td>
+                  <td className="px-3 py-3 text-center">{team.winPct.toFixed(3).replace(/^0/, "")}</td>
+                  <td className="px-3 py-3 text-center">{team.gb}</td>
+                  <td className="px-3 py-3 text-center">{team.pf}</td>
+                  <td className="px-3 py-3 text-center">{team.pa}</td>
+                  <td className="px-3 py-3 text-center">{team.diff > 0 ? "+" : ""}{team.diff}</td>
+                </tr>
+              </Fragment>
             ))}
             {withGB.length === 0 && (
               <tr><td colSpan={9} className="px-4 py-6 text-center text-neutral-400">No teams yet.</td></tr>
