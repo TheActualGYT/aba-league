@@ -51,7 +51,7 @@ export default async function TeamsPage() {
                   </div>
                 )}
                 <div className="flex gap-3">
-                  <EditTeamButton team={team} />
+                  <EditTeamButton team={team} teams={teams} />
                   <DeleteTeamButton teamId={team.id} teamName={team.name} />
                 </div>
               </div>
@@ -60,7 +60,7 @@ export default async function TeamsPage() {
         ))}
       </div>
       <div className="mt-10">
-        <TeamForm />
+        <TeamForm teams={teams} />
       </div>
     </main>
   );
