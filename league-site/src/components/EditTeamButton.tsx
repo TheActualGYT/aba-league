@@ -135,11 +135,11 @@ export default function EditTeamButton({ team }: { team: any }) {
                 <input value={name} onChange={e => setName(e.target.value)} className="w-full px-3 py-2 bg-neutral-800 border border-neutral-600 rounded text-white" />
               </div>
               <div>
-                <label className="block text-sm text-neutral-300 mb-1">Abbr</label>
+                <label className="block text-sm text-neutral-300 mb-1">Abbreviation</label>
                 <input value={abbr} onChange={e => setAbbr(e.target.value.toUpperCase())} maxLength={4} className="w-full px-3 py-2 bg-neutral-800 border border-neutral-600 rounded text-white" />
               </div>
               <div>
-                <label className="block text-sm text-neutral-300 mb-1">Location</label>
+                <label className="block text-sm text-neutral-300 mb-1">City and State</label>
                 <input value={location} onChange={e => setLocation(e.target.value)} className="w-full px-3 py-2 bg-neutral-800 border border-neutral-600 rounded text-white" />
               </div>
               <div>
