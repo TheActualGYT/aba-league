@@ -231,7 +231,7 @@ export default function BracketView({ teams }: { teams: any[] }) {
   ];
 
   return (
-    <div style={{ width: "100%", minWidth: DISPLAY_W, position: "relative" }}>
+    <div style={{ width: "100%", minWidth: DISPLAY_W, position: "relative", paddingBottom: 80 }}>
       <div
         className="sticky top-0 z-20"
         style={{
