@@ -231,12 +231,15 @@ export default function BracketView({ teams }: { teams: any[] }) {
   ];
 
   return (
-    <div style={{ width: DISPLAY_W, margin: "0 auto", position: "relative" }}>
+    <div style={{ width: "100%", minWidth: DISPLAY_W, position: "relative" }}>
       <div
         className="sticky top-0 z-20"
         style={{
+          position: "sticky",
+          top: 0,
+          left: 0,
           height: 32,
-          width: DISPLAY_W,
+          width: "100%",
           background: "#0a0a0a",
           borderBottom: "1px solid #262626",
         }}
@@ -246,7 +249,7 @@ export default function BracketView({ teams }: { teams: any[] }) {
             key={round.label}
             style={{
               position: "absolute",
-              left: round.x * fit,
+              left: `calc(50% + ${round.x * fit - DISPLAY_W / 2}px)`,
               top: 0,
               height: 32,
               display: "flex",
@@ -265,7 +268,13 @@ export default function BracketView({ teams }: { teams: any[] }) {
         ))}
       </div>
 
-      <svg viewBox={`0 0 ${layoutW} ${layoutH}`} width={DISPLAY_W} height={displayH} className="block" style={{ marginTop: 48 }}>
+      <svg
+        viewBox={`0 0 ${layoutW} ${layoutH}`}
+        width={DISPLAY_W}
+        height={displayH}
+        className="block"
+        style={{ marginTop: 48, marginLeft: "auto", marginRight: "auto" }}
+      >
         <defs>
           <filter id="gold-aura" x="-60%" y="-80%" width="220%" height="260%">
             <feGaussianBlur stdDeviation="7" result="blur" />
