@@ -336,4 +336,3 @@ export default function BracketView({ teams }: { teams: any[] }) {
       </svg>
     </div>
   );
-
