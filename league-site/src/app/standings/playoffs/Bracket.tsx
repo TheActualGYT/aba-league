@@ -80,19 +80,19 @@ export default function BracketView({ teams }: { teams: any[] }) {
   const xF = 944;
   const champScale = 1.5;
 
-  const y2 = 10;
-  const y7 = 100;
-  const y1015 = 190;
-  const y1312 = 270;
-  const y6 = 360;
-  const y3 = 450;
+  const y1 = 10;
+  const y8 = 100;
+  const y916 = 190;
+  const y1114 = 270;
+  const y5 = 360;
+  const y4 = 450;
 
-  const y4 = 570;
-  const y5 = 660;
-  const y1114 = 750;
-  const y916 = 830;
-  const y8 = 920;
-  const y1 = 1010;
+  const y3 = 570;
+  const y6 = 660;
+  const y1312 = 750;
+  const y1015 = 830;
+  const y7 = 920;
+  const y2 = 1010;
 
   const mid = (y: number) => y + H / 2;
   const between = (a: number, b: number) => (a + b) / 2;
@@ -209,8 +209,8 @@ export default function BracketView({ teams }: { teams: any[] }) {
     </g>
   );
 
-  const topFinalY = (mid(y2) + mid(y3)) / 2 - H / 2;
-  const botFinalY = (mid(y4) + mid(y1)) / 2 - H / 2;
+  const topFinalY = (mid(y1) + mid(y4)) / 2 - H / 2;
+  const botFinalY = (mid(y3) + mid(y2)) / 2 - H / 2;
   const champCenter = (mid(topFinalY) + mid(botFinalY)) / 2;
   const champY = champCenter - (H * champScale) / 2;
   const jQ = between(x1 + W, xQ);
@@ -219,7 +219,7 @@ export default function BracketView({ teams }: { teams: any[] }) {
   const joinC = xF + W + 36;
   const xC = joinC + 170;
   const layoutW = xC + W * champScale + 24;
-  const layoutH = y1 + H + 24;
+  const layoutH = y2 + H + 24;
   const fit = DISPLAY_W / layoutW;
   const displayH = layoutH * fit;
 
@@ -276,32 +276,32 @@ export default function BracketView({ teams }: { teams: any[] }) {
           </filter>
         </defs>
 
-        {bye(mid(y7), 7, jQ + CURVE, "bye-7")}
-        {bye(mid(y6), 6, jQ + CURVE, "bye-6")}
-        {bye(mid(y5), 5, jQ + CURVE, "bye-5")}
-        {bye(mid(y8), 8, jQ + CURVE, "bye-8")}
-        {bye(mid(y2), 2, jS + CURVE, "bye-2")}
-        {bye(mid(y3), 3, jS + CURVE, "bye-3")}
-        {bye(mid(y4), 4, jS + CURVE, "bye-4")}
         {bye(mid(y1), 1, jS + CURVE, "bye-1")}
+        {bye(mid(y8), 8, jQ + CURVE, "bye-8")}
+        {bye(mid(y5), 5, jQ + CURVE, "bye-5")}
+        {bye(mid(y4), 4, jS + CURVE, "bye-4")}
+        {bye(mid(y3), 3, jS + CURVE, "bye-3")}
+        {bye(mid(y6), 6, jQ + CURVE, "bye-6")}
+        {bye(mid(y7), 7, jQ + CURVE, "bye-7")}
+        {bye(mid(y2), 2, jS + CURVE, "bye-2")}
 
-        {box(x1, y1015, 1, 10, s[9], 15, s[14], "m1")}
-        {box(x1, y1312, 2, 13, s[12], 12, s[11], "m2")}
-        {box(x1, y1114, 3, 11, s[10], 14, s[13], "m3")}
         {box(x1, y916, 4, 9, s[8], 16, s[15], "m4")}
+        {box(x1, y1114, 3, 11, s[10], 14, s[13], "m3")}
+        {box(x1, y1312, 2, 13, s[12], 12, s[11], "m2")}
+        {box(x1, y1015, 1, 10, s[9], 15, s[14], "m1")}
 
-        {box(xQ, y7, 5, 7, s[6], undefined, ofMatch(1), "m5")}
-        {box(xQ, y6, 6, 6, s[5], undefined, ofMatch(2), "m6")}
-        {box(xQ, y5, 7, 5, s[4], undefined, ofMatch(3), "m7")}
         {box(xQ, y8, 8, 8, s[7], undefined, ofMatch(4), "m8")}
+        {box(xQ, y5, 7, 5, s[4], undefined, ofMatch(3), "m7")}
+        {box(xQ, y6, 6, 6, s[5], undefined, ofMatch(2), "m6")}
+        {box(xQ, y7, 5, 7, s[6], undefined, ofMatch(1), "m5")}
 
-        {box(xS, y2, 9, 2, s[1], undefined, ofMatch(5), "m9")}
-        {box(xS, y3, 10, 3, s[2], undefined, ofMatch(6), "m10")}
-        {box(xS, y4, 11, 4, s[3], undefined, ofMatch(7), "m11")}
         {box(xS, y1, 12, 1, s[0], undefined, ofMatch(8), "m12")}
+        {box(xS, y4, 11, 4, s[3], undefined, ofMatch(7), "m11")}
+        {box(xS, y3, 10, 3, s[2], undefined, ofMatch(6), "m10")}
+        {box(xS, y2, 9, 2, s[1], undefined, ofMatch(5), "m9")}
 
-        {box(xF, topFinalY, 13, undefined, ofMatch(9), undefined, ofMatch(10), "m13")}
-        {box(xF, botFinalY, 14, undefined, ofMatch(11), undefined, ofMatch(12), "m14")}
+        {box(xF, topFinalY, 14, undefined, ofMatch(12), undefined, ofMatch(11), "m14")}
+        {box(xF, botFinalY, 13, undefined, ofMatch(10), undefined, ofMatch(9), "m13")}
 
         <text
           x={xC + (W * champScale) / 2}
@@ -314,25 +314,25 @@ export default function BracketView({ teams }: { teams: any[] }) {
         >
           Championship Game
         </text>
-        {box(xC, champY, 15, undefined, ofMatch(13), undefined, ofMatch(14), "m15", true, champScale)}
+        {box(xC, champY, 15, undefined, ofMatch(14), undefined, ofMatch(13), "m15", true, champScale)}
 
-        {elbow(x1 + W, mid(y1015), jQ, mid(y7), xQ, true, "e1")}
-        {elbow(x1 + W, mid(y1312), jQ, mid(y6), xQ, true, "e2")}
-        {elbow(x1 + W, mid(y1114), jQ, mid(y5), xQ, true, "e3")}
         {elbow(x1 + W, mid(y916), jQ, mid(y8), xQ, true, "e4")}
+        {elbow(x1 + W, mid(y1114), jQ, mid(y5), xQ, true, "e3")}
+        {elbow(x1 + W, mid(y1312), jQ, mid(y6), xQ, true, "e2")}
+        {elbow(x1 + W, mid(y1015), jQ, mid(y7), xQ, true, "e1")}
 
-        {elbow(xQ + W, mid(y7), jS, mid(y2), xS, true, "e5")}
-        {elbow(xQ + W, mid(y6), jS, mid(y3), xS, true, "e6")}
-        {elbow(xQ + W, mid(y5), jS, mid(y4), xS, true, "e7")}
         {elbow(xQ + W, mid(y8), jS, mid(y1), xS, true, "e8")}
+        {elbow(xQ + W, mid(y5), jS, mid(y4), xS, true, "e7")}
+        {elbow(xQ + W, mid(y6), jS, mid(y3), xS, true, "e6")}
+        {elbow(xQ + W, mid(y7), jS, mid(y2), xS, true, "e5")}
 
-        {elbow(xS + W, mid(y2), jF, mid(topFinalY), xF, true, "e9")}
-        {elbow(xS + W, mid(y3), jF, mid(topFinalY), xF, false, "e10")}
-        {elbow(xS + W, mid(y4), jF, mid(botFinalY), xF, true, "e11")}
-        {elbow(xS + W, mid(y1), jF, mid(botFinalY), xF, false, "e12")}
+        {elbow(xS + W, mid(y1), jF, mid(topFinalY), xF, true, "e12")}
+        {elbow(xS + W, mid(y4), jF, mid(topFinalY), xF, false, "e11")}
+        {elbow(xS + W, mid(y3), jF, mid(botFinalY), xF, true, "e10")}
+        {elbow(xS + W, mid(y2), jF, mid(botFinalY), xF, false, "e9")}
 
-        {elbow(xF + W, mid(topFinalY), joinC, champCenter, xC, true, "e13")}
-        {elbow(xF + W, mid(botFinalY), joinC, champCenter, xC, false, "e14")}
+        {elbow(xF + W, mid(topFinalY), joinC, champCenter, xC, true, "e14")}
+        {elbow(xF + W, mid(botFinalY), joinC, champCenter, xC, false, "e13")}
       </svg>
     </div>
   );
