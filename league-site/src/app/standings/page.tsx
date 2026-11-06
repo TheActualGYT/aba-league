@@ -1,5 +1,5 @@
 import db from "@/lib/db";
-import { STANDINGS_COLS, buildTeamRecord, gamesBehind, statValues, type Game } from "@/lib/standings";
+import { STANDINGS_COLS, buildTeamRecord, gamesBehind, splitClass, statValues, type Game } from "@/lib/standings";
 
 export const dynamic = "force-dynamic";
 
@@ -65,7 +65,7 @@ export default async function StandingsPage() {
               <thead className="bg-neutral-800">
                 <tr>
                   {STANDINGS_COLS.map(col => (
-                    <th key={col.label} className={`px-2 py-3 text-neutral-300 text-xs whitespace-nowrap ${col.align}`}>
+                    <th key={col.label} className={`px-2 py-3 text-neutral-300 text-xs whitespace-nowrap ${col.align} ${splitClass(col)}`}>
                       {col.label}
                     </th>
                   ))}
@@ -88,7 +88,7 @@ export default async function StandingsPage() {
                       </div>
                     </td>
                     {statValues(team).map((value, index) => (
-                      <td key={STANDINGS_COLS[index + 2].label} className="px-2 py-3 text-center whitespace-nowrap">
+                      <td key={STANDINGS_COLS[index + 2].label} className={`px-2 py-3 text-center whitespace-nowrap ${splitClass(STANDINGS_COLS[index + 2])}`}>
                         {value}
                       </td>
                     ))}
