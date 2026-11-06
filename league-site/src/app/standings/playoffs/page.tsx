@@ -20,7 +20,7 @@ export default async function PlayoffPicturePage() {
         </div>
         <div className="max-w-7xl mx-auto relative">
           <div className="text-center">
-            <h2 className="text-3xl font-bold mb-2 text-white">PLAYOFF BRACKET</h2>
+            <h2 className="label-glow text-3xl font-bold mb-2 text-white">PLAYOFF BRACKET</h2>
             <p className="text-neutral-400 text-sm">
               Seeds 1–4 get 2 byes · Seeds 5–8 get 1 bye · Seeds 9–16 play in Round 1
             </p>
