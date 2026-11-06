@@ -17,6 +17,14 @@ const HEIGHTS = (() => {
   return options;
 })();
 
+function digitsOnly(value: string) {
+  return value.replace(/\D/g, "");
+}
+
+function lettersOnly(value: string) {
+  return value.replace(/\d/g, "");
+}
+
 function jerseyError(raw: string) {
   const value = raw.trim();
   if (!value) return "";
@@ -150,17 +158,17 @@ export default function PlayerForm() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
         <div className="lg:col-span-2">
           <label className={labelClass}>First Name</label>
-          <input value={firstName} onChange={e => setFirstName(e.target.value)} className={fieldClass} />
+          <input value={firstName} onChange={e => setFirstName(lettersOnly(e.target.value))} className={fieldClass} />
         </div>
         <div className="lg:col-span-2">
           <label className={labelClass}>Last Name</label>
-          <input value={lastName} onChange={e => setLastName(e.target.value)} className={fieldClass} />
+          <input value={lastName} onChange={e => setLastName(lettersOnly(e.target.value))} className={fieldClass} />
         </div>
         <div className="lg:col-span-2">
           <label className={labelClass}>Overall</label>
           <input
             value={overall}
-            onChange={e => setOverall(e.target.value)}
+            onChange={e => setOverall(digitsOnly(e.target.value))}
             inputMode="numeric"
             className={`${fieldClass} ${overallMessage ? "abbr-taken" : ""}`}
           />
@@ -179,7 +187,7 @@ export default function PlayerForm() {
           <label className={labelClass}>WT</label>
           <input
             value={weight}
-            onChange={e => setWeight(e.target.value)}
+            onChange={e => setWeight(digitsOnly(e.target.value))}
             inputMode="numeric"
             className={`${fieldClass} ${weightMessage ? "abbr-taken" : ""}`}
           />
@@ -189,7 +197,7 @@ export default function PlayerForm() {
           <label className={labelClass}>#</label>
           <input
             value={number}
-            onChange={e => setNumber(e.target.value)}
+            onChange={e => setNumber(digitsOnly(e.target.value))}
             inputMode="numeric"
             className={`${fieldClass} ${numberMessage ? "abbr-taken" : ""}`}
           />
