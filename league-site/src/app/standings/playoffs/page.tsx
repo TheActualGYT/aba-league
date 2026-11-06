@@ -14,7 +14,7 @@ export default async function PlayoffPicturePage() {
           className="absolute text-neutral-400 leading-tight"
           style={{ left: "max(24px, calc(50% - 703.56px))", top: 18, fontSize: 12 }}
         >
-          <div>1st Annual</div>
+          <div style={{ marginBottom: 10 }}>1st Annual</div>
           <div>Dates: TBD</div>
           <div>Finals: TBD</div>
         </div>
