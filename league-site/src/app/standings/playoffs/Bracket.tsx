@@ -222,6 +222,7 @@ export default function BracketView({ teams }: { teams: any[] }) {
   const layoutH = y2 + H + 24;
   const fit = DISPLAY_W / layoutW;
   const displayH = layoutH * fit;
+  const championName = "TBD";
 
   const rounds = [
     { label: "First Round", x: x1 + W / 2 },
@@ -235,34 +236,62 @@ export default function BracketView({ teams }: { teams: any[] }) {
       <div
         className="sticky top-0 z-20"
         style={{
-          height: 32,
           width: DISPLAY_W,
           background: "#0a0a0a",
-          borderBottom: "1px solid #262626",
         }}
       >
-        {rounds.map((round) => (
+        <div style={{ position: "relative", height: 36 }}>
           <div
-            key={round.label}
+            className="champ-glow"
             style={{
               position: "absolute",
-              left: round.x * fit,
+              left: (xC + (W * champScale) / 2) * fit,
               top: 0,
-              height: 32,
+              height: 36,
               display: "flex",
               alignItems: "center",
               transform: "translateX(-50%)",
-              color: "#e5e5e5",
-              fontSize: Math.max(11, 13 * fit),
-              fontWeight: 600,
-              letterSpacing: "0.03em",
+              color: "#facc15",
+              fontWeight: 700,
+              fontSize: 18,
+              letterSpacing: "0.08em",
               fontFamily: "Inter, system-ui, sans-serif",
               whiteSpace: "nowrap",
             }}
           >
-            {round.label}
+            {championName}
           </div>
-        ))}
+        </div>
+        <div
+          style={{
+            position: "relative",
+            height: 32,
+            borderBottom: "1px solid #262626",
+          }}
+        >
+          {rounds.map((round) => (
+            <div
+              key={round.label}
+              style={{
+                position: "absolute",
+                left: round.x * fit,
+                top: 0,
+                height: 32,
+                display: "flex",
+                alignItems: "center",
+                transform: "translateX(-50%)",
+                color: "#e5e5e5",
+                fontSize: Math.max(11, 13 * fit),
+                fontWeight: 600,
+                letterSpacing: "0.03em",
+                fontFamily: "Inter, system-ui, sans-serif",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {round.label}
+            </div>
+          ))}
+        </div>
       </div>
 
       <svg viewBox={`0 0 ${layoutW} ${layoutH}`} width={DISPLAY_W} height={displayH} className="block" style={{ marginTop: 48 }}>
@@ -285,23 +314,23 @@ export default function BracketView({ teams }: { teams: any[] }) {
         {bye(mid(y7), 7, jQ + CURVE, "bye-7")}
         {bye(mid(y2), 2, jS + CURVE, "bye-2")}
 
-        {box(x1, y916, 4, 9, s[8], 16, s[15], "m4")}
-        {box(x1, y1114, 3, 11, s[10], 14, s[13], "m3")}
-        {box(x1, y1312, 2, 13, s[12], 12, s[11], "m2")}
-        {box(x1, y1015, 1, 10, s[9], 15, s[14], "m1")}
+        {box(x1, y916, 1, 9, s[8], 16, s[15], "m1")}
+        {box(x1, y1114, 2, 11, s[10], 14, s[13], "m2")}
+        {box(x1, y1312, 3, 13, s[12], 12, s[11], "m3")}
+        {box(x1, y1015, 4, 10, s[9], 15, s[14], "m4")}
 
-        {box(xQ, y8, 8, 8, s[7], undefined, ofMatch(4), "m8")}
-        {box(xQ, y5, 7, 5, s[4], undefined, ofMatch(3), "m7")}
-        {box(xQ, y6, 6, 6, s[5], undefined, ofMatch(2), "m6")}
-        {box(xQ, y7, 5, 7, s[6], undefined, ofMatch(1), "m5")}
+        {box(xQ, y8, 5, 8, s[7], undefined, ofMatch(1), "m5")}
+        {box(xQ, y5, 6, 5, s[4], undefined, ofMatch(2), "m6")}
+        {box(xQ, y6, 7, 6, s[5], undefined, ofMatch(3), "m7")}
+        {box(xQ, y7, 8, 7, s[6], undefined, ofMatch(4), "m8")}
 
-        {box(xS, y1, 12, 1, s[0], undefined, ofMatch(8), "m12")}
-        {box(xS, y4, 11, 4, s[3], undefined, ofMatch(7), "m11")}
-        {box(xS, y3, 10, 3, s[2], undefined, ofMatch(6), "m10")}
-        {box(xS, y2, 9, 2, s[1], undefined, ofMatch(5), "m9")}
+        {box(xS, y1, 9, 1, s[0], undefined, ofMatch(5), "m9")}
+        {box(xS, y4, 10, 4, s[3], undefined, ofMatch(6), "m10")}
+        {box(xS, y3, 11, 3, s[2], undefined, ofMatch(7), "m11")}
+        {box(xS, y2, 12, 2, s[1], undefined, ofMatch(8), "m12")}
 
-        {box(xF, topFinalY, 14, undefined, ofMatch(12), undefined, ofMatch(11), "m14")}
-        {box(xF, botFinalY, 13, undefined, ofMatch(10), undefined, ofMatch(9), "m13")}
+        {box(xF, topFinalY, 13, undefined, ofMatch(9), undefined, ofMatch(10), "m13")}
+        {box(xF, botFinalY, 14, undefined, ofMatch(11), undefined, ofMatch(12), "m14")}
 
         <text
           x={xC + (W * champScale) / 2}
@@ -314,7 +343,7 @@ export default function BracketView({ teams }: { teams: any[] }) {
         >
           Championship Game
         </text>
-        {box(xC, champY, 15, undefined, ofMatch(14), undefined, ofMatch(13), "m15", true, champScale)}
+        {box(xC, champY, 15, undefined, ofMatch(13), undefined, ofMatch(14), "m15", true, champScale)}
 
         {elbow(x1 + W, mid(y916), jQ, mid(y8), xQ, true, "e4")}
         {elbow(x1 + W, mid(y1114), jQ, mid(y5), xQ, true, "e3")}
