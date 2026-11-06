@@ -41,7 +41,7 @@ function overallError(raw: string) {
   const value = raw.trim();
   if (!value) return "";
   if (!/^\d+$/.test(value) || Number(value) < 10 || Number(value) > 99) {
-    return "Overall has to be between 10 and 99.";
+    return "Rating has to be between 10 and 99.";
   }
   return "";
 }
@@ -189,7 +189,7 @@ export default function PlayerForm() {
           <input value={lastName} maxLength={11} onChange={e => setLastName(lettersOnly(e.target.value, 11))} className={fieldClass} />
         </div>
         <div className="lg:col-span-2">
-          <label className={labelClass}>Overall</label>
+          <label className={labelClass}>RATING</label>
           <input
             value={overall}
             maxLength={3}
@@ -203,7 +203,7 @@ export default function PlayerForm() {
           {shownOverall && <p className="text-xs text-red-400 mt-1">{shownOverall}</p>}
         </div>
         <div className="lg:col-span-2">
-          <label className={labelClass}>HT</label>
+          <label className={labelClass}>Height</label>
           <Menu
             value={height}
             onChange={setHeight}
@@ -211,8 +211,8 @@ export default function PlayerForm() {
             options={HEIGHTS.map(option => ({ value: option, label: option }))}
           />
         </div>
-        <div>
-          <label className={labelClass}>WT</label>
+        <div className="lg:col-span-2">
+          <label className={labelClass}>Weight</label>
           <input
             value={weight}
             maxLength={3}
@@ -225,8 +225,8 @@ export default function PlayerForm() {
           />
           {shownWeight && <p className="text-xs text-red-400 mt-1">{shownWeight}</p>}
         </div>
-        <div>
-          <label className={labelClass}>#</label>
+        <div className="lg:col-span-2">
+          <label className={labelClass}>Jersey Number</label>
           <input
             value={number}
             maxLength={2}
@@ -240,7 +240,7 @@ export default function PlayerForm() {
           {shownNumber && <p className="text-xs text-red-400 mt-1">{shownNumber}</p>}
         </div>
         <div className="lg:col-span-2">
-          <label className={labelClass}>HAND</label>
+          <label className={labelClass}>Dominant Hand</label>
           <Menu
             value={hand}
             onChange={setHand}
