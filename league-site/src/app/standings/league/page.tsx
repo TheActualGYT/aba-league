@@ -50,7 +50,7 @@ export default async function LeagueStandingsPage() {
     <main
       className="py-8"
       style={{
-        paddingLeft: "max(16px, calc(50% - 717.56px))",
+        paddingLeft: "max(16px, calc(50% - 697.56px))",
         paddingRight: "max(24px, calc(50% - 640px))",
       }}
     >
