@@ -24,7 +24,6 @@ function Row({
   return (
     <foreignObject x={x} y={y} width={w} height={h}>
       <div
-        xmlns="http://www.w3.org/1999/xhtml"
         style={{
           height: "100%",
           display: "flex",
@@ -90,20 +89,18 @@ export default function BracketView({ teams }: { teams: any[] }) {
     <Row key={idx} x={x} y={y - 18} w={w} h={18} seed={idx + 1} team={s[idx]} align="right" />
   );
 
-  // Top half
   const moY = 36;
   const dukeY = 92;
-  const boxA = 116; // 10 vs 15, center 145
-  const boxB = 196; // 13 vs 12, center 225
+  const boxA = 116;
+  const boxB = 196;
   const marqY = 282;
   const texY = 352;
   const topMid = (moY + texY) / 2;
 
-  // Bottom half
   const bufY = 440;
   const bayY = 496;
-  const boxC = 520; // 11 vs 14, center 549
-  const boxD = 600; // 9 vs 16, center 629
+  const boxC = 520;
+  const boxD = 600;
   const michY = 686;
   const kenY = 756;
   const botMid = (bufY + kenY) / 2;
@@ -111,25 +108,21 @@ export default function BracketView({ teams }: { teams: any[] }) {
 
   return (
     <svg viewBox="0 0 1060 800" width="1060" height="800" className="block">
-      {/* Round 1 boxes */}
       {box(r1x, boxA, 9, 14)}
       {box(r1x, boxB, 12, 11)}
       {box(r1x, boxC, 10, 13)}
       {box(r1x, boxD, 8, 15)}
 
-      {/* 10/15 up into 7 */}
       {H(r1r, qL, boxA + 29)}
       {V(qL, boxA + 29, dukeY)}
       {H(qL, qR, dukeY)}
       {bye(qL, dukeY, qR - qL - 16, 6)}
 
-      {/* 13/12 down into 6 */}
       {H(r1r, qL, boxB + 29)}
       {V(qL, boxB + 29, marqY)}
       {H(qL, qR, marqY)}
       {bye(qL, marqY, qR - qL - 16, 5)}
 
-      {/* 7 up into 2, 6 down into 3 */}
       {V(qR, dukeY, moY)}
       {H(sL, sR, moY)}
       {bye(sL, moY, qR - sL - 8, 1)}
@@ -141,19 +134,16 @@ export default function BracketView({ teams }: { teams: any[] }) {
       {V(sR, moY, texY)}
       {H(sR, outX, topMid)}
 
-      {/* 11/14 up into 5 */}
       {H(r1r, qL, boxC + 29)}
       {V(qL, bayY, boxC + 29)}
       {H(qL, qR, bayY)}
       {bye(qL, bayY, qR - qL - 16, 4)}
 
-      {/* 9/16 down into 8 */}
       {H(r1r, qL, boxD + 29)}
       {V(qL, boxD + 29, michY)}
       {H(qL, qR, michY)}
       {bye(qL, michY, qR - qL - 16, 7)}
 
-      {/* 5 up into 4, 8 down into 1 */}
       {V(qR, bayY, bufY)}
       {H(sL, sR, bufY)}
       {bye(sL, bufY, qR - sL - 8, 3)}
@@ -165,7 +155,6 @@ export default function BracketView({ teams }: { teams: any[] }) {
       {V(sR, bufY, kenY)}
       {H(sR, outX, botMid)}
 
-      {/* Championship */}
       {V(outX, topMid, botMid)}
       {H(outX, 940, champY)}
       <rect x={948} y={champY - 16} width={100} height={32} rx={2} fill="#facc15" />
