@@ -59,16 +59,23 @@ export default async function PlayoffPicturePage() {
       <div className="flex justify-center">
         <div className="relative">
           {/* Headers */}
-          <div className="flex">
+          <div className="flex mb-2">
             <div className="w-48 text-xs text-neutral-500 text-center">Round 1</div>
             <div className="w-16" />
             <div className="w-48 text-xs text-neutral-500 text-center">Quarterfinals</div>
           </div>
 
-          {/* Bracket area */}
-          <div className="flex mt-2">
-            {/* Round 1 column */}
-            <div className="flex flex-col gap-6">
+          {/* Line above 10 vs 15 going to 7 seed */}
+          <div className="flex items-center mb-1">
+            <div className="w-48 h-px bg-neutral-500" />
+            <div className="w-16 h-px bg-neutral-500" />
+            <div className="w-4" />
+          </div>
+
+          {/* Bracket */}
+          <div className="flex">
+            {/* Round 1 - pushed down */}
+            <div className="flex flex-col gap-6 mt-2">
               {/* 10 vs 15 */}
               <div className="space-y-0.5">
                 <Slot team={s[9]} seed={10} />
@@ -96,17 +103,10 @@ export default async function PlayoffPicturePage() {
               </div>
             </div>
 
-            {/* Connector lines */}
-            <div className="relative w-16">
-              {/* Horizontal line from top of 10vs15 going right */}
-              <div className="absolute top-4 left-0 w-8 h-px bg-neutral-500" />
-              {/* Vertical line going up */}
-              <div className="absolute top-0 left-8 w-px h-4 bg-neutral-500" />
-              {/* Horizontal line to 7 seed */}
-              <div className="absolute top-0 left-8 w-8 h-px bg-neutral-500" />
-            </div>
+            {/* Spacer */}
+            <div className="w-16" />
 
-            {/* Quarterfinals - 7 seed positioned at top */}
+            {/* Quarterfinals - 7 seed at top */}
             <div className="flex flex-col">
               <div className="space-y-0.5">
                 <Slot team={s[6]} seed={7} />
