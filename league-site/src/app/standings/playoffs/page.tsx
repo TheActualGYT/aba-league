@@ -66,96 +66,114 @@ export default async function PlayoffPicturePage() {
       )}
 
       <div className="overflow-x-auto pb-4">
-        <div className="flex gap-2 min-w-max justify-center">
+        <div className="flex min-w-max justify-center">
           {/* Round of 16 */}
           <div>
             <div className="text-xs text-neutral-500 text-center mb-3">Round of 16</div>
             <div className="flex flex-col" style={{ gap: "12px" }}>
               {r1.map(([a, b], i) => (
-                <div key={i} className="space-y-0.5 relative">
+                <div key={i} className="space-y-0.5">
                   <Slot team={s[a]} seed={a + 1} />
                   <Slot team={s[b]} seed={b + 1} />
-                  <div className="absolute right-0 top-1/2 w-3 h-px bg-neutral-500" style={{ transform: "translateX(100%) translateY(-50%)" }} />
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Connector R1 to QF */}
-          <div className="flex flex-col justify-around" style={{ width: "12px", marginTop: "50px" }}>
-            {[0,1,2,3].map(i => (
-              <div key={i} className="flex flex-col items-center" style={{ height: "156px" }}>
-                <div className="w-px bg-neutral-500 flex-1" />
-                <div className="w-3 h-px bg-neutral-500" />
-                <div className="w-px bg-neutral-500 flex-1" />
-              </div>
-            ))}
-          </div>
+          {/* Lines R1 to QF */}
+          <svg width="24" height="650" className="mt-8">
+            {/* Each R1 matchup is ~66px + 12px gap = 78px */}
+            {/* QF starts at 50px, each QF is 66px + 90px gap = 156px */}
+            {[0,1,2,3].map(i => {
+              const r1Top = i * 2 * 78 + 33;
+              const r1Bot = r1Top + 78;
+              const qfMid = 50 + i * 156 + 33;
+              return (
+                <g key={i}>
+                  <line x1="0" y1={r1Top} x2="12" y2={r1Top} stroke="#737373" strokeWidth="1" />
+                  <line x1="0" y1={r1Bot} x2="12" y2={r1Bot} stroke="#737373" strokeWidth="1" />
+                  <line x1="12" y1={r1Top} x2="12" y2={r1Bot} stroke="#737373" strokeWidth="1" />
+                  <line x1="12" y1={(r1Top + r1Bot) / 2} x2="24" y2={qfMid} stroke="#737373" strokeWidth="1" />
+                </g>
+              );
+            })}
+          </svg>
 
           {/* Quarterfinals */}
           <div>
             <div className="text-xs text-neutral-500 text-center mb-3">Quarterfinals</div>
             <div className="flex flex-col" style={{ gap: "90px", marginTop: "50px" }}>
               {[0, 1, 2, 3].map(i => (
-                <div key={i} className="space-y-0.5 relative">
+                <div key={i} className="space-y-0.5">
                   <Slot placeholder="Winner" />
                   <Slot placeholder="Winner" />
-                  <div className="absolute right-0 top-1/2 w-3 h-px bg-neutral-500" style={{ transform: "translateX(100%) translateY(-50%)" }} />
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Connector QF to SF */}
-          <div className="flex flex-col" style={{ width: "12px", marginTop: "130px", gap: "250px" }}>
-            {[0,1].map(i => (
-              <div key={i} className="flex flex-col items-center" style={{ height: "156px" }}>
-                <div className="w-px bg-neutral-500 flex-1" />
-                <div className="w-3 h-px bg-neutral-500" />
-                <div className="w-px bg-neutral-500 flex-1" />
-              </div>
-            ))}
-          </div>
+          {/* Lines QF to SF */}
+          <svg width="24" height="650" className="mt-8">
+            {[0,1].map(i => {
+              const qfTop = 50 + i * 2 * 156 + 33;
+              const qfBot = qfTop + 156;
+              const sfMid = 130 + i * 316 + 33;
+              return (
+                <g key={i}>
+                  <line x1="0" y1={qfTop} x2="12" y2={qfTop} stroke="#737373" strokeWidth="1" />
+                  <line x1="0" y1={qfBot} x2="12" y2={qfBot} stroke="#737373" strokeWidth="1" />
+                  <line x1="12" y1={qfTop} x2="12" y2={qfBot} stroke="#737373" strokeWidth="1" />
+                  <line x1="12" y1={(qfTop + qfBot) / 2} x2="24" y2={sfMid} stroke="#737373" strokeWidth="1" />
+                </g>
+              );
+            })}
+          </svg>
 
           {/* Semifinals */}
           <div>
             <div className="text-xs text-neutral-500 text-center mb-3">Semifinals</div>
             <div className="flex flex-col" style={{ gap: "250px", marginTop: "130px" }}>
               {[0, 1].map(i => (
-                <div key={i} className="space-y-0.5 relative">
+                <div key={i} className="space-y-0.5">
                   <Slot placeholder="Winner" />
                   <Slot placeholder="Winner" />
-                  <div className="absolute right-0 top-1/2 w-3 h-px bg-neutral-500" style={{ transform: "translateX(100%) translateY(-50%)" }} />
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Connector SF to Finals */}
-          <div className="flex flex-col" style={{ width: "12px", marginTop: "290px" }}>
-            <div className="flex flex-col items-center" style={{ height: "156px" }}>
-              <div className="w-px bg-neutral-500 flex-1" />
-              <div className="w-3 h-px bg-neutral-500" />
-              <div className="w-px bg-neutral-500 flex-1" />
-            </div>
-          </div>
+          {/* Lines SF to Finals */}
+          <svg width="24" height="650" className="mt-8">
+            {(() => {
+              const sfTop = 130 + 33;
+              const sfBot = 130 + 250 + 66 + 33;
+              const finMid = 290 + 33;
+              return (
+                <g>
+                  <line x1="0" y1={sfTop} x2="12" y2={sfTop} stroke="#737373" strokeWidth="1" />
+                  <line x1="0" y1={sfBot} x2="12" y2={sfBot} stroke="#737373" strokeWidth="1" />
+                  <line x1="12" y1={sfTop} x2="12" y2={sfBot} stroke="#737373" strokeWidth="1" />
+                  <line x1="12" y1={(sfTop + sfBot) / 2} x2="24" y2={finMid} stroke="#737373" strokeWidth="1" />
+                </g>
+              );
+            })()}
+          </svg>
 
           {/* Finals */}
           <div>
             <div className="text-xs text-neutral-500 text-center mb-3">Finals</div>
-            <div className="relative" style={{ marginTop: "290px" }}>
+            <div style={{ marginTop: "290px" }}>
               <div className="space-y-0.5">
                 <Slot placeholder="Winner" />
                 <Slot placeholder="Winner" />
               </div>
-              <div className="absolute right-0 top-1/2 w-3 h-px bg-neutral-500" style={{ transform: "translateX(100%) translateY(-50%)" }} />
             </div>
           </div>
 
-          {/* Connector to Champion */}
-          <div className="flex items-center" style={{ width: "12px", marginTop: "310px" }}>
-            <div className="w-full h-px bg-neutral-500" />
-          </div>
+          {/* Line to Champion */}
+          <svg width="24" height="650" className="mt-8">
+            <line x1="0" y1="323" x2="24" y2="343" stroke="#737373" strokeWidth="1" />
+          </svg>
 
           {/* Champion */}
           <div>
