@@ -4,6 +4,7 @@ const LINE = "#e5e5e5";
 const H = 58;
 const W = 236;
 const NUM_W = 18;
+const DISPLAY_W = 1080;
 
 type T = { name?: string; logo?: string } | null;
 
@@ -155,7 +156,10 @@ export default function BracketView({ teams }: { teams: any[] }) {
   const joinF = xF - 24;
   const joinC = xF + W + 36;
   const xC = joinC + 170;
-  const width = xC + W * champScale + 24;
+  const layoutW = xC + W * champScale + 24;
+  const layoutH = y1 + H + 24;
+  const fit = DISPLAY_W / layoutW;
+  const displayH = layoutH * fit;
 
   const rounds = [
     { label: "First Round", x: x1 + W / 2 },
@@ -165,12 +169,12 @@ export default function BracketView({ teams }: { teams: any[] }) {
   ];
 
   return (
-    <div style={{ width, position: "relative" }}>
+    <div style={{ width: DISPLAY_W, margin: "0 auto", position: "relative" }}>
       <div
         className="sticky top-0 z-20"
         style={{
-          height: 40,
-          width,
+          height: 32,
+          width: DISPLAY_W,
           background: "#0a0a0a",
           borderBottom: "1px solid #262626",
         }}
@@ -180,16 +184,16 @@ export default function BracketView({ teams }: { teams: any[] }) {
             key={round.label}
             style={{
               position: "absolute",
-              left: round.x,
+              left: round.x * fit,
               top: 0,
-              height: 40,
+              height: 32,
               display: "flex",
               alignItems: "center",
               transform: "translateX(-50%)",
               color: "#e5e5e5",
-              fontSize: 13,
+              fontSize: Math.max(11, 13 * fit),
               fontWeight: 600,
-              letterSpacing: "0.04em",
+              letterSpacing: "0.03em",
               fontFamily: "Inter, system-ui, sans-serif",
               whiteSpace: "nowrap",
             }}
@@ -199,7 +203,7 @@ export default function BracketView({ teams }: { teams: any[] }) {
         ))}
       </div>
 
-      <svg viewBox={`0 0 ${width} ${y1 + H + 24}`} width={width} height={y1 + H + 24} className="block">
+      <svg viewBox={`0 0 ${layoutW} ${layoutH}`} width={DISPLAY_W} height={displayH} className="block">
         <defs>
           <filter id="gold-aura" x="-60%" y="-80%" width="220%" height="260%">
             <feGaussianBlur stdDeviation="7" result="blur" />
