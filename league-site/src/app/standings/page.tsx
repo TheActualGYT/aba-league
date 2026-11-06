@@ -58,7 +58,13 @@ export default async function StandingsPage() {
   });
 
   return (
-    <main className="max-w-7xl mx-auto px-6 py-8">
+    <main
+      className="py-8"
+      style={{
+        paddingLeft: "max(16px, calc(50% - 717.56px))",
+        paddingRight: "max(24px, calc(50% - 640px))",
+      }}
+    >
       <h2 className="label-glow text-3xl font-bold mb-8 text-white text-center tracking-wide">DIVISIONAL STANDINGS</h2>
 
       {standingsByDivision.map(({ division, teams: divTeams }) => (
