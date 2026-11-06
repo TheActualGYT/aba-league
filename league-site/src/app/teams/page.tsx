@@ -13,9 +13,8 @@ export default async function TeamsPage() {
 
   return (
     <main className="max-w-7xl mx-auto px-6 py-8">
-      <h2 className="text-3xl font-bold mb-6 text-white">Teams & Rosters</h2>
-      <TeamForm />
-      <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <h2 className="label-glow text-3xl font-bold mb-8 text-white text-center tracking-wide">TEAM DIRECTORY</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {teams.map(team => (
           <div key={team.id} className="bg-neutral-900 p-4 rounded-lg border border-neutral-700 relative">
             <div className="flex items-center gap-3 mb-2">
@@ -49,6 +48,9 @@ export default async function TeamsPage() {
             </div>
           </div>
         ))}
+      </div>
+      <div className="mt-10">
+        <TeamForm />
       </div>
     </main>
   );
