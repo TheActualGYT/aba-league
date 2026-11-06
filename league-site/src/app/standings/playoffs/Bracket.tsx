@@ -24,40 +24,42 @@ export default function BracketView({ teams }: { teams: any[] }) {
   const sorted = [...teams].sort((a, b) => a.name.localeCompare(b.name));
   const seeds = Array.from({ length: 16 }, (_, i) => sorted[i] || null);
 
-  const matchups = [
-    [0, 15], [7, 8], [4, 11], [3, 12],
-    [5, 10], [2, 13], [6, 9], [1, 14],
+  const name = (idx: number) => seeds[idx] ? `${idx + 1}. ${seeds[idx].name}` : "TBD";
+
+  // Round 1: only seeds 9-16 (indices 8-15)
+  // 10vs15, 13vs12, 11vs14, 9vs16
+  const r1Seeds = [
+    { id: 1, date: "", teams: [{ name: name(9) }, { name: name(14) }] },   // 10 vs 15
+    { id: 2, date: "", teams: [{ name: name(12) }, { name: name(11) }] },  // 13 vs 12
+    { id: 3, date: "", teams: [{ name: name(10) }, { name: name(13) }] },  // 11 vs 14
+    { id: 4, date: "", teams: [{ name: name(8) }, { name: name(15) }] },   // 9 vs 16
   ];
 
-  const r1Seeds = matchups.map(([a, b], i) => ({
-    id: i + 1,
-    date: "",
-    teams: [
-      { name: seeds[a] ? `${a + 1}. ${seeds[a].name}` : "TBD" },
-      { name: seeds[b] ? `${b + 1}. ${seeds[b].name}` : "TBD" },
-    ],
-  }));
+  // Quarterfinals: seeds 5-8 enter (indices 4-7)
+  // 5 vs W(13/12), 6 vs W(11/14), 7 vs W(10/15), 8 vs W(9/16)
+  const qfSeeds = [
+    { id: 11, date: "", teams: [{ name: name(4) }, { name: "Winner" }] },  // 5 vs W(13/12)
+    { id: 12, date: "", teams: [{ name: name(5) }, { name: "Winner" }] },  // 6 vs W(11/14)
+    { id: 13, date: "", teams: [{ name: name(6) }, { name: "Winner" }] },  // 7 vs W(10/15)
+    { id: 14, date: "", teams: [{ name: name(7) }, { name: "Winner" }] },  // 8 vs W(9/16)
+  ];
 
-  const qfSeeds = [1, 2, 3, 4].map(i => ({
-    id: 10 + i,
-    date: "",
-    teams: [{ name: "Winner" }, { name: "Winner" }],
-  }));
+  // Semifinals: seeds 1-4 enter (indices 0-3)
+  // 1 vs W(8), 2 vs W(7), 3 vs W(6), 4 vs W(5)
+  const sfSeeds = [
+    { id: 21, date: "", teams: [{ name: name(0) }, { name: "Winner" }] },  // 1 vs W(8)
+    { id: 22, date: "", teams: [{ name: name(1) }, { name: "Winner" }] },  // 2 vs W(7)
+    { id: 23, date: "", teams: [{ name: name(2) }, { name: "Winner" }] },  // 3 vs W(6)
+    { id: 24, date: "", teams: [{ name: name(3) }, { name: "Winner" }] },  // 4 vs W(5)
+  ];
 
-  const sfSeeds = [1, 2].map(i => ({
-    id: 20 + i,
-    date: "",
-    teams: [{ name: "Winner" }, { name: "Winner" }],
-  }));
-
-  const finSeeds = [{
-    id: 30,
-    date: "",
-    teams: [{ name: "Winner" }, { name: "Winner" }],
-  }];
+  // Finals
+  const finSeeds = [
+    { id: 30, date: "", teams: [{ name: "Winner" }, { name: "Winner" }] },
+  ];
 
   const rounds: IRoundProps[] = [
-    { title: "Round of 16", seeds: r1Seeds },
+    { title: "Round 1", seeds: r1Seeds },
     { title: "Quarterfinals", seeds: qfSeeds },
     { title: "Semifinals", seeds: sfSeeds },
     { title: "Finals", seeds: finSeeds },
