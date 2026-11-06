@@ -2,12 +2,15 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useCloseOnOutside } from "@/components/useCloseOnOutside";
 
 export default function NavDropdown() {
   const [open, setOpen] = useState(false);
+  const rootRef = useCloseOnOutside<HTMLDivElement>(open, setOpen);
 
   return (
     <div
+      ref={rootRef}
       className="relative"
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
