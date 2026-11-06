@@ -1,15 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import { useCloseOnOutside } from "@/components/useCloseOnOutside";
 
 const SEASONS = ["1st Annual"];
 
 export default function SeasonDropdown() {
   const [open, setOpen] = useState(false);
   const [season, setSeason] = useState(SEASONS[0]);
+  const rootRef = useCloseOnOutside<HTMLDivElement>(open, setOpen);
 
   return (
     <div
+      ref={rootRef}
       className="relative"
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
