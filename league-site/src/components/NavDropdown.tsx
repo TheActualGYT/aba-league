@@ -38,7 +38,7 @@ export default function NavDropdown() {
               className="block px-4 py-2 text-sm text-white hover:bg-neutral-800"
               onClick={() => setOpen(false)}
             >
-              Playoff Picture
+              PLAYOFF BRACKET
             </Link>
           </div>
         </div>

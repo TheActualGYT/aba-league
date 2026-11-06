@@ -9,7 +9,7 @@ export default async function PlayoffPicturePage() {
 
   return (
     <main className="px-6 py-6">
-      <h2 className="text-3xl font-bold mb-2 text-white text-center">Playoff Picture</h2>
+      <h2 className="text-3xl font-bold mb-2 text-white text-center">PLAYOFF BRACKET</h2>
       <p className="text-neutral-400 text-center mb-6 text-sm">
         Seeds 1–4 get 2 byes · Seeds 5–8 get 1 bye · Seeds 9–16 play in Round 1
       </p>
@@ -20,7 +20,7 @@ export default async function PlayoffPicturePage() {
         </div>
       )}
 
-      <div className="overflow-auto h-[calc(100vh-11rem)] flex">
+      <div className="overflow-auto no-scrollbar h-[calc(100vh-11rem)] flex">
         <div className="m-auto">
           <BracketView teams={teams} />
         </div>
