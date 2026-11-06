@@ -69,11 +69,13 @@ body {
 @keyframes abbr-taken-pulse {
   0%, 100% {
     border-color: #ef4444;
-    box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.45);
+    outline-color: #ef4444;
+    box-shadow: 0 0 0 1px #ef4444, 0 0 8px rgba(239, 68, 68, 0.45);
   }
   50% {
     border-color: #fca5a5;
-    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.9), 0 0 12px rgba(239, 68, 68, 0.45);
+    outline-color: #fca5a5;
+    box-shadow: 0 0 0 1px #fca5a5, 0 0 0 3px rgba(239, 68, 68, 0.55), 0 0 14px rgba(239, 68, 68, 0.6);
   }
 }
 
@@ -87,8 +89,12 @@ body {
   animation: gold-text-pulse 2.8s ease-in-out infinite;
 }
 
-.abbr-taken {
-  border-color: #ef4444 !important;
+.abbr-taken,
+.abbr-taken:focus,
+.abbr-taken:focus-visible {
+  border: 1px solid #ef4444 !important;
+  outline: 1px solid #ef4444 !important;
+  outline-offset: 0;
   animation: abbr-taken-pulse 1.4s ease-in-out infinite;
 }
 
