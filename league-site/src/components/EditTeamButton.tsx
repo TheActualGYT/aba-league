@@ -4,6 +4,40 @@ import { useState, useRef } from "react";
 
 const OWNERS = ["Garrett Jahnke", "Craig Jahnke", "Chad Jahnke"];
 
+function OwnerMenu({ value, onChange }: { value: string; onChange: (value: string) => void }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen(current => !current)}
+        className="w-full px-3 py-2 bg-neutral-800 border border-neutral-600 rounded text-white text-left flex items-center justify-between min-h-[42px]"
+      >
+        <span>{value}</span>
+        <span className="text-neutral-400 text-[10px]">▼</span>
+      </button>
+      {open && (
+        <div className="absolute z-30 mt-1 w-full bg-neutral-800 border border-neutral-600 rounded overflow-hidden shadow-lg">
+          {OWNERS.map(owner => (
+            <button
+              key={owner}
+              type="button"
+              onClick={() => {
+                onChange(owner);
+                setOpen(false);
+              }}
+              className={`block w-full text-left px-3 py-2 text-sm text-white hover:bg-neutral-700 ${value === owner ? "bg-neutral-700" : ""}`}
+            >
+              {owner}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function EditTeamButton({
   team,
   teams = [],
@@ -27,7 +61,6 @@ export default function EditTeamButton({
   const [magnifier, setMagnifier] = useState<{ x: number; y: number; color: string } | null>(null);
   const logoRef = useRef<HTMLImageElement>(null);
 
-  const owners = OWNERS.includes(ownership) || !ownership ? OWNERS : [ownership, ...OWNERS];
   const taken = abbr.trim()
     ? teams.find(t => t.id !== team.id && t.abbreviation?.toUpperCase() === abbr.trim().toUpperCase())
     : undefined;
@@ -158,17 +191,12 @@ export default function EditTeamButton({
                 {taken && <p className="text-xs text-red-400 mt-1">Already taken by "{taken.name}"</p>}
               </div>
               <div>
-                <label className="block text-sm text-neutral-300 mb-1">City and State</label>
+                <label className="block text-sm text-neutral-300 mb-1">Location (City, State)</label>
                 <input value={location} onChange={e => setLocation(e.target.value)} className="w-full px-3 py-2 bg-neutral-800 border border-neutral-600 rounded text-white" />
               </div>
               <div>
                 <label className="block text-sm text-neutral-300 mb-1">Ownership</label>
-                <select value={ownership} onChange={e => setOwnership(e.target.value)} className="w-full px-3 py-2 bg-neutral-800 border border-neutral-600 rounded text-white">
-                  <option value="">Select owner</option>
-                  {owners.map(owner => (
-                    <option key={owner} value={owner}>{owner}</option>
-                  ))}
-                </select>
+                <OwnerMenu value={ownership} onChange={setOwnership} />
               </div>
               <div>
                 <label className="block text-sm text-neutral-300 mb-1">Head Coach</label>
