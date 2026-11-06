@@ -27,7 +27,6 @@ export default function BracketView({ teams }: { teams: any[] }) {
   const name = (idx: number) => seeds[idx] ? `${idx + 1}. ${seeds[idx].name}` : "TBD";
 
   // Round 1: seeds 9-16 (4 matchups)
-  // 10vs15, 13vs12, 11vs14, 9vs16
   const r1Seeds = [
     { id: 1, date: "", teams: [{ name: name(9) }, { name: name(14) }] },
     { id: 2, date: "", teams: [{ name: name(12) }, { name: name(11) }] },
@@ -43,17 +42,23 @@ export default function BracketView({ teams }: { teams: any[] }) {
     { id: 14, date: "", teams: [{ name: name(7) }, { name: "Winner" }] },
   ];
 
-  // Semifinals: seeds 1-4 enter (2 matchups)
-  // 1 vs W(8), 2 vs W(7) → one side
-  // 3 vs W(6), 4 vs W(5) → other side
+  // Semifinals: seeds 1-4 enter (4 matchups)
   const sfSeeds = [
     { id: 21, date: "", teams: [{ name: name(0) }, { name: "Winner" }] },
     { id: 22, date: "", teams: [{ name: name(1) }, { name: "Winner" }] },
+    { id: 23, date: "", teams: [{ name: name(2) }, { name: "Winner" }] },
+    { id: 24, date: "", teams: [{ name: name(3) }, { name: "Winner" }] },
   ];
 
-  // Finals: 1 matchup
+  // Finals: 2 matchups
   const finSeeds = [
-    { id: 30, date: "", teams: [{ name: "Winner" }, { name: "Winner" }] },
+    { id: 31, date: "", teams: [{ name: "Winner" }, { name: "Winner" }] },
+    { id: 32, date: "", teams: [{ name: "Winner" }, { name: "Winner" }] },
+  ];
+
+  // Championship: 1 matchup
+  const champSeeds = [
+    { id: 40, date: "", teams: [{ name: "Winner" }, { name: "Winner" }] },
   ];
 
   const rounds: IRoundProps[] = [
@@ -61,6 +66,7 @@ export default function BracketView({ teams }: { teams: any[] }) {
     { title: "Quarterfinals", seeds: qfSeeds },
     { title: "Semifinals", seeds: sfSeeds },
     { title: "Finals", seeds: finSeeds },
+    { title: "Championship", seeds: champSeeds },
   ];
 
   return (
