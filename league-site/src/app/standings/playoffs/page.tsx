@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Bracket, RoundProps } from "react-brackets";
+import { Bracket, IRoundProps } from "react-brackets";
 
 export default function PlayoffPicturePage() {
-  const [rounds, setRounds] = useState<RoundProps[]>([]);
+  const [rounds, setRounds] = useState<IRoundProps[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -75,7 +75,7 @@ export default function PlayoffPicturePage() {
       <div className="overflow-x-auto pb-4">
         <Bracket
           rounds={rounds}
-          roundTitleComponent={(title) => (
+          roundTitleComponent={(title: any) => (
             <div className="text-xs text-neutral-500 text-center mb-2">{title}</div>
           )}
         />
