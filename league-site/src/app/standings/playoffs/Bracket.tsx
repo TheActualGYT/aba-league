@@ -1,12 +1,20 @@
 "use client";
 
-const LINE = "#e5e5e5";
+const LINE = "#f3f3f3";
+const STROKE = 1.5;
 const H = 58;
 const W = 236;
 const NUM_W = 18;
 const DISPLAY_W = 1420;
 
 type T = { name?: string; logo?: string } | null;
+
+function ordinal(n: number) {
+  if (n === 1) return "1st";
+  if (n === 2) return "2nd";
+  if (n === 3) return "3rd";
+  return `${n}th`;
+}
 
 function Row({
   x,
@@ -144,24 +152,24 @@ export default function BracketView({ teams }: { teams: any[] }) {
 
   const link = (xFrom: number, yFrom: number, xTo: number, yTo: number, into: number) => (
     <g key={`${xFrom}-${yFrom}-${xTo}-${yTo}`}>
-      <line x1={xFrom} y1={yFrom} x2={xTo} y2={yFrom} stroke={LINE} strokeWidth={1.5} />
-      <line x1={xTo} y1={yFrom} x2={xTo} y2={yTo} stroke={LINE} strokeWidth={1.5} />
-      <line x1={xTo} y1={yTo} x2={into} y2={yTo} stroke={LINE} strokeWidth={1.5} />
+      <line x1={xFrom} y1={yFrom} x2={xTo} y2={yFrom} stroke={LINE} strokeWidth={STROKE} strokeLinecap="square" />
+      <line x1={xTo} y1={yFrom} x2={xTo} y2={yTo} stroke={LINE} strokeWidth={STROKE} strokeLinecap="square" />
+      <line x1={xTo} y1={yTo} x2={into} y2={yTo} stroke={LINE} strokeWidth={STROKE} strokeLinecap="square" />
     </g>
   );
 
   const bye = (xEnd: number, y: number, seed: number, id: string) => (
     <g key={id}>
-      <line x1={x1} y1={y} x2={xEnd} y2={y} stroke={LINE} strokeWidth={1.5} />
-      <rect x={x1 + 12} y={y - 9} width={52} height={18} rx={2} fill="#0a0a0a" />
+      <line x1={x1} y1={y} x2={xEnd} y2={y} stroke={LINE} strokeWidth={STROKE} strokeLinecap="square" />
+      <rect x={x1 + 8} y={y - 9} width={108} height={18} rx={2} fill="#0a0a0a" />
       <text
-        x={x1 + 16}
+        x={x1 + 12}
         y={y + 4}
         fontSize={12}
-        fill="#ffffff"
+        fill={LINE}
         fontFamily="Inter, system-ui, sans-serif"
       >
-        {seed} Bye
+        {ordinal(seed)} Seed Bye
       </text>
     </g>
   );
@@ -233,14 +241,14 @@ export default function BracketView({ teams }: { teams: any[] }) {
           </filter>
         </defs>
 
-        {bye(xS, mid(y2), 2, "bye-2")}
-        {bye(xQ, mid(y7), 7, "bye-7")}
-        {bye(xQ, mid(y6), 6, "bye-6")}
-        {bye(xS, mid(y3), 3, "bye-3")}
-        {bye(xS, mid(y4), 4, "bye-4")}
-        {bye(xQ, mid(y5), 5, "bye-5")}
-        {bye(xQ, mid(y8), 8, "bye-8")}
-        {bye(xS, mid(y1), 1, "bye-1")}
+        {bye(jS, mid(y2), 2, "bye-2")}
+        {bye(jQ, mid(y7), 7, "bye-7")}
+        {bye(jQ, mid(y6), 6, "bye-6")}
+        {bye(jS, mid(y3), 3, "bye-3")}
+        {bye(jS, mid(y4), 4, "bye-4")}
+        {bye(jQ, mid(y5), 5, "bye-5")}
+        {bye(jQ, mid(y8), 8, "bye-8")}
+        {bye(jS, mid(y1), 1, "bye-1")}
 
         {box(x1, y1015, 1, 10, s[9], 15, s[14], "m1")}
         {box(x1, y1312, 2, 13, s[12], 12, s[11], "m2")}
