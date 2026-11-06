@@ -29,7 +29,7 @@ export default function RootLayout({
           <div className="relative px-6 py-2">
             <div
               className="flex items-center gap-6 absolute top-1/2 -translate-y-1/2"
-              style={{ left: "max(16px, calc(50% - 723.56px))" }}
+              style={{ left: "max(16px, calc(50% - 717.56px))" }}
             >
               <Link href="/" className="flex items-center gap-2">
                 <img src="/logo.png" alt="ABA" className="h-16 w-auto" />
