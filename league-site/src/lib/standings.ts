@@ -20,7 +20,7 @@ export const NAME_COLS: StandingsCol[] = [
 ];
 
 export const STAT_COLS: StandingsCol[] = [
-  { label: "W", width: "48px", align: "text-center" },
+  { label: "W", width: "48px", align: "text-center", split: true },
   { label: "L", width: "48px", align: "text-center" },
   { label: "W%", width: "64px", align: "text-center" },
   { label: "GB", width: "56px", align: "text-center" },
