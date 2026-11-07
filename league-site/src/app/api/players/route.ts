@@ -3,6 +3,11 @@ import db from "@/lib/db";
 
 const POSITIONS = ["C", "PF", "SF", "SG", "PG"];
 
+function text(raw: unknown) {
+  const value = String(raw ?? "").trim();
+  return value || undefined;
+}
+
 function jerseyError(raw: string) {
   const value = String(raw || "").trim();
   if (!value) return "";
@@ -81,6 +86,14 @@ export async function POST(req: NextRequest) {
     weight: weightRaw ? Number(weightRaw) : undefined,
     number: number || undefined,
     hand: hand || undefined,
+    skin_tone: text(body.skin_tone),
+    body_type: text(body.body_type),
+    head_model: text(body.head_model),
+    tshirt_type: text(body.tshirt_type),
+    sock_style: text(body.sock_style),
+    sock_color: text(body.sock_color),
+    shoes_home: text(body.shoes_home),
+    shoes_away: text(body.shoes_away),
   });
   await db.save(data);
   return NextResponse.json({ id: newId });
