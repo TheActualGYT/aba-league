@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useCloseOnOutside } from "@/components/useCloseOnOutside";
+import AttributeFields, { emptyStats, statError, type StatKey } from "@/components/AttributeFields";
 
 const fieldClass = "w-full h-8 px-2.5 text-sm bg-neutral-800 border border-neutral-600 rounded text-white";
 const labelClass = "block text-[11px] font-semibold tracking-wide text-neutral-400 mb-1";
@@ -216,6 +217,7 @@ export default function PlayerForm() {
     right_calf: "",
     left_calf: "",
   });
+  const [stats, setStats] = useState(emptyStats);
   const [message, setMessage] = useState("");
   const [revealNow, setRevealNow] = useState(false);
 
@@ -231,6 +233,7 @@ export default function PlayerForm() {
   const shownNumber = revealNow ? numberMessage : settledNumber;
   const shownWeight = revealNow ? weightMessage : settledWeight;
   const shownHead = revealNow ? headMessage : settledHead;
+  const statsBlocked = (Object.keys(stats) as StatKey[]).some(key => !!statError(stats[key]));
   const blocked =
     !firstName.trim() ||
     !lastName.trim() ||
@@ -238,7 +241,8 @@ export default function PlayerForm() {
     !!overallMessage ||
     !!numberMessage ||
     !!weightMessage ||
-    !!headMessage;
+    !!headMessage ||
+    statsBlocked;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -266,6 +270,7 @@ export default function PlayerForm() {
           shoes_home: shoesHome,
           shoes_away: shoesAway,
           ...accessories,
+          ...stats,
         }),
       });
       const json = await res.json();
@@ -295,72 +300,30 @@ export default function PlayerForm() {
             </div>
             <div>
               <FieldLabel required>Position</FieldLabel>
-              <Menu
-                value={position}
-                onChange={setPosition}
-                options={POSITIONS.map(option => ({ value: option, label: option }))}
-              />
+              <Menu value={position} onChange={setPosition} options={POSITIONS.map(option => ({ value: option, label: option }))} />
             </div>
             <div>
               <FieldLabel>Rating</FieldLabel>
-              <input
-                value={overall}
-                maxLength={3}
-                onChange={e => {
-                  setRevealNow(false);
-                  setOverall(digitsOnly(e.target.value, 3));
-                }}
-                inputMode="numeric"
-                className={`${fieldClass} ${shownOverall ? "abbr-taken" : ""}`}
-              />
+              <input value={overall} maxLength={3} onChange={e => { setRevealNow(false); setOverall(digitsOnly(e.target.value, 3)); }} inputMode="numeric" className={`${fieldClass} ${shownOverall ? "abbr-taken" : ""}`} />
               {shownOverall && <p className="text-[11px] text-red-400 mt-1">{shownOverall}</p>}
             </div>
             <div>
               <FieldLabel>Height</FieldLabel>
-              <Menu
-                value={height}
-                onChange={setHeight}
-                options={HEIGHTS.map(option => ({ value: option, label: option }))}
-              />
+              <Menu value={height} onChange={setHeight} options={HEIGHTS.map(option => ({ value: option, label: option }))} />
             </div>
             <div>
               <FieldLabel>Weight</FieldLabel>
-              <input
-                value={weight}
-                maxLength={3}
-                onChange={e => {
-                  setRevealNow(false);
-                  setWeight(digitsOnly(e.target.value, 3));
-                }}
-                inputMode="numeric"
-                className={`${fieldClass} ${shownWeight ? "abbr-taken" : ""}`}
-              />
+              <input value={weight} maxLength={3} onChange={e => { setRevealNow(false); setWeight(digitsOnly(e.target.value, 3)); }} inputMode="numeric" className={`${fieldClass} ${shownWeight ? "abbr-taken" : ""}`} />
               {shownWeight && <p className="text-[11px] text-red-400 mt-1">{shownWeight}</p>}
             </div>
             <div>
               <FieldLabel>Jersey Number</FieldLabel>
-              <input
-                value={number}
-                maxLength={2}
-                onChange={e => {
-                  setRevealNow(false);
-                  setNumber(digitsOnly(e.target.value, 2));
-                }}
-                inputMode="numeric"
-                className={`${fieldClass} ${shownNumber ? "abbr-taken" : ""}`}
-              />
+              <input value={number} maxLength={2} onChange={e => { setRevealNow(false); setNumber(digitsOnly(e.target.value, 2)); }} inputMode="numeric" className={`${fieldClass} ${shownNumber ? "abbr-taken" : ""}`} />
               {shownNumber && <p className="text-[11px] text-red-400 mt-1">{shownNumber}</p>}
             </div>
             <div>
               <FieldLabel>Dominant Hand</FieldLabel>
-              <Menu
-                value={hand}
-                onChange={setHand}
-                options={[
-                  { value: "Left", label: "Left" },
-                  { value: "Right", label: "Right" },
-                ]}
-              />
+              <Menu value={hand} onChange={setHand} options={[{ value: "Left", label: "Left" }, { value: "Right", label: "Right" }]} />
             </div>
           </div>
         </section>
@@ -370,44 +333,20 @@ export default function PlayerForm() {
           <div className="grid grid-cols-2 gap-x-3 gap-y-2.5">
             <div>
               <FieldLabel>Skin Tone</FieldLabel>
-              <Menu
-                value={skinTone}
-                onChange={setSkinTone}
-                options={COMPLEXIONS.map(option => ({ value: option, label: option }))}
-              />
+              <Menu value={skinTone} onChange={setSkinTone} options={COMPLEXIONS.map(option => ({ value: option, label: option }))} />
             </div>
             <div>
               <FieldLabel>Body Type</FieldLabel>
-              <div
-                aria-readonly="true"
-                className="w-full h-8 rounded border border-[#8a8a8a] cursor-default select-none"
-                style={{
-                  background: "linear-gradient(180deg, #8f8f8f 0%, #6d6d6d 48%, #7c7c7c 100%)",
-                  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.35)",
-                }}
-              />
+              <div aria-readonly="true" className="w-full h-8 rounded border border-[#8a8a8a] cursor-default select-none" style={{ background: "linear-gradient(180deg, #8f8f8f 0%, #6d6d6d 48%, #7c7c7c 100%)", boxShadow: "inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.35)" }} />
             </div>
             <div>
               <FieldLabel>Head Model</FieldLabel>
-              <input
-                value={headModel}
-                maxLength={3}
-                inputMode="numeric"
-                onChange={e => {
-                  setRevealNow(false);
-                  setHeadModel(digitsOnly(e.target.value, 3));
-                }}
-                className={`${fieldClass} ${shownHead ? "abbr-taken" : ""}`}
-              />
+              <input value={headModel} maxLength={3} inputMode="numeric" onChange={e => { setRevealNow(false); setHeadModel(digitsOnly(e.target.value, 3)); }} className={`${fieldClass} ${shownHead ? "abbr-taken" : ""}`} />
               {shownHead && <p className="text-[11px] text-red-400 mt-1">{shownHead}</p>}
             </div>
             <div>
               <FieldLabel>T-Shirt Type</FieldLabel>
-              <Menu
-                value={tshirtType}
-                onChange={setTshirtType}
-                options={TSHIRTS.map(option => ({ value: option, label: option }))}
-              />
+              <Menu value={tshirtType} onChange={setTshirtType} options={TSHIRTS.map(option => ({ value: option, label: option }))} />
             </div>
             <div>
               <FieldLabel>Sock Style</FieldLabel>
@@ -415,11 +354,7 @@ export default function PlayerForm() {
             </div>
             <div>
               <FieldLabel>Sock Color</FieldLabel>
-              <Menu
-                value={sockColor}
-                onChange={setSockColor}
-                options={SOCK_COLORS.map(option => ({ value: option, label: option }))}
-              />
+              <Menu value={sockColor} onChange={setSockColor} options={SOCK_COLORS.map(option => ({ value: option, label: option }))} />
             </div>
             <div>
               <FieldLabel>Shoes Home</FieldLabel>
@@ -439,12 +374,7 @@ export default function PlayerForm() {
               row.map(field => (
                 <div key={field.key} className={`flex items-center gap-1.5 min-w-0 ${row.length === 1 ? "col-span-2" : ""}`}>
                   <span className={compactLabel}>{field.label}</span>
-                  <input
-                    value={accessories[field.key]}
-                    placeholder="None"
-                    onChange={e => setAccessories(current => ({ ...current, [field.key]: e.target.value }))}
-                    className={compactField}
-                  />
+                  <input value={accessories[field.key]} placeholder="None" onChange={e => setAccessories(current => ({ ...current, [field.key]: e.target.value }))} className={compactField} />
                 </div>
               ))
             )}
@@ -452,13 +382,16 @@ export default function PlayerForm() {
         </section>
       </div>
 
+      <AttributeFields
+        stats={stats}
+        revealNow={revealNow}
+        onEdit={() => setRevealNow(false)}
+        onChange={(key, value) => setStats(current => ({ ...current, [key]: value }))}
+      />
+
       <div className="mt-6 flex items-center justify-end gap-4">
         {message && <p className="text-sm text-amber-300 mr-auto">{message}</p>}
-        <button
-          type="submit"
-          disabled={blocked}
-          className={`bg-neutral-200 text-black font-bold px-5 py-2 rounded ${blocked ? "opacity-40 cursor-not-allowed" : "hover:bg-white"}`}
-        >
+        <button type="submit" disabled={blocked} className={`bg-neutral-200 text-black font-bold px-5 py-2 rounded ${blocked ? "opacity-40 cursor-not-allowed" : "hover:bg-white"}`}>
           Create Player
         </button>
       </div>
