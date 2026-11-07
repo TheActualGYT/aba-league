@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import DeletePlayerButton from "@/components/DeletePlayerButton";
 import { useCloseOnOutside } from "@/components/useCloseOnOutside";
@@ -72,6 +73,7 @@ const SECTIONS: { id: SectionId; label: string }[] = [
   { id: "attributes", label: "Attributes" },
 ];
 
+const NUM_COL = "2.75rem";
 const NAME_COL = "calc(24ch + 1.5rem + 1px)";
 const ACTION_COL = "7.75rem";
 
@@ -173,13 +175,40 @@ function compare(a: number | string | null, b: number | string | null, dir: Sort
 }
 
 function HeaderLabel({ label, note }: { label: string; note?: string }) {
+  const [box, setBox] = useState<{ x: number; y: number } | null>(null);
+
+  useEffect(() => {
+    if (!box) return;
+    const close = () => setBox(null);
+    window.addEventListener("scroll", close, true);
+    window.addEventListener("resize", close);
+    return () => {
+      window.removeEventListener("scroll", close, true);
+      window.removeEventListener("resize", close);
+    };
+  }, [box]);
+
   if (!note) return <span>{label}</span>;
+
   return (
-    <span className="relative inline-block cursor-default group">
+    <span
+      className="cursor-default"
+      onMouseEnter={event => {
+        const rect = event.currentTarget.getBoundingClientRect();
+        setBox({ x: rect.left + rect.width / 2, y: rect.top - 6 });
+      }}
+      onMouseLeave={() => setBox(null)}
+    >
       {label}
-      <span className="pointer-events-none absolute bottom-full left-1/2 z-40 mb-1 hidden -translate-x-1/2 whitespace-nowrap rounded border border-neutral-500 bg-neutral-900 px-2 py-1 text-[10px] font-medium tracking-normal text-white shadow-lg group-hover:block">
-        {note}
-      </span>
+      {box && createPortal(
+        <span
+          className="pointer-events-none fixed z-[80] -translate-x-1/2 -translate-y-full whitespace-nowrap rounded border border-neutral-500 bg-neutral-900 px-2 py-1 text-[10px] font-medium tracking-normal text-white shadow-lg"
+          style={{ left: box.x, top: box.y }}
+        >
+          {note}
+        </span>,
+        document.body
+      )}
     </span>
   );
 }
@@ -225,6 +254,7 @@ export default function PlayerDirectory({ players }: { players: DirectoryPlayer[
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: "name", dir: "asc" });
   const columns = COLUMNS[section];
   const equalColumns = section === "accessories" || section === "attributes";
+  const numStyle = { width: NUM_COL, minWidth: NUM_COL, maxWidth: NUM_COL };
   const nameStyle = { width: NAME_COL, minWidth: NAME_COL, maxWidth: NAME_COL };
   const rows = [...players]
     .map((player, index) => ({ player, index }))
@@ -261,6 +291,7 @@ export default function PlayerDirectory({ players }: { players: DirectoryPlayer[
         <table className={`w-full border-separate border-spacing-0 text-sm ${equalColumns ? "table-fixed" : ""}`}>
           {equalColumns && (
             <colgroup>
+              <col style={{ width: NUM_COL }} />
               <col style={{ width: NAME_COL }} />
               {columns.map(column => (
                 <col key={column.key} />
@@ -271,9 +302,15 @@ export default function PlayerDirectory({ players }: { players: DirectoryPlayer[
           <thead>
             <tr>
               <th
+                style={numStyle}
+                className="sticky top-[81px] z-30 px-1 py-3 bg-neutral-800 text-center text-neutral-300 text-xs font-semibold border-y border-l border-neutral-700 rounded-tl-lg"
+              >
+                #
+              </th>
+              <th
                 aria-sort={sort.key === "name" ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}
                 style={nameStyle}
-                className="sticky top-[81px] z-30 px-3 py-3 bg-neutral-800 text-left text-sm font-semibold whitespace-nowrap border-y border-l border-neutral-700 rounded-tl-lg"
+                className="sticky top-[81px] z-30 px-3 py-3 bg-neutral-800 text-left text-sm font-semibold whitespace-nowrap border-y border-l border-neutral-700"
               >
                 <button type="button" onClick={() => toggleSort("name", "alpha")} className="inline-flex items-center text-xs text-neutral-300 hover:text-white">
                   <span>Player</span>
@@ -304,8 +341,14 @@ export default function PlayerDirectory({ players }: { players: DirectoryPlayer[
               return (
                 <tr key={player.id}>
                   <td
+                    style={numStyle}
+                    className={`px-1 py-3 bg-neutral-900 text-center text-neutral-400 border-b border-l border-neutral-700 ${last ? "rounded-bl-lg" : ""}`}
+                  >
+                    {index + 1}
+                  </td>
+                  <td
                     style={nameStyle}
-                    className={`px-3 py-3 bg-neutral-900 text-white font-semibold border-b border-l border-neutral-700 ${last ? "rounded-bl-lg" : ""}`}
+                    className="px-3 py-3 bg-neutral-900 text-white font-semibold border-b border-l border-neutral-700"
                   >
                     <div className="overflow-hidden text-ellipsis whitespace-nowrap" style={{ width: "24ch" }}>
                       {player.name}
