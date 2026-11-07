@@ -5,6 +5,7 @@ import { useCloseOnOutside } from "@/components/useCloseOnOutside";
 
 const fieldClass = "w-full px-3 py-2 bg-neutral-800 border border-neutral-600 rounded text-white";
 const labelClass = "block text-xs font-semibold tracking-wide text-neutral-400 mb-1.5";
+const POSITIONS = ["C", "PF", "SF", "SG", "PG"];
 
 const HEIGHTS = (() => {
   const options: string[] = [];
@@ -72,6 +73,15 @@ function useSettledError(value: string, error: string) {
   return shown;
 }
 
+function FieldLabel({ children, required }: { children: string; required?: boolean }) {
+  return (
+    <label className={labelClass}>
+      {children}
+      {required && <span className="text-red-400"> *</span>}
+    </label>
+  );
+}
+
 function Menu({
   value,
   options,
@@ -121,13 +131,13 @@ function Menu({
 export default function PlayerForm() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [position, setPosition] = useState("");
   const [overall, setOverall] = useState("");
   const [height, setHeight] = useState("");
   const [weight, setWeight] = useState("");
   const [number, setNumber] = useState("");
   const [hand, setHand] = useState("");
   const [message, setMessage] = useState("");
-  const [tried, setTried] = useState(false);
   const [revealNow, setRevealNow] = useState(false);
 
   const overallMessage = overallError(overall);
@@ -142,11 +152,7 @@ export default function PlayerForm() {
   const blocked =
     !firstName.trim() ||
     !lastName.trim() ||
-    !overall.trim() ||
-    !height ||
-    !weight.trim() ||
-    !number.trim() ||
-    !hand ||
+    !position ||
     !!overallMessage ||
     !!numberMessage ||
     !!weightMessage;
@@ -154,7 +160,6 @@ export default function PlayerForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (blocked) return;
-    setTried(true);
     setMessage("Creating...");
     try {
       const res = await fetch("/api/players", {
@@ -163,6 +168,7 @@ export default function PlayerForm() {
         body: JSON.stringify({
           first_name: firstName,
           last_name: lastName,
+          position,
           overall,
           height,
           weight,
@@ -186,15 +192,23 @@ export default function PlayerForm() {
       <h3 className="label-glow text-white text-lg font-bold tracking-widest mb-4">VITALS</h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
         <div className="lg:col-span-2">
-          <label className={labelClass}>First Name</label>
+          <FieldLabel required>First Name</FieldLabel>
           <input value={firstName} maxLength={11} onChange={e => setFirstName(lettersOnly(e.target.value, 11))} className={fieldClass} />
         </div>
         <div className="lg:col-span-2">
-          <label className={labelClass}>Last Name</label>
+          <FieldLabel required>Last Name</FieldLabel>
           <input value={lastName} maxLength={11} onChange={e => setLastName(lettersOnly(e.target.value, 11))} className={fieldClass} />
         </div>
         <div className="lg:col-span-2">
-          <label className={labelClass}>Rating</label>
+          <FieldLabel required>Position</FieldLabel>
+          <Menu
+            value={position}
+            onChange={setPosition}
+            options={POSITIONS.map(option => ({ value: option, label: option }))}
+          />
+        </div>
+        <div className="lg:col-span-2">
+          <FieldLabel>Rating</FieldLabel>
           <input
             value={overall}
             maxLength={3}
@@ -208,16 +222,15 @@ export default function PlayerForm() {
           {shownOverall && <p className="text-xs text-red-400 mt-1">{shownOverall}</p>}
         </div>
         <div className="lg:col-span-2">
-          <label className={labelClass}>Height</label>
+          <FieldLabel>Height</FieldLabel>
           <Menu
             value={height}
             onChange={setHeight}
-            invalid={tried && !height}
             options={HEIGHTS.map(option => ({ value: option, label: option }))}
           />
         </div>
         <div className="lg:col-span-2">
-          <label className={labelClass}>Weight</label>
+          <FieldLabel>Weight</FieldLabel>
           <input
             value={weight}
             maxLength={3}
@@ -231,7 +244,7 @@ export default function PlayerForm() {
           {shownWeight && <p className="text-xs text-red-400 mt-1">{shownWeight}</p>}
         </div>
         <div className="lg:col-span-2">
-          <label className={labelClass}>Jersey Number</label>
+          <FieldLabel>Jersey Number</FieldLabel>
           <input
             value={number}
             maxLength={2}
@@ -245,11 +258,10 @@ export default function PlayerForm() {
           {shownNumber && <p className="text-xs text-red-400 mt-1">{shownNumber}</p>}
         </div>
         <div className="lg:col-span-2">
-          <label className={labelClass}>Dominant Hand</label>
+          <FieldLabel>Dominant Hand</FieldLabel>
           <Menu
             value={hand}
             onChange={setHand}
-            invalid={tried && !hand}
             options={[
               { value: "Left", label: "Left" },
               { value: "Right", label: "Right" },
@@ -262,9 +274,7 @@ export default function PlayerForm() {
         <button
           type="submit"
           disabled={blocked}
-          className={`bg-neutral-200 text-black font-bold px-5 py-2 rounded ${
-            blocked ? "opacity-40 cursor-not-allowed" : "hover:bg-white"
-          }`}
+          className={`bg-neutral-200 text-black font-bold px-5 py-2 rounded ${blocked ? "opacity-40 cursor-not-allowed" : "hover:bg-white"}`}
         >
           Create Player
         </button>
