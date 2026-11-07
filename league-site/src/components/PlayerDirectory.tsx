@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import DeletePlayerButton from "@/components/DeletePlayerButton";
+import { useCloseOnOutside } from "@/components/useCloseOnOutside";
 
 export type DirectoryPlayer = {
   id: number;
@@ -64,10 +65,10 @@ type SortDir = "asc" | "desc";
 type SortKey = "name" | keyof DirectoryPlayer;
 
 const SECTIONS: { id: SectionId; label: string }[] = [
-  { id: "vitals", label: "VITALS" },
-  { id: "appearance", label: "APPEARANCE" },
-  { id: "accessories", label: "ACCESSORIES" },
-  { id: "attributes", label: "ATTRIBUTES" },
+  { id: "vitals", label: "Vitals" },
+  { id: "appearance", label: "Appearance" },
+  { id: "accessories", label: "Accessories" },
+  { id: "attributes", label: "Attributes" },
 ];
 
 const COLUMNS: Record<SectionId, { key: keyof DirectoryPlayer; label: string; note?: string; gap?: boolean; prefer: "high" | "low" | "alpha" }[]> = {
@@ -179,6 +180,42 @@ function HeaderLabel({ label, note }: { label: string; note?: string }) {
   );
 }
 
+function SectionMenu({ value, onChange }: { value: SectionId; onChange: (value: SectionId) => void }) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useCloseOnOutside<HTMLDivElement>(open, setOpen);
+  const current = SECTIONS.find(item => item.id === value);
+
+  return (
+    <div className="relative w-52" ref={rootRef}>
+      <button
+        type="button"
+        onClick={() => setOpen(currentOpen => !currentOpen)}
+        className="w-full h-10 px-3 bg-neutral-800 border border-neutral-600 rounded text-white text-left flex items-center justify-between"
+      >
+        <span>{current?.label}</span>
+        <span className="text-neutral-400 text-[10px]">▼</span>
+      </button>
+      {open && (
+        <div className="absolute z-40 mt-1 w-full bg-neutral-800 border border-neutral-600 rounded overflow-hidden shadow-lg">
+          {SECTIONS.map(item => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => {
+                onChange(item.id);
+                setOpen(false);
+              }}
+              className={`block w-full text-left px-3 py-2 text-sm text-white hover:bg-neutral-700 ${value === item.id ? "bg-neutral-700" : ""}`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function PlayerDirectory({ players }: { players: DirectoryPlayer[] }) {
   const [section, setSection] = useState<SectionId>("vitals");
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: "name", dir: "asc" });
@@ -205,24 +242,9 @@ export default function PlayerDirectory({ players }: { players: DirectoryPlayer[
 
   return (
     <>
-      <div className="relative mb-6 flex items-center justify-center min-h-10">
-        <div className="flex flex-wrap justify-center gap-2">
-          {SECTIONS.map(item => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => chooseSection(item.id)}
-              className={`px-4 py-2 rounded text-sm font-bold tracking-wide ${
-                section === item.id
-                  ? "bg-neutral-200 text-black"
-                  : "border border-neutral-600 text-neutral-300 hover:text-white"
-              }`}
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
-        <Link href="/players/new" className="absolute right-0 bg-neutral-200 text-black font-bold px-5 py-2 rounded hover:bg-white">
+      <div className="mb-6 flex items-center justify-between gap-4">
+        <SectionMenu value={section} onChange={chooseSection} />
+        <Link href="/players/new" className="bg-neutral-200 text-black font-bold px-5 py-2 rounded hover:bg-white">
           Create Player
         </Link>
       </div>
@@ -280,8 +302,13 @@ export default function PlayerDirectory({ players }: { players: DirectoryPlayer[
                       )}
                     </td>
                   ))}
-                  <td className={`px-3 py-3 bg-neutral-900 text-right whitespace-nowrap border-b border-r border-neutral-700 ${last ? "rounded-br-lg" : ""}`}>
-                    <DeletePlayerButton playerId={player.id} playerName={player.name} />
+                  <td className={`px-3 py-3 bg-neutral-900 whitespace-nowrap border-b border-r border-neutral-700 ${last ? "rounded-br-lg" : ""}`}>
+                    <div className="flex items-center justify-end gap-3">
+                      <Link href={`/players/${player.id}/edit`} className="text-xs text-neutral-300 hover:text-white">
+                        Edit
+                      </Link>
+                      <DeletePlayerButton playerId={player.id} playerName={player.name} />
+                    </div>
                   </td>
                 </tr>
               );
