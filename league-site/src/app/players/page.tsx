@@ -1,13 +1,79 @@
 import db from "@/lib/db";
-import Link from "next/link";
-import DeletePlayerButton from "@/components/DeletePlayerButton";
+import PlayerDirectory, { type DirectoryPlayer } from "@/components/PlayerDirectory";
 
 export const dynamic = "force-dynamic";
 
+function show(value: unknown, empty = "\u2014") {
+  const text = String(value ?? "").trim();
+  return text || empty;
+}
+
+function accessory(value: unknown) {
+  return show(value, "None");
+}
+
 export default async function PlayersPage() {
   const data = await db.load();
-  const teams = [...data.teams].sort((a, b) => a.name.localeCompare(b.name));
-  const players = [...(data.players || [])].sort((a, b) => a.name.localeCompare(b.name));
+  const teams = data.teams || [];
+  const players: DirectoryPlayer[] = [...(data.players || [])]
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map(player => {
+      const team = teams.find(item => item.id === player.team_id);
+      return {
+        id: player.id,
+        name: player.name,
+        team: team ? team.name : "Free Agent",
+        logo: team?.logo || "",
+        position: show(player.position),
+        rating: show(player.overall),
+        height: show(player.height),
+        weight: show(player.weight),
+        number: show(player.number),
+        hand: show(player.hand),
+        skin_tone: show(player.skin_tone),
+        body_type: show(player.body_type),
+        head_model: show(player.head_model),
+        tshirt_type: show(player.tshirt_type),
+        sock_style: show(player.sock_style),
+        sock_color: show(player.sock_color),
+        shoes_home: show(player.shoes_home),
+        shoes_away: show(player.shoes_away),
+        headband: accessory(player.headband),
+        right_bicep: accessory(player.right_bicep),
+        left_bicep: accessory(player.left_bicep),
+        right_forearm: accessory(player.right_forearm),
+        left_forearm: accessory(player.left_forearm),
+        right_elbow: accessory(player.right_elbow),
+        left_elbow: accessory(player.left_elbow),
+        right_wrist: accessory(player.right_wrist),
+        left_wrist: accessory(player.left_wrist),
+        right_knee: accessory(player.right_knee),
+        left_knee: accessory(player.left_knee),
+        right_calf: accessory(player.right_calf),
+        left_calf: accessory(player.left_calf),
+        fg: show(player.fg),
+        three_p: show(player.three_p),
+        ft: "\u2014",
+        dk: show(player.dk),
+        stl: show(player.stl),
+        blk: show(player.blk),
+        off_reb: show(player.off_reb),
+        def_reb: show(player.def_reb),
+        passing: show(player.passing),
+        off_ability: show(player.off_ability),
+        def_ability: show(player.def_ability),
+        speed: show(player.speed),
+        quickness: show(player.quickness),
+        vertical: show(player.vertical),
+        dribble: show(player.dribble),
+        strength: show(player.strength),
+        durability: show(player.durability),
+        shooting_range: show(player.shooting_range),
+        stamina: show(player.stamina),
+        inside_scoring: show(player.inside_scoring),
+        in_game_rating: show(player.in_game_rating),
+      };
+    });
 
   return (
     <main
@@ -18,35 +84,7 @@ export default async function PlayersPage() {
       }}
     >
       <h2 className="label-glow text-3xl font-bold mb-8 text-white text-center tracking-wide">PLAYER DIRECTORY</h2>
-
-      <div className="flex justify-end mb-6">
-        <Link href="/players/new" className="bg-neutral-200 text-black font-bold px-5 py-2 rounded hover:bg-white">
-          Create Player
-        </Link>
-      </div>
-
-      <div className="bg-neutral-900 border border-neutral-700 rounded-lg overflow-hidden">
-        {players.length === 0 ? (
-          <p className="px-4 py-6 text-center text-neutral-400">No players yet.</p>
-        ) : (
-          <ul>
-            {players.map(player => {
-              const team = teams.find(item => item.id === player.team_id);
-              return (
-                <li key={player.id} className="flex items-center gap-4 px-4 py-3 border-t border-neutral-700 first:border-t-0">
-                  <span className="text-white font-semibold flex-1 min-w-0 truncate">{player.name}</span>
-                  <span className="text-neutral-300 w-16 text-center">{player.position || "N/A"}</span>
-                  <span className="text-neutral-400 w-56 truncate text-right flex items-center justify-end gap-2">
-                    {team?.logo && <img src={team.logo} alt="" className="h-5 w-5 object-contain" />}
-                    {team ? team.name : "Free Agent"}
-                  </span>
-                  <DeletePlayerButton playerId={player.id} playerName={player.name} />
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </div>
+      <PlayerDirectory players={players} />
     </main>
   );
 }
