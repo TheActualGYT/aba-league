@@ -3,8 +3,10 @@
 import { useEffect, useState } from "react";
 import { useCloseOnOutside } from "@/components/useCloseOnOutside";
 
-const fieldClass = "w-full px-3 py-2 bg-neutral-800 border border-neutral-600 rounded text-white";
-const labelClass = "block text-xs font-semibold tracking-wide text-neutral-400 mb-1.5";
+const fieldClass = "w-full h-8 px-2.5 text-sm bg-neutral-800 border border-neutral-600 rounded text-white";
+const labelClass = "block text-[11px] font-semibold tracking-wide text-neutral-400 mb-1";
+const compactLabel = "block text-[10px] font-semibold leading-none tracking-wide text-neutral-400 mb-0.5";
+const compactField = "w-full h-[22px] px-1.5 text-[11px] bg-neutral-800 border border-neutral-600 rounded text-white placeholder:text-white/35";
 const POSITIONS = ["C", "PF", "SF", "SG", "PG"];
 const COMPLEXIONS = Array.from({ length: 10 }, (_, index) => `Complexion ${index + 1}`);
 const TSHIRTS = ["None", "Muscle T", "Angled T", "Short Sleeve", "Long Sleeve"];
@@ -26,6 +28,34 @@ const ACCESSORY_FIELDS = [
 ] as const;
 
 type AccessoryKey = (typeof ACCESSORY_FIELDS)[number]["key"];
+
+const ACCESSORY_ROWS: { key: AccessoryKey; label: string }[][] = [
+  [{ key: "headband", label: "Headband" }],
+  [
+    { key: "left_bicep", label: "Left Bicep" },
+    { key: "right_bicep", label: "Right Bicep" },
+  ],
+  [
+    { key: "left_forearm", label: "Left Forearm" },
+    { key: "right_forearm", label: "Right Forearm" },
+  ],
+  [
+    { key: "left_elbow", label: "Left Elbow" },
+    { key: "right_elbow", label: "Right Elbow" },
+  ],
+  [
+    { key: "left_wrist", label: "Left Wrist" },
+    { key: "right_wrist", label: "Right Wrist" },
+  ],
+  [
+    { key: "left_knee", label: "Left Knee" },
+    { key: "right_knee", label: "Right Knee" },
+  ],
+  [
+    { key: "left_calf", label: "Left Calf" },
+    { key: "right_calf", label: "Right Calf" },
+  ],
+];
 
 const HEIGHTS = (() => {
   const options: string[] = [];
@@ -129,10 +159,10 @@ function Menu({
       <button
         type="button"
         onClick={() => setOpen(currentOpen => !currentOpen)}
-        className={`${fieldClass} text-left flex items-center justify-between min-h-[42px] ${invalid ? "abbr-taken" : ""}`}
+        className={`${fieldClass} text-left flex items-center justify-between ${invalid ? "abbr-taken" : ""}`}
       >
-        <span>{current?.label || ""}</span>
-        <span className="text-neutral-400 text-[10px]">▼</span>
+        <span className="truncate">{current?.label || ""}</span>
+        <span className="text-neutral-400 text-[10px] ml-2">▼</span>
       </button>
       {open && (
         <div className="absolute z-30 mt-1 w-full bg-neutral-800 border border-neutral-600 rounded overflow-hidden shadow-lg max-h-60 overflow-y-auto">
@@ -144,7 +174,7 @@ function Menu({
                 onChange(option.value);
                 setOpen(false);
               }}
-              className={`block w-full text-left px-3 py-2 text-sm text-white hover:bg-neutral-700 ${value === option.value ? "bg-neutral-700" : ""}`}
+              className={`block w-full text-left px-2.5 py-1.5 text-sm text-white hover:bg-neutral-700 ${value === option.value ? "bg-neutral-700" : ""}`}
             >
               {option.label}
             </button>
@@ -251,10 +281,10 @@ export default function PlayerForm() {
 
   return (
     <form onSubmit={handleSubmit}>
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 items-start">
-        <section className="bg-neutral-900 border border-neutral-700 rounded-lg p-5">
-          <h3 className="label-glow text-white text-lg font-bold tracking-widest mb-4">VITALS</h3>
-          <div className="grid grid-cols-1 gap-4">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 items-stretch">
+        <section className="bg-neutral-900 border border-neutral-700 rounded-lg p-4 h-full">
+          <h3 className="label-glow text-white text-lg font-bold tracking-widest mb-3">VITALS</h3>
+          <div className="grid grid-cols-2 gap-x-3 gap-y-2.5">
             <div>
               <FieldLabel required>First Name</FieldLabel>
               <input value={firstName} maxLength={11} onChange={e => setFirstName(lettersOnly(e.target.value, 11))} className={fieldClass} />
@@ -283,7 +313,7 @@ export default function PlayerForm() {
                 inputMode="numeric"
                 className={`${fieldClass} ${shownOverall ? "abbr-taken" : ""}`}
               />
-              {shownOverall && <p className="text-xs text-red-400 mt-1">{shownOverall}</p>}
+              {shownOverall && <p className="text-[11px] text-red-400 mt-1">{shownOverall}</p>}
             </div>
             <div>
               <FieldLabel>Height</FieldLabel>
@@ -305,7 +335,7 @@ export default function PlayerForm() {
                 inputMode="numeric"
                 className={`${fieldClass} ${shownWeight ? "abbr-taken" : ""}`}
               />
-              {shownWeight && <p className="text-xs text-red-400 mt-1">{shownWeight}</p>}
+              {shownWeight && <p className="text-[11px] text-red-400 mt-1">{shownWeight}</p>}
             </div>
             <div>
               <FieldLabel>Jersey Number</FieldLabel>
@@ -319,7 +349,7 @@ export default function PlayerForm() {
                 inputMode="numeric"
                 className={`${fieldClass} ${shownNumber ? "abbr-taken" : ""}`}
               />
-              {shownNumber && <p className="text-xs text-red-400 mt-1">{shownNumber}</p>}
+              {shownNumber && <p className="text-[11px] text-red-400 mt-1">{shownNumber}</p>}
             </div>
             <div>
               <FieldLabel>Dominant Hand</FieldLabel>
@@ -335,9 +365,9 @@ export default function PlayerForm() {
           </div>
         </section>
 
-        <section className="bg-neutral-900 border border-neutral-700 rounded-lg p-5">
-          <h3 className="label-glow text-white text-lg font-bold tracking-widest mb-4">APPEARANCE</h3>
-          <div className="grid grid-cols-1 gap-4">
+        <section className="bg-neutral-900 border border-neutral-700 rounded-lg p-4 h-full">
+          <h3 className="label-glow text-white text-lg font-bold tracking-widest mb-3">APPEARANCE</h3>
+          <div className="grid grid-cols-2 gap-x-3 gap-y-2.5">
             <div>
               <FieldLabel>Skin Tone</FieldLabel>
               <Menu
@@ -350,11 +380,10 @@ export default function PlayerForm() {
               <FieldLabel>Body Type</FieldLabel>
               <div
                 aria-readonly="true"
-                className="w-full min-h-[42px] rounded border border-[#8a8a8a] cursor-default select-none flex items-center px-3 text-white"
+                className="w-full h-8 rounded border border-[#8a8a8a] cursor-default select-none"
                 style={{
                   background: "linear-gradient(180deg, #8f8f8f 0%, #6d6d6d 48%, #7c7c7c 100%)",
                   boxShadow: "inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.35)",
-                  textShadow: "0 1px 1px rgba(0,0,0,0.55)",
                 }}
               />
             </div>
@@ -370,7 +399,7 @@ export default function PlayerForm() {
                 }}
                 className={`${fieldClass} ${shownHead ? "abbr-taken" : ""}`}
               />
-              {shownHead && <p className="text-xs text-red-400 mt-1">{shownHead}</p>}
+              {shownHead && <p className="text-[11px] text-red-400 mt-1">{shownHead}</p>}
             </div>
             <div>
               <FieldLabel>T-Shirt Type</FieldLabel>
@@ -403,20 +432,22 @@ export default function PlayerForm() {
           </div>
         </section>
 
-        <section className="bg-neutral-900 border border-neutral-700 rounded-lg p-5">
-          <h3 className="label-glow text-white text-lg font-bold tracking-widest mb-4">ACCESSORIES</h3>
-          <div className="grid grid-cols-1 gap-4">
-            {ACCESSORY_FIELDS.map(field => (
-              <div key={field.key}>
-                <FieldLabel>{field.label}</FieldLabel>
-                <input
-                  value={accessories[field.key]}
-                  placeholder="None"
-                  onChange={e => setAccessories(current => ({ ...current, [field.key]: e.target.value }))}
-                  className={`${fieldClass} placeholder:text-white/35`}
-                />
-              </div>
-            ))}
+        <section className="bg-neutral-900 border border-neutral-700 rounded-lg p-4 h-full">
+          <h3 className="label-glow text-white text-lg font-bold tracking-widest mb-3">ACCESSORIES</h3>
+          <div className="grid grid-cols-2 gap-x-2 gap-y-1.5">
+            {ACCESSORY_ROWS.map(row =>
+              row.map(field => (
+                <div key={field.key} className={row.length === 1 ? "col-span-2" : ""}>
+                  <label className={compactLabel}>{field.label}</label>
+                  <input
+                    value={accessories[field.key]}
+                    placeholder="None"
+                    onChange={e => setAccessories(current => ({ ...current, [field.key]: e.target.value }))}
+                    className={compactField}
+                  />
+                </div>
+              ))
+            )}
           </div>
         </section>
       </div>
