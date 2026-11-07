@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import db from "@/lib/db";
 
+const POSITIONS = ["C", "PF", "SF", "SG", "PG"];
+
 function jerseyError(raw: string) {
   const value = String(raw || "").trim();
-  if (!value) return "Jersey number is required.";
+  if (!value) return "";
   const digits = /^\d+$/.test(value);
   const overCap = !digits || value.length > 2 || Number(value) > 55;
   const badDigit = digits && [...value].some(digit => Number(digit) > 5);
@@ -15,9 +17,10 @@ function jerseyError(raw: string) {
 
 function overallError(raw: unknown) {
   const value = String(raw ?? "").trim();
-  if (!/^\d+$/.test(value)) return "Overall has to be a whole number from 10 to 99.";
-  const overall = Number(value);
-  if (overall < 10 || overall > 99) return "Overall has to be between 10 and 99.";
+  if (!value) return "";
+  if (!/^\d+$/.test(value) || Number(value) < 10 || Number(value) > 99) {
+    return "Rating has to be between 10 and 99.";
+  }
   return "";
 }
 
@@ -31,26 +34,31 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const firstName = String(body.first_name || "").trim();
   const lastName = String(body.last_name || "").trim();
+  const position = String(body.position || "").trim();
   const number = String(body.number || "").trim();
-  const hand = body.hand;
+  const hand = String(body.hand || "").trim();
   const height = String(body.height || "").trim();
-  const weight = Number(body.weight);
-  const overallMessage = overallError(body.overall);
+  const weightRaw = String(body.weight ?? "").trim();
+  const overallRaw = String(body.overall ?? "").trim();
+  const overallMessage = overallError(overallRaw);
   const numberMessage = jerseyError(number);
-  const inches = heightInches(height);
+  const inches = height ? heightInches(height) : null;
 
   if (!firstName || !lastName) {
     return NextResponse.json({ error: "First and last name are required." }, { status: 400 });
   }
+  if (!POSITIONS.includes(position)) {
+    return NextResponse.json({ error: "Select a position." }, { status: 400 });
+  }
   if (overallMessage) return NextResponse.json({ error: overallMessage }, { status: 400 });
-  if (inches == null || inches < 5 * 12 + 3 || inches > 7 * 12 + 7) {
+  if (height && (inches == null || inches < 5 * 12 + 3 || inches > 7 * 12 + 7)) {
     return NextResponse.json({ error: "Height has to be between 5'3\" and 7'7\"." }, { status: 400 });
   }
-  if (!Number.isInteger(weight) || weight < 150 || weight > 400) {
+  if (weightRaw && (!/^\d+$/.test(weightRaw) || Number(weightRaw) < 150 || Number(weightRaw) > 400)) {
     return NextResponse.json({ error: "Weight has to be between 150 and 400." }, { status: 400 });
   }
   if (numberMessage) return NextResponse.json({ error: numberMessage }, { status: 400 });
-  if (hand !== "Left" && hand !== "Right") {
+  if (hand && hand !== "Left" && hand !== "Right") {
     return NextResponse.json({ error: "Select a hand." }, { status: 400 });
   }
 
@@ -65,14 +73,14 @@ export async function POST(req: NextRequest) {
     id: newId,
     name: `${firstName} ${lastName}`,
     team_id: null,
-    position: null,
+    position,
     first_name: firstName,
     last_name: lastName,
-    overall: Number(body.overall),
-    height,
-    weight,
-    number,
-    hand,
+    overall: overallRaw ? Number(overallRaw) : undefined,
+    height: height || undefined,
+    weight: weightRaw ? Number(weightRaw) : undefined,
+    number: number || undefined,
+    hand: hand || undefined,
   });
   await db.save(data);
   return NextResponse.json({ id: newId });
