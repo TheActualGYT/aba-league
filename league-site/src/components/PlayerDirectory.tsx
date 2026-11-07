@@ -225,7 +225,6 @@ export default function PlayerDirectory({ players }: { players: DirectoryPlayer[
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: "name", dir: "asc" });
   const columns = COLUMNS[section];
   const equalColumns = section === "accessories" || section === "attributes";
-  const lined = equalColumns;
   const nameStyle = { width: NAME_COL, minWidth: NAME_COL, maxWidth: NAME_COL };
   const rows = [...players]
     .map((player, index) => ({ player, index }))
@@ -285,7 +284,7 @@ export default function PlayerDirectory({ players }: { players: DirectoryPlayer[
                 <th
                   key={column.key}
                   aria-sort={sort.key === column.key ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}
-                  className={`sticky top-[81px] z-30 py-3 bg-neutral-800 text-center text-neutral-300 text-xs font-semibold border-y border-neutral-700 ${equalColumns ? "px-1 whitespace-normal leading-tight" : "px-2 whitespace-nowrap"} ${lined || column.gap ? "border-l" : ""}`}
+                  className={`sticky top-[81px] z-30 py-3 bg-neutral-800 text-center text-neutral-300 text-xs font-semibold border-y border-l border-neutral-700 ${equalColumns ? "px-1 whitespace-normal leading-tight" : "px-2 whitespace-nowrap"}`}
                 >
                   <button type="button" onClick={() => toggleSort(column.key, column.prefer)} className="inline-flex items-center justify-center w-full text-neutral-300 hover:text-white">
                     <HeaderLabel label={column.label} note={column.note} />
@@ -295,7 +294,7 @@ export default function PlayerDirectory({ players }: { players: DirectoryPlayer[
               ))}
               <th
                 style={equalColumns ? { width: ACTION_COL, minWidth: ACTION_COL } : undefined}
-                className={`sticky top-[81px] z-30 px-3 py-3 bg-neutral-800 border-y border-r border-neutral-700 rounded-tr-lg ${lined ? "border-l" : ""}`}
+                className="sticky top-[81px] z-30 px-3 py-3 bg-neutral-800 border-y border-l border-r border-neutral-700 rounded-tr-lg"
               />
             </tr>
           </thead>
@@ -313,13 +312,14 @@ export default function PlayerDirectory({ players }: { players: DirectoryPlayer[
                     </div>
                   </td>
                   {columns.map(column => {
-                    const fill = section === "attributes" ? ratingFill(String(player[column.key] ?? "")) : null;
+                    const tinted = section === "attributes" || column.key === "rating";
+                    const fill = tinted ? ratingFill(String(player[column.key] ?? "")) : null;
                     const value = column.key === "team" ? "" : String(player[column.key] ?? "");
                     return (
                       <td
                         key={column.key}
                         title={column.key === "team" ? player.team : value}
-                        className={`py-3 text-center border-b border-neutral-700 ${equalColumns ? "px-1 overflow-hidden" : "px-2 whitespace-nowrap"} ${fill ? "font-semibold" : "bg-neutral-900 text-neutral-200"} ${lined || column.gap ? "border-l" : ""}`}
+                        className={`py-3 text-center border-b border-l border-neutral-700 ${equalColumns ? "px-1 overflow-hidden" : "px-2 whitespace-nowrap"} ${fill ? "font-semibold" : "bg-neutral-900 text-neutral-200"}`}
                         style={fill ? { backgroundColor: fill, color: RATING_INK } : undefined}
                       >
                         {column.key === "team" ? (
@@ -335,7 +335,7 @@ export default function PlayerDirectory({ players }: { players: DirectoryPlayer[
                       </td>
                     );
                   })}
-                  <td className={`px-3 py-3 bg-neutral-900 whitespace-nowrap border-b border-r border-neutral-700 ${lined ? "border-l" : ""} ${last ? "rounded-br-lg" : ""}`}>
+                  <td className={`px-3 py-3 bg-neutral-900 whitespace-nowrap border-b border-l border-r border-neutral-700 ${last ? "rounded-br-lg" : ""}`}>
                     <div className="flex items-center justify-end gap-3">
                       <Link href={`/players/${player.id}/edit`} className="text-xs text-neutral-300 hover:text-white">
                         Edit
