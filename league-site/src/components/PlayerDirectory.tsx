@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import DeletePlayerButton from "@/components/DeletePlayerButton";
 import { useCloseOnOutside } from "@/components/useCloseOnOutside";
+import { ratingFill, RATING_INK } from "@/lib/ratingColor";
 
 export type DirectoryPlayer = {
   id: number;
@@ -288,21 +289,25 @@ export default function PlayerDirectory({ players }: { players: DirectoryPlayer[
                   <td className={`px-3 py-3 bg-neutral-900 text-white font-semibold whitespace-nowrap border-b border-l border-neutral-700 ${last ? "rounded-bl-lg" : ""}`}>
                     {player.name}
                   </td>
-                  {columns.map(column => (
-                    <td
-                      key={column.key}
-                      className={`px-2 py-3 bg-neutral-900 text-center text-neutral-200 whitespace-nowrap border-b border-neutral-700 ${lined || column.gap ? "border-l" : ""}`}
-                    >
-                      {column.key === "team" ? (
-                        <span className="inline-flex items-center justify-center gap-2">
-                          {player.logo && <img src={player.logo} alt="" className="h-5 w-5 object-contain" />}
-                          {player.team}
-                        </span>
-                      ) : (
-                        player[column.key]
-                      )}
-                    </td>
-                  ))}
+                  {columns.map(column => {
+                    const fill = section === "attributes" ? ratingFill(String(player[column.key] ?? "")) : null;
+                    return (
+                      <td
+                        key={column.key}
+                        className={`px-2 py-3 text-center whitespace-nowrap border-b border-neutral-700 ${fill ? "font-semibold" : "bg-neutral-900 text-neutral-200"} ${lined || column.gap ? "border-l" : ""}`}
+                        style={fill ? { backgroundColor: fill, color: RATING_INK } : undefined}
+                      >
+                        {column.key === "team" ? (
+                          <span className="inline-flex items-center justify-center gap-2">
+                            {player.logo && <img src={player.logo} alt="" className="h-5 w-5 object-contain" />}
+                            {player.team}
+                          </span>
+                        ) : (
+                          player[column.key]
+                        )}
+                      </td>
+                    );
+                  })}
                   <td className={`px-3 py-3 bg-neutral-900 whitespace-nowrap border-b border-r border-neutral-700 ${lined ? "border-l" : ""} ${last ? "rounded-br-lg" : ""}`}>
                     <div className="flex items-center justify-end gap-3">
                       <Link href={`/players/${player.id}/edit`} className="text-xs text-neutral-300 hover:text-white">
