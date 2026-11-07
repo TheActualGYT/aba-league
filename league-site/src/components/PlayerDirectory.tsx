@@ -77,6 +77,7 @@ const SECTIONS: { id: SectionId; label: string }[] = [
 const NUM_COL = "2.75rem";
 const NAME_COL = "16.5rem";
 const ACTION_COL = "7.75rem";
+const ROW = "h-10 max-h-10";
 const POSITION_ORDER = ["C", "PF", "SF", "SG", "PG"];
 
 const COLUMNS: Record<SectionId, { key: keyof DirectoryPlayer; label: string; note?: string; gap?: boolean; prefer: "high" | "low" | "alpha" }[]> = {
@@ -309,7 +310,7 @@ export default function PlayerDirectory({ players }: { players: DirectoryPlayer[
       {players.length === 0 ? (
         <div className="bg-neutral-900 rounded-lg border border-neutral-700 px-4 py-6 text-center text-neutral-400">No players yet.</div>
       ) : (
-        <table className="w-full table-fixed border-separate border-spacing-0 text-sm">
+        <table className="w-full table-fixed border-separate border-spacing-0 text-sm leading-5">
           <colgroup>
             <col style={{ width: NUM_COL }} />
             <col style={{ width: NAME_COL }} />
@@ -359,18 +360,18 @@ export default function PlayerDirectory({ players }: { players: DirectoryPlayer[
             {rows.map((player, index) => {
               const last = index === rows.length - 1;
               return (
-                <tr key={player.id}>
+                <tr key={player.id} className="h-10">
                   <td
                     style={numStyle}
-                    className={`px-1 py-3 bg-neutral-900 text-center text-neutral-400 border-b border-l border-neutral-700 ${last ? "rounded-bl-lg" : ""}`}
+                    className={`${ROW} px-1 py-0 bg-neutral-900 text-center text-neutral-400 border-b border-l border-neutral-700 align-middle ${last ? "rounded-bl-lg" : ""}`}
                   >
                     {index + 1}
                   </td>
                   <td
                     style={nameStyle}
-                    className="px-3 py-3 bg-neutral-900 text-white text-sm font-semibold border-b border-l border-neutral-700"
+                    className={`${ROW} px-3 py-0 bg-neutral-900 text-white text-sm font-semibold border-b border-l border-neutral-700 align-middle`}
                   >
-                    <div className="overflow-hidden text-ellipsis whitespace-nowrap">
+                    <div className="truncate">
                       {player.name}
                     </div>
                   </td>
@@ -382,25 +383,34 @@ export default function PlayerDirectory({ players }: { players: DirectoryPlayer[
                       <td
                         key={column.key}
                         title={value}
-                        style={{ width: widthFor(column.key), ...(fill ? { backgroundColor: fill, color: RATING_INK } : {}) }}
-                        className={`py-3 text-center border-b border-l border-neutral-700 overflow-hidden ${dense ? "px-1" : "px-2"} ${fill ? "font-semibold" : "bg-neutral-900 text-neutral-200"}`}
+                        style={{ width: widthFor(column.key), height: 40, ...(fill ? { backgroundColor: fill, color: RATING_INK } : {}) }}
+                        className={`${ROW} py-0 text-center border-b border-l border-neutral-700 overflow-hidden align-middle ${dense ? "px-1" : "px-2"} ${fill ? "font-semibold" : "bg-neutral-900 text-neutral-200"}`}
                       >
                         {column.key === "team" ? (
-                          <span className="inline-flex items-center justify-center gap-1.5">
-                            {player.logo && <img src={player.logo} alt="" className="h-5 w-5 shrink-0 object-contain" />}
-                            <span>{player.abbreviation}</span>
+                          <span className="flex h-5 items-center justify-center gap-1.5">
+                            {player.logo && (
+                              <img
+                                src={player.logo}
+                                alt=""
+                                width={16}
+                                height={16}
+                                className="block h-4 w-4 shrink-0 object-contain"
+                                style={{ width: 16, height: 16 }}
+                              />
+                            )}
+                            <span className="truncate leading-5">{player.abbreviation}</span>
                           </span>
                         ) : (
-                          <span className="block overflow-hidden text-ellipsis whitespace-nowrap">
+                          <span className="block truncate leading-5">
                             {player[column.key]}
                           </span>
                         )}
                       </td>
                     );
                   })}
-                  <td style={actionStyle} className={`px-2 py-3 bg-neutral-900 whitespace-nowrap border-b border-l border-r border-neutral-700 ${last ? "rounded-br-lg" : ""}`}>
-                    <div className="flex items-center justify-center gap-3">
-                      <Link href={`/players/${player.id}/edit`} className="text-xs text-neutral-300 hover:text-white">
+                  <td style={{ ...actionStyle, height: 40 }} className={`${ROW} px-2 py-0 bg-neutral-900 whitespace-nowrap border-b border-l border-r border-neutral-700 align-middle ${last ? "rounded-br-lg" : ""}`}>
+                    <div className="flex h-5 items-center justify-center gap-3">
+                      <Link href={`/players/${player.id}/edit`} className="text-xs leading-5 text-neutral-300 hover:text-white">
                         Edit
                       </Link>
                       <DeletePlayerButton playerId={player.id} playerName={player.name} />
