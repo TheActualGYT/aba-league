@@ -316,7 +316,11 @@ export default function PlayerForm() {
               <FieldLabel>Body Type</FieldLabel>
               <div
                 aria-readonly="true"
-                className="w-full min-h-[42px] rounded bg-neutral-950 border border-dashed border-neutral-500 cursor-not-allowed"
+                className="w-full min-h-[42px] rounded border border-[#d4d4d4] cursor-default select-none"
+                style={{
+                  background: "linear-gradient(155deg, #f7f7f7 0%, #d9d9d9 40%, #bdbdbd 52%, #eeeeee 100%)",
+                  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.95), inset 0 -1px 0 rgba(70,70,70,0.2)",
+                }}
               />
             </div>
             <div>
