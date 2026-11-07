@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import db from "@/lib/db";
 
 const POSITIONS = ["C", "PF", "SF", "SG", "PG"];
+const COMPLEXIONS = Array.from({ length: 10 }, (_, index) => `Complexion ${index + 1}`);
+const TSHIRTS = ["None", "Muscle T", "Angled T", "Short Sleeve", "Long Sleeve"];
 
 function text(raw: unknown) {
   const value = String(raw ?? "").trim();
@@ -45,6 +47,9 @@ export async function POST(req: NextRequest) {
   const height = String(body.height || "").trim();
   const weightRaw = String(body.weight ?? "").trim();
   const overallRaw = String(body.overall ?? "").trim();
+  const headModel = String(body.head_model ?? "").trim();
+  const skinTone = text(body.skin_tone);
+  const tshirtType = text(body.tshirt_type);
   const overallMessage = overallError(overallRaw);
   const numberMessage = jerseyError(number);
   const inches = height ? heightInches(height) : null;
@@ -66,6 +71,15 @@ export async function POST(req: NextRequest) {
   if (hand && hand !== "Left" && hand !== "Right") {
     return NextResponse.json({ error: "Select a hand." }, { status: 400 });
   }
+  if (skinTone && !COMPLEXIONS.includes(skinTone)) {
+    return NextResponse.json({ error: "Select a skin tone." }, { status: 400 });
+  }
+  if (tshirtType && !TSHIRTS.includes(tshirtType)) {
+    return NextResponse.json({ error: "Select a t-shirt type." }, { status: 400 });
+  }
+  if (headModel && (!/^\d{1,3}$/.test(headModel) || Number(headModel) === 0)) {
+    return NextResponse.json({ error: Number(headModel) === 0 ? "0 isn't allowed." : "Head model can be at most 3 digits." }, { status: 400 });
+  }
 
   const data = await db.load();
   if (!data.players) data.players = [] as typeof data.players;
@@ -86,10 +100,9 @@ export async function POST(req: NextRequest) {
     weight: weightRaw ? Number(weightRaw) : undefined,
     number: number || undefined,
     hand: hand || undefined,
-    skin_tone: text(body.skin_tone),
-    body_type: text(body.body_type),
-    head_model: text(body.head_model),
-    tshirt_type: text(body.tshirt_type),
+    skin_tone: skinTone,
+    head_model: headModel || undefined,
+    tshirt_type: tshirtType,
     sock_style: text(body.sock_style),
     sock_color: text(body.sock_color),
     shoes_home: text(body.shoes_home),
