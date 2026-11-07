@@ -146,11 +146,13 @@ function Menu({
   options,
   onChange,
   invalid,
+  up,
 }: {
   value: string;
   options: { value: string; label: string }[];
   onChange: (value: string) => void;
   invalid?: boolean;
+  up?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const rootRef = useCloseOnOutside<HTMLDivElement>(open, setOpen);
@@ -167,7 +169,7 @@ function Menu({
         <span className="text-neutral-400 text-[10px] ml-2">▼</span>
       </button>
       {open && (
-        <div className="absolute z-30 mt-1 w-full bg-neutral-800 border border-neutral-600 rounded overflow-hidden shadow-lg max-h-60 overflow-y-auto">
+        <div className={`absolute z-30 w-full bg-neutral-800 border border-neutral-600 rounded overflow-hidden shadow-lg max-h-60 overflow-y-auto ${up ? "bottom-full mb-1" : "mt-1"}`}>
           {options.map(option => (
             <button
               key={option.value}
@@ -187,7 +189,7 @@ function Menu({
   );
 }
 
-export default function PlayerForm() {
+export default function PlayerForm({ teams = [] }: { teams?: { id: number; name: string }[] }) {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [position, setPosition] = useState("");
@@ -219,6 +221,7 @@ export default function PlayerForm() {
     left_calf: "",
   });
   const [stats, setStats] = useState(emptyStats);
+  const [teamId, setTeamId] = useState("free");
   const [message, setMessage] = useState("");
   const [revealNow, setRevealNow] = useState(false);
 
@@ -270,6 +273,7 @@ export default function PlayerForm() {
           sock_color: sockColor,
           shoes_home: shoesHome,
           shoes_away: shoesAway,
+          team_id: teamId === "free" ? null : Number(teamId),
           ...accessories,
           ...stats,
         }),
@@ -392,8 +396,19 @@ export default function PlayerForm() {
         onChange={(key, value) => setStats(current => ({ ...current, [key]: value }))}
       />
 
-      <div className="mt-6 flex items-center justify-end gap-4">
+      <div className="mt-6 flex items-center justify-end gap-3">
         {message && <p className="text-sm text-amber-300 mr-auto">{message}</p>}
+        <div className="w-64">
+          <Menu
+            up
+            value={teamId}
+            onChange={setTeamId}
+            options={[
+              { value: "free", label: "Free Agent" },
+              ...teams.map(team => ({ value: String(team.id), label: team.name })),
+            ]}
+          />
+        </div>
         <button type="submit" disabled={blocked} className={`bg-neutral-200 text-black font-bold px-5 py-2 rounded ${blocked ? "opacity-40 cursor-not-allowed" : "hover:bg-white"}`}>
           Create Player
         </button>
