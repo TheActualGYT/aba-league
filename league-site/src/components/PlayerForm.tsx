@@ -6,6 +6,8 @@ import { useCloseOnOutside } from "@/components/useCloseOnOutside";
 const fieldClass = "w-full px-3 py-2 bg-neutral-800 border border-neutral-600 rounded text-white";
 const labelClass = "block text-xs font-semibold tracking-wide text-neutral-400 mb-1.5";
 const POSITIONS = ["C", "PF", "SF", "SG", "PG"];
+const COMPLEXIONS = Array.from({ length: 10 }, (_, index) => `Complexion ${index + 1}`);
+const TSHIRTS = ["None", "Muscle T", "Angled T", "Short Sleeve", "Long Sleeve"];
 
 const HEIGHTS = (() => {
   const options: string[] = [];
@@ -54,6 +56,13 @@ function weightError(raw: string) {
   if (!/^\d+$/.test(value) || Number(value) < 150 || Number(value) > 400) {
     return "Weight has to be between 150 and 400.";
   }
+  return "";
+}
+
+function headModelError(raw: string) {
+  const value = raw.trim();
+  if (!value) return "";
+  if (!/^\d+$/.test(value) || Number(value) === 0) return "0 isn't allowed.";
   return "";
 }
 
@@ -138,7 +147,6 @@ export default function PlayerForm() {
   const [number, setNumber] = useState("");
   const [hand, setHand] = useState("");
   const [skinTone, setSkinTone] = useState("");
-  const [bodyType, setBodyType] = useState("");
   const [headModel, setHeadModel] = useState("");
   const [tshirtType, setTshirtType] = useState("");
   const [sockStyle, setSockStyle] = useState("");
@@ -151,23 +159,28 @@ export default function PlayerForm() {
   const overallMessage = overallError(overall);
   const numberMessage = jerseyError(number);
   const weightMessage = weightError(weight);
+  const headMessage = headModelError(headModel);
   const settledOverall = useSettledError(overall, overallMessage);
   const settledNumber = useSettledError(number, numberMessage);
   const settledWeight = useSettledError(weight, weightMessage);
+  const settledHead = useSettledError(headModel, headMessage);
   const shownOverall = revealNow ? overallMessage : settledOverall;
   const shownNumber = revealNow ? numberMessage : settledNumber;
   const shownWeight = revealNow ? weightMessage : settledWeight;
+  const shownHead = revealNow ? headMessage : settledHead;
   const blocked =
     !firstName.trim() ||
     !lastName.trim() ||
     !position ||
     !!overallMessage ||
     !!numberMessage ||
-    !!weightMessage;
+    !!weightMessage ||
+    !!headMessage;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (blocked) return;
+    setRevealNow(true);
     setMessage("Creating...");
     try {
       const res = await fetch("/api/players", {
@@ -183,7 +196,6 @@ export default function PlayerForm() {
           number,
           hand,
           skin_tone: skinTone,
-          body_type: bodyType,
           head_model: headModel,
           tshirt_type: tshirtType,
           sock_style: sockStyle,
@@ -294,19 +306,40 @@ export default function PlayerForm() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <FieldLabel>Skin Tone</FieldLabel>
-              <input value={skinTone} onChange={e => setSkinTone(e.target.value)} className={fieldClass} />
+              <Menu
+                value={skinTone}
+                onChange={setSkinTone}
+                options={COMPLEXIONS.map(option => ({ value: option, label: option }))}
+              />
             </div>
             <div>
               <FieldLabel>Body Type</FieldLabel>
-              <input value={bodyType} onChange={e => setBodyType(e.target.value)} className={fieldClass} />
+              <div
+                aria-readonly="true"
+                className="w-full min-h-[42px] rounded bg-neutral-950 border border-dashed border-neutral-500 cursor-not-allowed"
+              />
             </div>
             <div>
               <FieldLabel>Head Model</FieldLabel>
-              <input value={headModel} onChange={e => setHeadModel(e.target.value)} className={fieldClass} />
+              <input
+                value={headModel}
+                maxLength={3}
+                inputMode="numeric"
+                onChange={e => {
+                  setRevealNow(false);
+                  setHeadModel(digitsOnly(e.target.value, 3));
+                }}
+                className={`${fieldClass} ${shownHead ? "abbr-taken" : ""}`}
+              />
+              {shownHead && <p className="text-xs text-red-400 mt-1">{shownHead}</p>}
             </div>
             <div>
               <FieldLabel>T-Shirt Type</FieldLabel>
-              <input value={tshirtType} onChange={e => setTshirtType(e.target.value)} className={fieldClass} />
+              <Menu
+                value={tshirtType}
+                onChange={setTshirtType}
+                options={TSHIRTS.map(option => ({ value: option, label: option }))}
+              />
             </div>
             <div>
               <FieldLabel>Sock Style</FieldLabel>
