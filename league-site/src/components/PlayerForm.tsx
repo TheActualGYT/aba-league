@@ -8,6 +8,7 @@ const labelClass = "block text-xs font-semibold tracking-wide text-neutral-400 m
 const POSITIONS = ["C", "PF", "SF", "SG", "PG"];
 const COMPLEXIONS = Array.from({ length: 10 }, (_, index) => `Complexion ${index + 1}`);
 const TSHIRTS = ["None", "Muscle T", "Angled T", "Short Sleeve", "Long Sleeve"];
+const SOCK_COLORS = ["White", "Black", "Team"];
 const ACCESSORY_FIELDS = [
   { key: "headband", label: "Headband" },
   { key: "right_bicep", label: "Right Bicep" },
@@ -385,7 +386,11 @@ export default function PlayerForm() {
             </div>
             <div>
               <FieldLabel>Sock Color</FieldLabel>
-              <input value={sockColor} onChange={e => setSockColor(e.target.value)} className={fieldClass} />
+              <Menu
+                value={sockColor}
+                onChange={setSockColor}
+                options={SOCK_COLORS.map(option => ({ value: option, label: option }))}
+              />
             </div>
             <div>
               <FieldLabel>Shoes Home</FieldLabel>
@@ -406,8 +411,9 @@ export default function PlayerForm() {
                 <FieldLabel>{field.label}</FieldLabel>
                 <input
                   value={accessories[field.key]}
+                  placeholder="None"
                   onChange={e => setAccessories(current => ({ ...current, [field.key]: e.target.value }))}
-                  className={fieldClass}
+                  className={`${fieldClass} placeholder:text-white/35`}
                 />
               </div>
             ))}
