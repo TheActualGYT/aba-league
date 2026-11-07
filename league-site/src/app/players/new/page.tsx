@@ -1,6 +1,14 @@
+import db from "@/lib/db";
 import PlayerForm from "@/components/PlayerForm";
 
-export default function NewPlayerPage() {
+export const dynamic = "force-dynamic";
+
+export default async function NewPlayerPage() {
+  const data = await db.load();
+  const teams = [...(data.teams || [])]
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map(team => ({ id: team.id, name: team.name }));
+
   return (
     <main
       className="py-8"
@@ -10,7 +18,7 @@ export default function NewPlayerPage() {
       }}
     >
       <h2 className="label-glow text-3xl font-bold mb-8 text-white text-center tracking-wide">CREATE PLAYER</h2>
-      <PlayerForm />
+      <PlayerForm teams={teams} />
     </main>
   );
 }
