@@ -79,7 +79,7 @@ export default function DeletePlayerButton({ playerId, playerName }: { playerId:
   if (step === 1 || step === 2) {
     return (
       <span className="inline-flex h-5 items-center gap-1.5">
-        <span className="text-[10px] leading-5 text-neutral-500">{step}/2</span>
+        <span className="text-[10px] leading-5 text-neutral-500">{step}/3</span>
         <button
           type="button"
           onClick={() => setStep(step + 1)}
