@@ -5,8 +5,8 @@ import { useCloseOnOutside } from "@/components/useCloseOnOutside";
 
 const fieldClass = "w-full h-8 px-2.5 text-sm bg-neutral-800 border border-neutral-600 rounded text-white";
 const labelClass = "block text-[11px] font-semibold tracking-wide text-neutral-400 mb-1";
-const compactLabel = "block text-[10px] font-semibold leading-none tracking-wide text-neutral-400 mb-0.5";
-const compactField = "w-full h-[22px] px-1.5 text-[11px] bg-neutral-800 border border-neutral-600 rounded text-white placeholder:text-white/35";
+const compactLabel = "w-[5.6rem] shrink-0 text-[11px] font-semibold leading-tight tracking-wide text-neutral-400";
+const compactField = "min-w-0 flex-1 h-[22px] px-1.5 text-[11px] bg-neutral-800 border border-neutral-600 rounded text-white placeholder:text-white/35";
 const POSITIONS = ["C", "PF", "SF", "SG", "PG"];
 const COMPLEXIONS = Array.from({ length: 10 }, (_, index) => `Complexion ${index + 1}`);
 const TSHIRTS = ["None", "Muscle T", "Angled T", "Short Sleeve", "Long Sleeve"];
@@ -434,11 +434,11 @@ export default function PlayerForm() {
 
         <section className="bg-neutral-900 border border-neutral-700 rounded-lg p-4 h-full">
           <h3 className="label-glow text-white text-lg font-bold tracking-widest mb-3">ACCESSORIES</h3>
-          <div className="grid grid-cols-2 gap-x-2 gap-y-1.5">
+          <div className="grid grid-cols-2 gap-x-3 gap-y-2">
             {ACCESSORY_ROWS.map(row =>
               row.map(field => (
-                <div key={field.key} className={row.length === 1 ? "col-span-2" : ""}>
-                  <label className={compactLabel}>{field.label}</label>
+                <div key={field.key} className={`flex items-center gap-1.5 min-w-0 ${row.length === 1 ? "col-span-2" : ""}`}>
+                  <span className={compactLabel}>{field.label}</span>
                   <input
                     value={accessories[field.key]}
                     placeholder="None"
