@@ -139,19 +139,22 @@ export default function PlayerForm() {
   const shownOverall = revealNow ? overallMessage : settledOverall;
   const shownNumber = revealNow ? numberMessage : settledNumber;
   const shownWeight = revealNow ? weightMessage : settledWeight;
+  const blocked =
+    !firstName.trim() ||
+    !lastName.trim() ||
+    !overall.trim() ||
+    !height ||
+    !weight.trim() ||
+    !number.trim() ||
+    !hand ||
+    !!overallMessage ||
+    !!numberMessage ||
+    !!weightMessage;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (blocked) return;
     setTried(true);
-    if (!firstName.trim() || !lastName.trim() || !overall.trim() || !height || !weight.trim() || !number.trim() || !hand) {
-      setMessage("Fill out every vitals field.");
-      return;
-    }
-    if (overallMessage || numberMessage || weightMessage) {
-      setRevealNow(true);
-      setMessage("Fix the highlighted fields.");
-      return;
-    }
     setMessage("Creating...");
     try {
       const res = await fetch("/api/players", {
@@ -191,7 +194,7 @@ export default function PlayerForm() {
           <input value={lastName} maxLength={11} onChange={e => setLastName(lettersOnly(e.target.value, 11))} className={fieldClass} />
         </div>
         <div className="lg:col-span-2">
-          <label className={labelClass}>RATING</label>
+          <label className={labelClass}>Rating</label>
           <input
             value={overall}
             maxLength={3}
@@ -256,7 +259,13 @@ export default function PlayerForm() {
       </div>
       <div className="mt-6 flex items-center justify-end gap-4">
         {message && <p className="text-sm text-amber-300 mr-auto">{message}</p>}
-        <button type="submit" className="bg-neutral-200 text-black font-bold px-5 py-2 rounded hover:bg-white">
+        <button
+          type="submit"
+          disabled={blocked}
+          className={`bg-neutral-200 text-black font-bold px-5 py-2 rounded ${
+            blocked ? "opacity-40 cursor-not-allowed" : "hover:bg-white"
+          }`}
+        >
           Create Player
         </button>
       </div>
