@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 const squareClass = "w-14 h-14 text-center text-sm font-semibold bg-neutral-800 border border-neutral-600 rounded text-white";
-const labelClass = "block text-[11px] font-semibold tracking-wide text-neutral-400 text-center mb-1";
+const labelClass = "block text-[11px] font-semibold tracking-wide text-neutral-400 text-center mb-1 whitespace-nowrap";
 
 export const STAT_FIELDS = [
   { key: "fg", label: "FG", title: "Field Goal" },
@@ -69,12 +69,12 @@ export function statError(value: string) {
 
 function useSettledMap(entries: { key: string; error: string }[]) {
   const [shown, setShown] = useState<Record<string, string>>({});
-  const serialized = entries.map(entry => `${entry.key}\u0000${entry.error}`).join("\n");
+  const serialized = entries.map(entry => entry.key + "|" + entry.error).join("~");
 
   useEffect(() => {
-    const parsed = serialized.split("\n").filter(Boolean).map(line => {
-      const [key, error] = line.split("\u0000");
-      return { key, error };
+    const parsed = serialized.split("~").filter(Boolean).map(line => {
+      const [key, error] = line.split("|");
+      return { key, error: error || "" };
     });
     setShown(() => {
       const next: Record<string, string> = {};
@@ -113,7 +113,7 @@ export default function AttributeFields({
     const error = statError(stats[field.key]);
     const shown = revealNow ? error : settled[field.key] || "";
     return (
-      <div key={field.key} className="w-14" title={field.title}>
+      <div key={field.key} className="inline-flex flex-col items-center" title={field.title}>
         <label className={labelClass}>{field.label}</label>
         <input
           value={stats[field.key]}
@@ -138,7 +138,7 @@ export default function AttributeFields({
         {STAT_FIELDS.map(field => {
           if ("locked" in field && field.locked) {
             return (
-              <div key={field.key} className="w-14" title={field.title}>
+              <div key={field.key} className="inline-flex flex-col items-center" title={field.title}>
                 <label className={labelClass}>{field.label}</label>
                 <div
                   aria-readonly="true"
@@ -152,7 +152,7 @@ export default function AttributeFields({
               </div>
             );
           }
-          return renderBox(field as { key: StatKey; label: string; title: string });
+          return renderBox({ key: field.key as StatKey, label: field.label, title: field.title });
         })}
       </div>
       <div className="mt-5">{renderBox(RATING_FIELD)}</div>
