@@ -34,6 +34,7 @@ export default async function PlayersPage() {
         id: player.id,
         name: directoryName(player),
         team: team ? team.name : "Free Agent",
+        abbreviation: team?.abbreviation || "FA",
         logo: team?.logo || "",
         position: show(player.position),
         rating: show(player.overall),
