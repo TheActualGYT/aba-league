@@ -193,7 +193,7 @@ function SectionMenu({ value, onChange }: { value: SectionId; onChange: (value: 
         className="w-full h-10 px-3 bg-neutral-800 border border-neutral-600 rounded text-white text-left flex items-center justify-between"
       >
         <span>{current?.label}</span>
-        <span className="text-neutral-400 text-[10px]">\u25bc</span>
+        <span className="text-neutral-400 text-[10px]">▼</span>
       </button>
       {open && (
         <div className="absolute z-40 mt-1 w-full bg-neutral-800 border border-neutral-600 rounded overflow-hidden shadow-lg">
@@ -269,7 +269,7 @@ export default function PlayerDirectory({ players }: { players: DirectoryPlayer[
                 <th
                   key={column.key}
                   aria-sort={sort.key === column.key ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}
-                  className={`sticky top-[81px] z-30 px-2 py-3 bg-neutral-800 text-center text-neutral-300 text-xs font-semibold whitespace-nowrap border-y border-l border-neutral-700`}
+                  className={`sticky top-[81px] z-30 px-2 py-3 bg-neutral-800 text-center text-neutral-300 text-xs font-semibold whitespace-nowrap border-y border-neutral-700 ${lined || column.gap ? "border-l" : ""}`}
                 >
                   <button type="button" onClick={() => toggleSort(column.key, column.prefer)} className="inline-flex items-center justify-center w-full text-neutral-300 hover:text-white">
                     <HeaderLabel label={column.label} note={column.note} />
@@ -277,7 +277,7 @@ export default function PlayerDirectory({ players }: { players: DirectoryPlayer[
                   </button>
                 </th>
               ))}
-              <th className="sticky top-[81px] z-30 px-3 py-3 bg-neutral-800 border-y border-l border-r border-neutral-700 rounded-tr-lg" />
+              <th className={`sticky top-[81px] z-30 px-3 py-3 bg-neutral-800 border-y border-r border-neutral-700 rounded-tr-lg ${lined ? "border-l" : ""}`} />
             </tr>
           </thead>
           <tbody>
@@ -291,7 +291,7 @@ export default function PlayerDirectory({ players }: { players: DirectoryPlayer[
                   {columns.map(column => (
                     <td
                       key={column.key}
-                      className="px-2 py-3 bg-neutral-900 text-center text-neutral-200 whitespace-nowrap border-b border-l border-neutral-700"
+                      className={`px-2 py-3 bg-neutral-900 text-center text-neutral-200 whitespace-nowrap border-b border-neutral-700 ${lined || column.gap ? "border-l" : ""}`}
                     >
                       {column.key === "team" ? (
                         <span className="inline-flex items-center justify-center gap-2">
@@ -303,7 +303,7 @@ export default function PlayerDirectory({ players }: { players: DirectoryPlayer[
                       )}
                     </td>
                   ))}
-                  <td className={`px-3 py-3 bg-neutral-900 whitespace-nowrap border-b border-l border-r border-neutral-700 ${last ? "rounded-br-lg" : ""}`}>
+                  <td className={`px-3 py-3 bg-neutral-900 whitespace-nowrap border-b border-r border-neutral-700 ${lined ? "border-l" : ""} ${last ? "rounded-br-lg" : ""}`}>
                     <div className="flex items-center justify-end gap-3">
                       <Link href={`/players/${player.id}/edit`} className="text-xs text-neutral-300 hover:text-white">
                         Edit
