@@ -24,14 +24,14 @@ export const STAT_FIELDS = [
   { key: "dribble", label: "DRI", title: "Dribble" },
   { key: "strength", label: "STR", title: "Strength" },
   { key: "durability", label: "DUR", title: "Durability" },
-  { key: "shooting_range", label: "SR", title: "Shooting Range" },
+  { key: "shooting_range", label: "SR", title: "Shooting Range", locked: true },
   { key: "stamina", label: "STM", title: "Stamina" },
   { key: "inside_scoring", label: "IS", title: "Inside Scoring" },
 ] as const;
 
 export const RATING_FIELD = { key: "in_game_rating", label: "IGR", title: "In-Game Rating" } as const;
 
-export type StatKey = Exclude<(typeof STAT_FIELDS)[number]["key"], "ft"> | typeof RATING_FIELD.key;
+export type StatKey = Exclude<(typeof STAT_FIELDS)[number]["key"], "ft" | "shooting_range"> | typeof RATING_FIELD.key;
 
 export function emptyStats(): Record<StatKey, string> {
   return {
@@ -51,7 +51,6 @@ export function emptyStats(): Record<StatKey, string> {
     dribble: "",
     strength: "",
     durability: "",
-    shooting_range: "",
     stamina: "",
     inside_scoring: "",
     in_game_rating: "",
