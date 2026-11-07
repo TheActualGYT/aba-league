@@ -5,10 +5,39 @@ const POSITIONS = ["C", "PF", "SF", "SG", "PG"];
 const COMPLEXIONS = Array.from({ length: 10 }, (_, index) => `Complexion ${index + 1}`);
 const TSHIRTS = ["None", "Muscle T", "Angled T", "Short Sleeve", "Long Sleeve"];
 const SOCK_COLORS = ["White", "Black", "Team"];
+const STATS = [
+  ["fg", "FG"],
+  ["three_p", "3P"],
+  ["dk", "DK"],
+  ["stl", "STL"],
+  ["blk", "BLK"],
+  ["off_reb", "OR"],
+  ["def_reb", "DR"],
+  ["passing", "PS"],
+  ["off_ability", "OA"],
+  ["def_ability", "DA"],
+  ["speed", "SP"],
+  ["quickness", "QK"],
+  ["vertical", "JP"],
+  ["dribble", "DRI"],
+  ["strength", "STR"],
+  ["durability", "DUR"],
+  ["shooting_range", "SR"],
+  ["stamina", "STM"],
+  ["inside_scoring", "IS"],
+  ["in_game_rating", "In-Game Rating"],
+] as const;
 
 function text(raw: unknown) {
   const value = String(raw ?? "").trim();
   return value || undefined;
+}
+
+function twoDigits(raw: unknown, label: string) {
+  const value = String(raw ?? "").trim();
+  if (!value) return { value: undefined };
+  if (!/^\d{2}$/.test(value)) return { error: `${label} has to be 2 digits.` };
+  return { value };
 }
 
 function jerseyError(raw: string) {
@@ -55,6 +84,7 @@ export async function POST(req: NextRequest) {
   const overallMessage = overallError(overallRaw);
   const numberMessage = jerseyError(number);
   const inches = height ? heightInches(height) : null;
+  const stats = Object.fromEntries(STATS.map(([key]) => [key, undefined])) as Record<(typeof STATS)[number][0], string | undefined>;
 
   if (!firstName || !lastName) {
     return NextResponse.json({ error: "First and last name are required." }, { status: 400 });
@@ -84,6 +114,11 @@ export async function POST(req: NextRequest) {
   }
   if (headModel && (!/^\d{1,3}$/.test(headModel) || Number(headModel) === 0)) {
     return NextResponse.json({ error: Number(headModel) === 0 ? "0 isn't allowed." : "Head model can be at most 3 digits." }, { status: 400 });
+  }
+  for (const [key, label] of STATS) {
+    const parsed = twoDigits(body[key], label);
+    if (parsed.error) return NextResponse.json({ error: parsed.error }, { status: 400 });
+    stats[key] = parsed.value;
   }
 
   const data = await db.load();
@@ -125,6 +160,26 @@ export async function POST(req: NextRequest) {
     left_knee: text(body.left_knee),
     right_calf: text(body.right_calf),
     left_calf: text(body.left_calf),
+    fg: stats.fg,
+    three_p: stats.three_p,
+    dk: stats.dk,
+    stl: stats.stl,
+    blk: stats.blk,
+    off_reb: stats.off_reb,
+    def_reb: stats.def_reb,
+    passing: stats.passing,
+    off_ability: stats.off_ability,
+    def_ability: stats.def_ability,
+    speed: stats.speed,
+    quickness: stats.quickness,
+    vertical: stats.vertical,
+    dribble: stats.dribble,
+    strength: stats.strength,
+    durability: stats.durability,
+    shooting_range: stats.shooting_range,
+    stamina: stats.stamina,
+    inside_scoring: stats.inside_scoring,
+    in_game_rating: stats.in_game_rating,
   });
   await db.save(data);
   return NextResponse.json({ id: newId });
