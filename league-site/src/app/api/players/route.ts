@@ -4,6 +4,7 @@ import db from "@/lib/db";
 const POSITIONS = ["C", "PF", "SF", "SG", "PG"];
 const COMPLEXIONS = Array.from({ length: 10 }, (_, index) => `Complexion ${index + 1}`);
 const TSHIRTS = ["None", "Muscle T", "Angled T", "Short Sleeve", "Long Sleeve"];
+const SOCK_COLORS = ["White", "Black", "Team"];
 
 function text(raw: unknown) {
   const value = String(raw ?? "").trim();
@@ -50,6 +51,7 @@ export async function POST(req: NextRequest) {
   const headModel = String(body.head_model ?? "").trim();
   const skinTone = text(body.skin_tone);
   const tshirtType = text(body.tshirt_type);
+  const sockColor = text(body.sock_color);
   const overallMessage = overallError(overallRaw);
   const numberMessage = jerseyError(number);
   const inches = height ? heightInches(height) : null;
@@ -76,6 +78,9 @@ export async function POST(req: NextRequest) {
   }
   if (tshirtType && !TSHIRTS.includes(tshirtType)) {
     return NextResponse.json({ error: "Select a t-shirt type." }, { status: 400 });
+  }
+  if (sockColor && !SOCK_COLORS.includes(sockColor)) {
+    return NextResponse.json({ error: "Select a sock color." }, { status: 400 });
   }
   if (headModel && (!/^\d{1,3}$/.test(headModel) || Number(headModel) === 0)) {
     return NextResponse.json({ error: Number(headModel) === 0 ? "0 isn't allowed." : "Head model can be at most 3 digits." }, { status: 400 });
@@ -104,7 +109,7 @@ export async function POST(req: NextRequest) {
     head_model: headModel || undefined,
     tshirt_type: tshirtType,
     sock_style: text(body.sock_style),
-    sock_color: text(body.sock_color),
+    sock_color: sockColor,
     shoes_home: text(body.shoes_home),
     shoes_away: text(body.shoes_away),
     headband: text(body.headband),
