@@ -8,6 +8,23 @@ const labelClass = "block text-xs font-semibold tracking-wide text-neutral-400 m
 const POSITIONS = ["C", "PF", "SF", "SG", "PG"];
 const COMPLEXIONS = Array.from({ length: 10 }, (_, index) => `Complexion ${index + 1}`);
 const TSHIRTS = ["None", "Muscle T", "Angled T", "Short Sleeve", "Long Sleeve"];
+const ACCESSORY_FIELDS = [
+  { key: "headband", label: "Headband" },
+  { key: "right_bicep", label: "Right Bicep" },
+  { key: "left_bicep", label: "Left Bicep" },
+  { key: "right_forearm", label: "Right Forearm" },
+  { key: "left_forearm", label: "Left Forearm" },
+  { key: "right_elbow", label: "Right Elbow" },
+  { key: "left_elbow", label: "Left Elbow" },
+  { key: "right_wrist", label: "Right Wrist" },
+  { key: "left_wrist", label: "Left Wrist" },
+  { key: "right_knee", label: "Right Knee" },
+  { key: "left_knee", label: "Left Knee" },
+  { key: "right_calf", label: "Right Calf" },
+  { key: "left_calf", label: "Left Calf" },
+] as const;
+
+type AccessoryKey = (typeof ACCESSORY_FIELDS)[number]["key"];
 
 const HEIGHTS = (() => {
   const options: string[] = [];
@@ -153,6 +170,21 @@ export default function PlayerForm() {
   const [sockColor, setSockColor] = useState("");
   const [shoesHome, setShoesHome] = useState("");
   const [shoesAway, setShoesAway] = useState("");
+  const [accessories, setAccessories] = useState<Record<AccessoryKey, string>>({
+    headband: "",
+    right_bicep: "",
+    left_bicep: "",
+    right_forearm: "",
+    left_forearm: "",
+    right_elbow: "",
+    left_elbow: "",
+    right_wrist: "",
+    left_wrist: "",
+    right_knee: "",
+    left_knee: "",
+    right_calf: "",
+    left_calf: "",
+  });
   const [message, setMessage] = useState("");
   const [revealNow, setRevealNow] = useState(false);
 
@@ -202,6 +234,7 @@ export default function PlayerForm() {
           sock_color: sockColor,
           shoes_home: shoesHome,
           shoes_away: shoesAway,
+          ...accessories,
         }),
       });
       const json = await res.json();
@@ -217,10 +250,10 @@ export default function PlayerForm() {
 
   return (
     <form onSubmit={handleSubmit}>
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 items-start">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 items-start">
         <section className="bg-neutral-900 border border-neutral-700 rounded-lg p-5">
           <h3 className="label-glow text-white text-lg font-bold tracking-widest mb-4">VITALS</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4">
             <div>
               <FieldLabel required>First Name</FieldLabel>
               <input value={firstName} maxLength={11} onChange={e => setFirstName(lettersOnly(e.target.value, 11))} className={fieldClass} />
@@ -303,7 +336,7 @@ export default function PlayerForm() {
 
         <section className="bg-neutral-900 border border-neutral-700 rounded-lg p-5">
           <h3 className="label-glow text-white text-lg font-bold tracking-widest mb-4">APPEARANCE</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4">
             <div>
               <FieldLabel>Skin Tone</FieldLabel>
               <Menu
@@ -362,6 +395,22 @@ export default function PlayerForm() {
               <FieldLabel>Shoes Away</FieldLabel>
               <input value={shoesAway} onChange={e => setShoesAway(e.target.value)} className={fieldClass} />
             </div>
+          </div>
+        </section>
+
+        <section className="bg-neutral-900 border border-neutral-700 rounded-lg p-5">
+          <h3 className="label-glow text-white text-lg font-bold tracking-widest mb-4">ACCESSORIES</h3>
+          <div className="grid grid-cols-1 gap-4">
+            {ACCESSORY_FIELDS.map(field => (
+              <div key={field.key}>
+                <FieldLabel>{field.label}</FieldLabel>
+                <input
+                  value={accessories[field.key]}
+                  onChange={e => setAccessories(current => ({ ...current, [field.key]: e.target.value }))}
+                  className={fieldClass}
+                />
+              </div>
+            ))}
           </div>
         </section>
       </div>
