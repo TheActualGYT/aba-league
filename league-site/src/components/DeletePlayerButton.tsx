@@ -8,7 +8,7 @@ export default function DeletePlayerButton({ playerId, playerName }: { playerId:
   const [status, setStatus] = useState("");
 
   useEffect(() => {
-    if (step !== 3) return;
+    if (step !== 2) return;
     const close = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setStatus("");
@@ -43,7 +43,7 @@ export default function DeletePlayerButton({ playerId, playerName }: { playerId:
     setStep(0);
   };
 
-  const popup = step === 3 && typeof document !== "undefined" && createPortal(
+  const popup = step === 2 && typeof document !== "undefined" && createPortal(
     <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/70 px-4" onClick={close}>
       <div
         role="dialog"
@@ -76,15 +76,11 @@ export default function DeletePlayerButton({ playerId, playerName }: { playerId:
     document.body
   );
 
-  if (step === 1 || step === 2) {
+  if (step === 1) {
     return (
       <span className="inline-flex h-5 items-center gap-1.5">
-        <span className="text-[10px] leading-5 text-neutral-500">{step}/3</span>
-        <button
-          type="button"
-          onClick={() => setStep(step + 1)}
-          className={`text-xs leading-5 ${step === 2 ? "font-semibold text-red-400 hover:text-red-300" : "text-neutral-200 hover:text-white"}`}
-        >
+        <span className="text-[10px] leading-5 text-neutral-500">1/2</span>
+        <button type="button" onClick={() => setStep(2)} className="text-xs leading-5 text-neutral-200 hover:text-white">
           Yes
         </button>
         <button type="button" onClick={close} className="text-xs leading-5 text-neutral-400 hover:text-white">
