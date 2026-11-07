@@ -33,7 +33,7 @@ function text(raw: unknown) {
   return value || undefined;
 }
 
-function twoDigits(raw: unknown, label: string) {
+function twoDigits(raw: unknown, label: string): { error?: string; value?: string } {
   const value = String(raw ?? "").trim();
   if (!value) return { value: undefined };
   if (!/^\d{2}$/.test(value)) return { error: `${label} has to be 2 digits.` };
