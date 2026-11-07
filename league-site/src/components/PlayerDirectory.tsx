@@ -74,7 +74,7 @@ const SECTIONS: { id: SectionId; label: string }[] = [
 ];
 
 const NUM_COL = "2.75rem";
-const NAME_COL = "calc(24ch + 1.5rem + 1px)";
+const NAME_COL = "16.5rem";
 const ACTION_COL = "7.75rem";
 
 const COLUMNS: Record<SectionId, { key: keyof DirectoryPlayer; label: string; note?: string; gap?: boolean; prefer: "high" | "low" | "alpha" }[]> = {
@@ -253,9 +253,11 @@ export default function PlayerDirectory({ players }: { players: DirectoryPlayer[
   const [section, setSection] = useState<SectionId>("vitals");
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: "name", dir: "asc" });
   const columns = COLUMNS[section];
-  const equalColumns = section === "accessories" || section === "attributes";
+  const dense = columns.length > 10;
   const numStyle = { width: NUM_COL, minWidth: NUM_COL, maxWidth: NUM_COL };
   const nameStyle = { width: NAME_COL, minWidth: NAME_COL, maxWidth: NAME_COL };
+  const actionStyle = { width: ACTION_COL, minWidth: ACTION_COL, maxWidth: ACTION_COL };
+  const valueWidth = `calc((100% - ${NUM_COL} - ${NAME_COL} - ${ACTION_COL}) / ${columns.length})`;
   const rows = [...players]
     .map((player, index) => ({ player, index }))
     .sort((a, b) => compare(playerValue(a.player, sort.key), playerValue(b.player, sort.key), sort.dir) || a.player.name.localeCompare(b.player.name) || a.index - b.index)
@@ -288,17 +290,15 @@ export default function PlayerDirectory({ players }: { players: DirectoryPlayer[
       {players.length === 0 ? (
         <div className="bg-neutral-900 rounded-lg border border-neutral-700 px-4 py-6 text-center text-neutral-400">No players yet.</div>
       ) : (
-        <table className={`w-full border-separate border-spacing-0 text-sm ${equalColumns ? "table-fixed" : ""}`}>
-          {equalColumns && (
-            <colgroup>
-              <col style={{ width: NUM_COL }} />
-              <col style={{ width: NAME_COL }} />
-              {columns.map(column => (
-                <col key={column.key} />
-              ))}
-              <col style={{ width: ACTION_COL }} />
-            </colgroup>
-          )}
+        <table className="w-full table-fixed border-separate border-spacing-0 text-sm">
+          <colgroup>
+            <col style={{ width: NUM_COL }} />
+            <col style={{ width: NAME_COL }} />
+            {columns.map(column => (
+              <col key={column.key} style={{ width: valueWidth }} />
+            ))}
+            <col style={{ width: ACTION_COL }} />
+          </colgroup>
           <thead>
             <tr>
               <th
@@ -321,7 +321,8 @@ export default function PlayerDirectory({ players }: { players: DirectoryPlayer[
                 <th
                   key={column.key}
                   aria-sort={sort.key === column.key ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}
-                  className={`sticky top-[81px] z-30 py-3 bg-neutral-800 text-center text-neutral-300 text-xs font-semibold border-y border-l border-neutral-700 ${equalColumns ? "px-1 whitespace-normal leading-tight" : "px-2 whitespace-nowrap"}`}
+                  style={{ width: valueWidth }}
+                  className={`sticky top-[81px] z-30 py-3 bg-neutral-800 text-center text-neutral-300 text-xs font-semibold border-y border-l border-neutral-700 whitespace-normal leading-tight ${dense ? "px-1" : "px-2"}`}
                 >
                   <button type="button" onClick={() => toggleSort(column.key, column.prefer)} className="inline-flex items-center justify-center w-full text-neutral-300 hover:text-white">
                     <HeaderLabel label={column.label} note={column.note} />
@@ -330,7 +331,7 @@ export default function PlayerDirectory({ players }: { players: DirectoryPlayer[
                 </th>
               ))}
               <th
-                style={equalColumns ? { width: ACTION_COL, minWidth: ACTION_COL } : undefined}
+                style={actionStyle}
                 className="sticky top-[81px] z-30 px-3 py-3 bg-neutral-800 border-y border-l border-r border-neutral-700 rounded-tr-lg"
               />
             </tr>
@@ -348,37 +349,37 @@ export default function PlayerDirectory({ players }: { players: DirectoryPlayer[
                   </td>
                   <td
                     style={nameStyle}
-                    className="px-3 py-3 bg-neutral-900 text-white font-semibold border-b border-l border-neutral-700"
+                    className="px-3 py-3 bg-neutral-900 text-white text-sm font-semibold border-b border-l border-neutral-700"
                   >
-                    <div className="overflow-hidden text-ellipsis whitespace-nowrap" style={{ width: "24ch" }}>
+                    <div className="overflow-hidden text-ellipsis whitespace-nowrap">
                       {player.name}
                     </div>
                   </td>
                   {columns.map(column => {
                     const tinted = section === "attributes" || column.key === "rating";
                     const fill = tinted ? ratingFill(String(player[column.key] ?? "")) : null;
-                    const value = column.key === "team" ? "" : String(player[column.key] ?? "");
+                    const value = column.key === "team" ? player.team : String(player[column.key] ?? "");
                     return (
                       <td
                         key={column.key}
-                        title={column.key === "team" ? player.team : value}
-                        className={`py-3 text-center border-b border-l border-neutral-700 ${equalColumns ? "px-1 overflow-hidden" : "px-2 whitespace-nowrap"} ${fill ? "font-semibold" : "bg-neutral-900 text-neutral-200"}`}
-                        style={fill ? { backgroundColor: fill, color: RATING_INK } : undefined}
+                        title={value}
+                        style={{ width: valueWidth, ...(fill ? { backgroundColor: fill, color: RATING_INK } : {}) }}
+                        className={`py-3 text-center border-b border-l border-neutral-700 overflow-hidden ${dense ? "px-1" : "px-2"} ${fill ? "font-semibold" : "bg-neutral-900 text-neutral-200"}`}
                       >
                         {column.key === "team" ? (
-                          <span className="inline-flex items-center justify-center gap-2">
-                            {player.logo && <img src={player.logo} alt="" className="h-5 w-5 object-contain" />}
-                            {player.team}
+                          <span className="flex items-center justify-center gap-1 overflow-hidden">
+                            {player.logo && <img src={player.logo} alt="" className="h-5 w-5 shrink-0 object-contain" />}
+                            <span className="truncate">{player.team}</span>
                           </span>
                         ) : (
-                          <span className={equalColumns ? "block overflow-hidden text-ellipsis whitespace-nowrap" : undefined}>
+                          <span className="block overflow-hidden text-ellipsis whitespace-nowrap">
                             {player[column.key]}
                           </span>
                         )}
                       </td>
                     );
                   })}
-                  <td className={`px-3 py-3 bg-neutral-900 whitespace-nowrap border-b border-l border-r border-neutral-700 ${last ? "rounded-br-lg" : ""}`}>
+                  <td style={actionStyle} className={`px-2 py-3 bg-neutral-900 whitespace-nowrap border-b border-l border-r border-neutral-700 ${last ? "rounded-br-lg" : ""}`}>
                     <div className="flex items-center justify-end gap-3">
                       <Link href={`/players/${player.id}/edit`} className="text-xs text-neutral-300 hover:text-white">
                         Edit
