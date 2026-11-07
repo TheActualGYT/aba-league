@@ -42,6 +42,14 @@ interface Player {
   weight?: number;
   number?: string;
   hand?: string;
+  skin_tone?: string;
+  body_type?: string;
+  head_model?: string;
+  tshirt_type?: string;
+  sock_style?: string;
+  sock_color?: string;
+  shoes_home?: string;
+  shoes_away?: string;
 }
 
 interface Game {
