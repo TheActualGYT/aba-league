@@ -63,6 +63,26 @@ interface Player {
   left_knee?: string;
   right_calf?: string;
   left_calf?: string;
+  fg?: string;
+  three_p?: string;
+  dk?: string;
+  stl?: string;
+  blk?: string;
+  off_reb?: string;
+  def_reb?: string;
+  passing?: string;
+  off_ability?: string;
+  def_ability?: string;
+  speed?: string;
+  quickness?: string;
+  vertical?: string;
+  dribble?: string;
+  strength?: string;
+  durability?: string;
+  shooting_range?: string;
+  stamina?: string;
+  inside_scoring?: string;
+  in_game_rating?: string;
 }
 
 interface Game {
