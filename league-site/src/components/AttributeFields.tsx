@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 
-const squareClass = "w-14 h-14 text-center text-sm font-semibold bg-neutral-800 border border-neutral-600 rounded text-white";
-const labelClass = "block text-[11px] font-semibold tracking-wide text-neutral-400 text-center mb-1 whitespace-nowrap";
+const squareClass = "w-full aspect-square text-center text-sm font-semibold bg-neutral-800 border border-neutral-600 rounded text-white";
+const labelClass = "block h-4 text-[11px] font-semibold tracking-wide text-neutral-400 text-center mb-1 whitespace-nowrap";
 
 export const STAT_FIELDS = [
   { key: "fg", label: "FG", title: "Field Goal" },
@@ -109,12 +109,12 @@ export default function AttributeFields({
   }));
   const settled = useSettledMap(entries);
 
-  const renderBox = (field: { key: StatKey; label: string; title: string }) => {
+  const renderBox = (field: { key: StatKey; label: string; title: string }, glow = false) => {
     const error = statError(stats[field.key]);
     const shown = revealNow ? error : settled[field.key] || "";
     return (
-      <div key={field.key} className="inline-flex flex-col items-center" title={field.title}>
-        <label className={labelClass}>{field.label}</label>
+      <div key={field.key} className={`flex flex-col items-center flex-1 min-w-0 ${glow ? "ml-6" : ""}`} title={field.title}>
+        <label className={`${labelClass} ${glow ? "text-[10px]" : ""}`}>{field.label}</label>
         <input
           value={stats[field.key]}
           maxLength={2}
@@ -124,25 +124,25 @@ export default function AttributeFields({
             onEdit();
             onChange(field.key, digitsOnly(event.target.value, 2));
           }}
-          className={`${squareClass} ${shown ? "abbr-taken" : ""}`}
+          className={`${squareClass} ${glow && !shown ? "rating-box" : ""} ${shown ? "abbr-taken" : ""}`}
         />
-        <p className="h-3 mt-1 text-[9px] leading-none text-red-400 text-center">{shown}</p>
+        <p className="h-3 mt-1 text-[9px] leading-none text-red-400 text-center whitespace-nowrap">{shown}</p>
       </div>
     );
   };
 
   return (
     <section className="mt-4 bg-neutral-900 border border-neutral-700 rounded-lg p-4">
-      <h3 className="label-glow text-white text-lg font-bold tracking-widest mb-3">ATTRIBUTES</h3>
-      <div className="flex flex-wrap gap-x-3 gap-y-2">
+      <h3 className="label-glow text-white text-lg font-bold tracking-widest mb-3 text-center">ATTRIBUTES</h3>
+      <div className="flex flex-nowrap items-start w-full gap-1.5">
         {STAT_FIELDS.map(field => {
           if ("locked" in field && field.locked) {
             return (
-              <div key={field.key} className="inline-flex flex-col items-center" title={field.title}>
+              <div key={field.key} className="flex flex-col items-center flex-1 min-w-0" title={field.title}>
                 <label className={labelClass}>{field.label}</label>
                 <div
                   aria-readonly="true"
-                  className="w-14 h-14 rounded border border-[#8a8a8a] cursor-default"
+                  className="w-full aspect-square rounded border border-[#8a8a8a] cursor-default"
                   style={{
                     background: "linear-gradient(180deg, #8f8f8f 0%, #6d6d6d 48%, #7c7c7c 100%)",
                     boxShadow: "inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.35)",
@@ -154,8 +154,8 @@ export default function AttributeFields({
           }
           return renderBox({ key: field.key as StatKey, label: field.label, title: field.title });
         })}
+        {renderBox(RATING_FIELD, true)}
       </div>
-      <div className="mt-5">{renderBox(RATING_FIELD)}</div>
     </section>
   );
 }
