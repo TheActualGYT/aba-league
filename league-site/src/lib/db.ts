@@ -50,6 +50,19 @@ interface Player {
   sock_color?: string;
   shoes_home?: string;
   shoes_away?: string;
+  headband?: string;
+  right_bicep?: string;
+  left_bicep?: string;
+  right_forearm?: string;
+  left_forearm?: string;
+  right_elbow?: string;
+  left_elbow?: string;
+  right_wrist?: string;
+  left_wrist?: string;
+  right_knee?: string;
+  left_knee?: string;
+  right_calf?: string;
+  left_calf?: string;
 }
 
 interface Game {
