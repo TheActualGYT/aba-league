@@ -60,6 +60,8 @@ export type DirectoryPlayer = {
 };
 
 type SectionId = "vitals" | "appearance" | "accessories" | "attributes";
+type SortDir = "asc" | "desc";
+type SortKey = "name" | keyof DirectoryPlayer;
 
 const SECTIONS: { id: SectionId; label: string }[] = [
   { id: "vitals", label: "VITALS" },
@@ -68,65 +70,102 @@ const SECTIONS: { id: SectionId; label: string }[] = [
   { id: "attributes", label: "ATTRIBUTES" },
 ];
 
-const COLUMNS: Record<SectionId, { key: keyof DirectoryPlayer; label: string; note?: string; gap?: boolean }[]> = {
+const COLUMNS: Record<SectionId, { key: keyof DirectoryPlayer; label: string; note?: string; gap?: boolean; prefer: "high" | "low" | "alpha" }[]> = {
   vitals: [
-    { key: "position", label: "Position" },
-    { key: "rating", label: "Rating" },
-    { key: "height", label: "Height" },
-    { key: "weight", label: "Weight" },
-    { key: "number", label: "Jersey" },
-    { key: "hand", label: "Hand" },
-    { key: "team", label: "Team" },
+    { key: "position", label: "Position", prefer: "alpha" },
+    { key: "rating", label: "Rating", prefer: "high" },
+    { key: "height", label: "Height", prefer: "high" },
+    { key: "weight", label: "Weight", prefer: "high" },
+    { key: "number", label: "Jersey", prefer: "low" },
+    { key: "hand", label: "Hand", prefer: "alpha" },
+    { key: "team", label: "Team", prefer: "alpha" },
   ],
   appearance: [
-    { key: "skin_tone", label: "Skin Tone" },
-    { key: "body_type", label: "Body Type" },
-    { key: "head_model", label: "Head Model" },
-    { key: "tshirt_type", label: "T-Shirt" },
-    { key: "sock_style", label: "Sock Style" },
-    { key: "sock_color", label: "Sock Color" },
-    { key: "shoes_home", label: "Shoes Home" },
-    { key: "shoes_away", label: "Shoes Away" },
+    { key: "skin_tone", label: "Skin Tone", prefer: "alpha" },
+    { key: "body_type", label: "Body Type", prefer: "alpha" },
+    { key: "head_model", label: "Head Model", prefer: "high" },
+    { key: "tshirt_type", label: "T-Shirt", prefer: "alpha" },
+    { key: "sock_style", label: "Sock Style", prefer: "alpha" },
+    { key: "sock_color", label: "Sock Color", prefer: "alpha" },
+    { key: "shoes_home", label: "Shoes Home", prefer: "alpha" },
+    { key: "shoes_away", label: "Shoes Away", prefer: "alpha" },
   ],
   accessories: [
-    { key: "headband", label: "Headband" },
-    { key: "left_bicep", label: "Left Bicep" },
-    { key: "right_bicep", label: "Right Bicep" },
-    { key: "left_forearm", label: "Left Forearm" },
-    { key: "right_forearm", label: "Right Forearm" },
-    { key: "left_elbow", label: "Left Elbow" },
-    { key: "right_elbow", label: "Right Elbow" },
-    { key: "left_wrist", label: "Left Wrist" },
-    { key: "right_wrist", label: "Right Wrist" },
-    { key: "left_knee", label: "Left Knee" },
-    { key: "right_knee", label: "Right Knee" },
-    { key: "left_calf", label: "Left Calf" },
-    { key: "right_calf", label: "Right Calf" },
+    { key: "headband", label: "Headband", prefer: "alpha" },
+    { key: "left_bicep", label: "Left Bicep", prefer: "alpha" },
+    { key: "right_bicep", label: "Right Bicep", prefer: "alpha" },
+    { key: "left_forearm", label: "Left Forearm", prefer: "alpha" },
+    { key: "right_forearm", label: "Right Forearm", prefer: "alpha" },
+    { key: "left_elbow", label: "Left Elbow", prefer: "alpha" },
+    { key: "right_elbow", label: "Right Elbow", prefer: "alpha" },
+    { key: "left_wrist", label: "Left Wrist", prefer: "alpha" },
+    { key: "right_wrist", label: "Right Wrist", prefer: "alpha" },
+    { key: "left_knee", label: "Left Knee", prefer: "alpha" },
+    { key: "right_knee", label: "Right Knee", prefer: "alpha" },
+    { key: "left_calf", label: "Left Calf", prefer: "alpha" },
+    { key: "right_calf", label: "Right Calf", prefer: "alpha" },
   ],
   attributes: [
-    { key: "fg", label: "FG", note: "Field Goal" },
-    { key: "three_p", label: "3P", note: "Three Point" },
-    { key: "ft", label: "FT", note: "Free Throw" },
-    { key: "dk", label: "DK", note: "Dunk" },
-    { key: "stl", label: "STL", note: "Steal" },
-    { key: "blk", label: "BLK", note: "Block" },
-    { key: "off_reb", label: "OR", note: "Offensive Rebound" },
-    { key: "def_reb", label: "DR", note: "Defensive Rebound" },
-    { key: "passing", label: "PS", note: "Passing" },
-    { key: "off_ability", label: "OA", note: "Offensive Ability" },
-    { key: "def_ability", label: "DA", note: "Defensive Ability" },
-    { key: "speed", label: "SP", note: "Speed" },
-    { key: "quickness", label: "QK", note: "Quickness" },
-    { key: "vertical", label: "JP", note: "Vertical" },
-    { key: "dribble", label: "DRI", note: "Dribble" },
-    { key: "strength", label: "STR", note: "Strength" },
-    { key: "durability", label: "DUR", note: "Durability" },
-    { key: "shooting_range", label: "SR", note: "Shooting Range" },
-    { key: "stamina", label: "STM", note: "Stamina" },
-    { key: "inside_scoring", label: "IS", note: "Inside Scoring" },
-    { key: "in_game_rating", label: "IGR", note: "In-Game Rating", gap: true },
+    { key: "fg", label: "FG", note: "Field Goal", prefer: "high" },
+    { key: "three_p", label: "3P", note: "Three Point", prefer: "high" },
+    { key: "ft", label: "FT", note: "Free Throw", prefer: "high" },
+    { key: "dk", label: "DK", note: "Dunk", prefer: "high" },
+    { key: "stl", label: "STL", note: "Steal", prefer: "high" },
+    { key: "blk", label: "BLK", note: "Block", prefer: "high" },
+    { key: "off_reb", label: "OR", note: "Offensive Rebound", prefer: "high" },
+    { key: "def_reb", label: "DR", note: "Defensive Rebound", prefer: "high" },
+    { key: "passing", label: "PS", note: "Passing", prefer: "high" },
+    { key: "off_ability", label: "OA", note: "Offensive Ability", prefer: "high" },
+    { key: "def_ability", label: "DA", note: "Defensive Ability", prefer: "high" },
+    { key: "speed", label: "SP", note: "Speed", prefer: "high" },
+    { key: "quickness", label: "QK", note: "Quickness", prefer: "high" },
+    { key: "vertical", label: "JP", note: "Vertical", prefer: "high" },
+    { key: "dribble", label: "DRI", note: "Dribble", prefer: "high" },
+    { key: "strength", label: "STR", note: "Strength", prefer: "high" },
+    { key: "durability", label: "DUR", note: "Durability", prefer: "high" },
+    { key: "shooting_range", label: "SR", note: "Shooting Range", prefer: "high" },
+    { key: "stamina", label: "STM", note: "Stamina", prefer: "high" },
+    { key: "inside_scoring", label: "IS", note: "Inside Scoring", prefer: "high" },
+    { key: "in_game_rating", label: "IGR", note: "In-Game Rating", gap: true, prefer: "high" },
   ],
 };
+
+const NUMERIC = new Set([
+  "rating", "weight", "number", "head_model",
+  "fg", "three_p", "dk", "stl", "blk", "off_reb", "def_reb", "passing",
+  "off_ability", "def_ability", "speed", "quickness", "vertical", "dribble",
+  "strength", "durability", "shooting_range", "stamina", "inside_scoring", "in_game_rating",
+]);
+
+function heightInches(raw: string) {
+  const match = /^(\d+)'(\d+)"$/.exec(raw.trim());
+  if (!match) return null;
+  return Number(match[1]) * 12 + Number(match[2]);
+}
+
+function playerValue(player: DirectoryPlayer, key: SortKey): number | string | null {
+  if (key === "name") return player.name;
+  const raw = String(player[key] ?? "").trim();
+  if (!raw || raw === "\u2014" || raw === "None") return null;
+  if (key === "height") return heightInches(raw);
+  if (NUMERIC.has(key)) {
+    const value = Number(raw);
+    return Number.isFinite(value) ? value : null;
+  }
+  return raw;
+}
+
+function compare(a: number | string | null, b: number | string | null, dir: SortDir) {
+  const aEmpty = a == null || a === "";
+  const bEmpty = b == null || b === "";
+  if (aEmpty && bEmpty) return 0;
+  if (aEmpty) return 1;
+  if (bEmpty) return -1;
+  const result = typeof a === "number" && typeof b === "number"
+    ? a - b
+    : String(a).localeCompare(String(b), undefined, { numeric: true, sensitivity: "base" });
+  return dir === "asc" ? result : -result;
+}
 
 function HeaderLabel({ label, note }: { label: string; note?: string }) {
   if (!note) return <span>{label}</span>;
@@ -142,7 +181,27 @@ function HeaderLabel({ label, note }: { label: string; note?: string }) {
 
 export default function PlayerDirectory({ players }: { players: DirectoryPlayer[] }) {
   const [section, setSection] = useState<SectionId>("vitals");
+  const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: "name", dir: "asc" });
   const columns = COLUMNS[section];
+  const rows = [...players]
+    .map((player, index) => ({ player, index }))
+    .sort((a, b) => compare(playerValue(a.player, sort.key), playerValue(b.player, sort.key), sort.dir) || a.player.name.localeCompare(b.player.name) || a.index - b.index)
+    .map(item => item.player);
+
+  const chooseSection = (next: SectionId) => {
+    setSection(next);
+    setSort(current => {
+      if (current.key === "name") return current;
+      return COLUMNS[next].some(column => column.key === current.key) ? current : { key: "name", dir: "asc" };
+    });
+  };
+
+  const toggleSort = (key: SortKey, prefer: "high" | "low" | "alpha") => {
+    setSort(current => {
+      if (current.key !== key) return { key, dir: prefer === "high" ? "desc" : "asc" };
+      return { key, dir: current.dir === "asc" ? "desc" : "asc" };
+    });
+  };
 
   return (
     <>
@@ -152,7 +211,7 @@ export default function PlayerDirectory({ players }: { players: DirectoryPlayer[
             <button
               key={item.id}
               type="button"
-              onClick={() => setSection(item.id)}
+              onClick={() => chooseSection(item.id)}
               className={`px-4 py-2 rounded text-sm font-bold tracking-wide ${
                 section === item.id
                   ? "bg-neutral-200 text-black"
@@ -174,23 +233,33 @@ export default function PlayerDirectory({ players }: { players: DirectoryPlayer[
         <table className="w-full border-separate border-spacing-0 text-sm">
           <thead>
             <tr>
-              <th className="sticky top-[81px] z-30 px-3 py-3 bg-neutral-800 text-left text-neutral-300 text-xs font-semibold whitespace-nowrap border-y border-l border-neutral-700 rounded-tl-lg">
-                Player
+              <th
+                aria-sort={sort.key === "name" ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}
+                className="sticky top-[81px] z-30 px-3 py-3 bg-neutral-800 text-left text-neutral-300 text-xs font-semibold whitespace-nowrap border-y border-l border-neutral-700 rounded-tl-lg"
+              >
+                <button type="button" onClick={() => toggleSort("name", "alpha")} className="inline-flex items-center text-neutral-300 hover:text-white">
+                  <span>Player</span>
+                  {sort.key === "name" && <span className="ml-1 text-[9px]">{sort.dir === "asc" ? "\u25b2" : "\u25bc"}</span>}
+                </button>
               </th>
               {columns.map(column => (
                 <th
                   key={column.key}
+                  aria-sort={sort.key === column.key ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}
                   className={`sticky top-[81px] z-30 px-2 py-3 bg-neutral-800 text-center text-neutral-300 text-xs font-semibold whitespace-nowrap border-y border-neutral-700 ${column.gap ? "border-l" : ""}`}
                 >
-                  <HeaderLabel label={column.label} note={column.note} />
+                  <button type="button" onClick={() => toggleSort(column.key, column.prefer)} className="inline-flex items-center justify-center w-full text-neutral-300 hover:text-white">
+                    <HeaderLabel label={column.label} note={column.note} />
+                    {sort.key === column.key && <span className="ml-1 text-[9px]">{sort.dir === "asc" ? "\u25b2" : "\u25bc"}</span>}
+                  </button>
                 </th>
               ))}
               <th className="sticky top-[81px] z-30 px-3 py-3 bg-neutral-800 border-y border-r border-neutral-700 rounded-tr-lg" />
             </tr>
           </thead>
           <tbody>
-            {players.map((player, index) => {
-              const last = index === players.length - 1;
+            {rows.map((player, index) => {
+              const last = index === rows.length - 1;
               return (
                 <tr key={player.id}>
                   <td className={`px-3 py-3 bg-neutral-900 text-white font-semibold whitespace-nowrap border-b border-l border-neutral-700 ${last ? "rounded-bl-lg" : ""}`}>
