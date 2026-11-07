@@ -137,6 +137,14 @@ export default function PlayerForm() {
   const [weight, setWeight] = useState("");
   const [number, setNumber] = useState("");
   const [hand, setHand] = useState("");
+  const [skinTone, setSkinTone] = useState("");
+  const [bodyType, setBodyType] = useState("");
+  const [headModel, setHeadModel] = useState("");
+  const [tshirtType, setTshirtType] = useState("");
+  const [sockStyle, setSockStyle] = useState("");
+  const [sockColor, setSockColor] = useState("");
+  const [shoesHome, setShoesHome] = useState("");
+  const [shoesAway, setShoesAway] = useState("");
   const [message, setMessage] = useState("");
   const [revealNow, setRevealNow] = useState(false);
 
@@ -174,6 +182,14 @@ export default function PlayerForm() {
           weight,
           number,
           hand,
+          skin_tone: skinTone,
+          body_type: bodyType,
+          head_model: headModel,
+          tshirt_type: tshirtType,
+          sock_style: sockStyle,
+          sock_color: sockColor,
+          shoes_home: shoesHome,
+          shoes_away: shoesAway,
         }),
       });
       const json = await res.json();
@@ -188,87 +204,130 @@ export default function PlayerForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-neutral-900 border border-neutral-700 rounded-lg p-5">
-      <h3 className="label-glow text-white text-lg font-bold tracking-widest mb-4">VITALS</h3>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
-        <div className="lg:col-span-2">
-          <FieldLabel required>First Name</FieldLabel>
-          <input value={firstName} maxLength={11} onChange={e => setFirstName(lettersOnly(e.target.value, 11))} className={fieldClass} />
-        </div>
-        <div className="lg:col-span-2">
-          <FieldLabel required>Last Name</FieldLabel>
-          <input value={lastName} maxLength={11} onChange={e => setLastName(lettersOnly(e.target.value, 11))} className={fieldClass} />
-        </div>
-        <div className="lg:col-span-2">
-          <FieldLabel required>Position</FieldLabel>
-          <Menu
-            value={position}
-            onChange={setPosition}
-            options={POSITIONS.map(option => ({ value: option, label: option }))}
-          />
-        </div>
-        <div className="lg:col-span-2">
-          <FieldLabel>Rating</FieldLabel>
-          <input
-            value={overall}
-            maxLength={3}
-            onChange={e => {
-              setRevealNow(false);
-              setOverall(digitsOnly(e.target.value, 3));
-            }}
-            inputMode="numeric"
-            className={`${fieldClass} ${shownOverall ? "abbr-taken" : ""}`}
-          />
-          {shownOverall && <p className="text-xs text-red-400 mt-1">{shownOverall}</p>}
-        </div>
-        <div className="lg:col-span-2">
-          <FieldLabel>Height</FieldLabel>
-          <Menu
-            value={height}
-            onChange={setHeight}
-            options={HEIGHTS.map(option => ({ value: option, label: option }))}
-          />
-        </div>
-        <div className="lg:col-span-2">
-          <FieldLabel>Weight</FieldLabel>
-          <input
-            value={weight}
-            maxLength={3}
-            onChange={e => {
-              setRevealNow(false);
-              setWeight(digitsOnly(e.target.value, 3));
-            }}
-            inputMode="numeric"
-            className={`${fieldClass} ${shownWeight ? "abbr-taken" : ""}`}
-          />
-          {shownWeight && <p className="text-xs text-red-400 mt-1">{shownWeight}</p>}
-        </div>
-        <div className="lg:col-span-2">
-          <FieldLabel>Jersey Number</FieldLabel>
-          <input
-            value={number}
-            maxLength={2}
-            onChange={e => {
-              setRevealNow(false);
-              setNumber(digitsOnly(e.target.value, 2));
-            }}
-            inputMode="numeric"
-            className={`${fieldClass} ${shownNumber ? "abbr-taken" : ""}`}
-          />
-          {shownNumber && <p className="text-xs text-red-400 mt-1">{shownNumber}</p>}
-        </div>
-        <div className="lg:col-span-2">
-          <FieldLabel>Dominant Hand</FieldLabel>
-          <Menu
-            value={hand}
-            onChange={setHand}
-            options={[
-              { value: "Left", label: "Left" },
-              { value: "Right", label: "Right" },
-            ]}
-          />
-        </div>
+    <form onSubmit={handleSubmit}>
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 items-start">
+        <section className="bg-neutral-900 border border-neutral-700 rounded-lg p-5">
+          <h3 className="label-glow text-white text-lg font-bold tracking-widest mb-4">VITALS</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <FieldLabel required>First Name</FieldLabel>
+              <input value={firstName} maxLength={11} onChange={e => setFirstName(lettersOnly(e.target.value, 11))} className={fieldClass} />
+            </div>
+            <div>
+              <FieldLabel required>Last Name</FieldLabel>
+              <input value={lastName} maxLength={11} onChange={e => setLastName(lettersOnly(e.target.value, 11))} className={fieldClass} />
+            </div>
+            <div>
+              <FieldLabel required>Position</FieldLabel>
+              <Menu
+                value={position}
+                onChange={setPosition}
+                options={POSITIONS.map(option => ({ value: option, label: option }))}
+              />
+            </div>
+            <div>
+              <FieldLabel>Rating</FieldLabel>
+              <input
+                value={overall}
+                maxLength={3}
+                onChange={e => {
+                  setRevealNow(false);
+                  setOverall(digitsOnly(e.target.value, 3));
+                }}
+                inputMode="numeric"
+                className={`${fieldClass} ${shownOverall ? "abbr-taken" : ""}`}
+              />
+              {shownOverall && <p className="text-xs text-red-400 mt-1">{shownOverall}</p>}
+            </div>
+            <div>
+              <FieldLabel>Height</FieldLabel>
+              <Menu
+                value={height}
+                onChange={setHeight}
+                options={HEIGHTS.map(option => ({ value: option, label: option }))}
+              />
+            </div>
+            <div>
+              <FieldLabel>Weight</FieldLabel>
+              <input
+                value={weight}
+                maxLength={3}
+                onChange={e => {
+                  setRevealNow(false);
+                  setWeight(digitsOnly(e.target.value, 3));
+                }}
+                inputMode="numeric"
+                className={`${fieldClass} ${shownWeight ? "abbr-taken" : ""}`}
+              />
+              {shownWeight && <p className="text-xs text-red-400 mt-1">{shownWeight}</p>}
+            </div>
+            <div>
+              <FieldLabel>Jersey Number</FieldLabel>
+              <input
+                value={number}
+                maxLength={2}
+                onChange={e => {
+                  setRevealNow(false);
+                  setNumber(digitsOnly(e.target.value, 2));
+                }}
+                inputMode="numeric"
+                className={`${fieldClass} ${shownNumber ? "abbr-taken" : ""}`}
+              />
+              {shownNumber && <p className="text-xs text-red-400 mt-1">{shownNumber}</p>}
+            </div>
+            <div>
+              <FieldLabel>Dominant Hand</FieldLabel>
+              <Menu
+                value={hand}
+                onChange={setHand}
+                options={[
+                  { value: "Left", label: "Left" },
+                  { value: "Right", label: "Right" },
+                ]}
+              />
+            </div>
+          </div>
+        </section>
+
+        <section className="bg-neutral-900 border border-neutral-700 rounded-lg p-5">
+          <h3 className="label-glow text-white text-lg font-bold tracking-widest mb-4">APPEARANCE</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <FieldLabel>Skin Tone</FieldLabel>
+              <input value={skinTone} onChange={e => setSkinTone(e.target.value)} className={fieldClass} />
+            </div>
+            <div>
+              <FieldLabel>Body Type</FieldLabel>
+              <input value={bodyType} onChange={e => setBodyType(e.target.value)} className={fieldClass} />
+            </div>
+            <div>
+              <FieldLabel>Head Model</FieldLabel>
+              <input value={headModel} onChange={e => setHeadModel(e.target.value)} className={fieldClass} />
+            </div>
+            <div>
+              <FieldLabel>T-Shirt Type</FieldLabel>
+              <input value={tshirtType} onChange={e => setTshirtType(e.target.value)} className={fieldClass} />
+            </div>
+            <div>
+              <FieldLabel>Sock Style</FieldLabel>
+              <input value={sockStyle} onChange={e => setSockStyle(e.target.value)} className={fieldClass} />
+            </div>
+            <div>
+              <FieldLabel>Sock Color</FieldLabel>
+              <input value={sockColor} onChange={e => setSockColor(e.target.value)} className={fieldClass} />
+            </div>
+            <div>
+              <FieldLabel>Shoes Home</FieldLabel>
+              <input value={shoesHome} onChange={e => setShoesHome(e.target.value)} className={fieldClass} />
+            </div>
+            <div>
+              <FieldLabel>Shoes Away</FieldLabel>
+              <input value={shoesAway} onChange={e => setShoesAway(e.target.value)} className={fieldClass} />
+            </div>
+          </div>
+        </section>
       </div>
+
       <div className="mt-6 flex items-center justify-end gap-4">
         {message && <p className="text-sm text-amber-300 mr-auto">{message}</p>}
         <button
