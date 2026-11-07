@@ -4,6 +4,21 @@ import db from "@/lib/db";
 const POSITIONS = ["C", "PF", "SF", "SG", "PG"];
 const COMPLEXIONS = Array.from({ length: 10 }, (_, index) => `Complexion ${index + 1}`);
 const TSHIRTS = ["None", "Muscle T", "Angled T", "Short Sleeve", "Long Sleeve"];
+const ACCESSORIES = [
+  "headband",
+  "right_bicep",
+  "left_bicep",
+  "right_forearm",
+  "left_forearm",
+  "right_elbow",
+  "left_elbow",
+  "right_wrist",
+  "left_wrist",
+  "right_knee",
+  "left_knee",
+  "right_calf",
+  "left_calf",
+];
 
 function text(raw: unknown) {
   const value = String(raw ?? "").trim();
@@ -53,6 +68,7 @@ export async function POST(req: NextRequest) {
   const overallMessage = overallError(overallRaw);
   const numberMessage = jerseyError(number);
   const inches = height ? heightInches(height) : null;
+  const accessories = Object.fromEntries(ACCESSORIES.map(key => [key, text(body[key])]));
 
   if (!firstName || !lastName) {
     return NextResponse.json({ error: "First and last name are required." }, { status: 400 });
@@ -107,6 +123,7 @@ export async function POST(req: NextRequest) {
     sock_color: text(body.sock_color),
     shoes_home: text(body.shoes_home),
     shoes_away: text(body.shoes_away),
+    ...accessories,
   });
   await db.save(data);
   return NextResponse.json({ id: newId });
