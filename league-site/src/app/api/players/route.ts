@@ -22,7 +22,6 @@ const STATS = [
   ["dribble", "DRI"],
   ["strength", "STR"],
   ["durability", "DUR"],
-  ["shooting_range", "SR"],
   ["stamina", "STM"],
   ["inside_scoring", "IS"],
   ["in_game_rating", "In-Game Rating"],
@@ -173,7 +172,7 @@ async function collect(body: any) {
       dribble: stats.dribble,
       strength: stats.strength,
       durability: stats.durability,
-      shooting_range: stats.shooting_range,
+      shooting_range: undefined,
       stamina: stats.stamina,
       inside_scoring: stats.inside_scoring,
       in_game_rating: stats.in_game_rating,
@@ -191,7 +190,9 @@ export async function POST(req: NextRequest) {
     data.nextIds.player = data.players.reduce((max, player) => Math.max(max, player.id), 0) + 1;
   }
   const newId = data.nextIds.player++;
-  data.players.push({ id: newId, ...entry });
+  const player = { id: newId, ...entry };
+  delete player.shooting_range;
+  data.players.push(player);
   await db.save(data);
   return NextResponse.json({ id: newId });
 }
@@ -208,6 +209,7 @@ export async function PATCH(req: NextRequest) {
   const player = data.players.find(item => item.id === id);
   if (!player) return NextResponse.json({ error: "Player not found" }, { status: 404 });
   Object.assign(player, entry);
+  delete player.shooting_range;
   await db.save(data);
   return NextResponse.json({ id });
 }
