@@ -76,6 +76,7 @@ const SECTIONS: { id: SectionId; label: string }[] = [
 const NUM_COL = "2.75rem";
 const NAME_COL = "16.5rem";
 const ACTION_COL = "7.75rem";
+const POSITION_ORDER = ["C", "PF", "SF", "SG", "PG"];
 
 const COLUMNS: Record<SectionId, { key: keyof DirectoryPlayer; label: string; note?: string; gap?: boolean; prefer: "high" | "low" | "alpha" }[]> = {
   vitals: [
@@ -148,6 +149,16 @@ function heightInches(raw: string) {
   const match = /^(\d+)'(\d+)"$/.exec(raw.trim());
   if (!match) return null;
   return Number(match[1]) * 12 + Number(match[2]);
+}
+
+function positionRank(raw: string) {
+  const index = POSITION_ORDER.indexOf(raw.trim());
+  return index === -1 ? null : index;
+}
+
+function columnWeight(section: SectionId, key: string) {
+  if (section === "vitals" && key === "team") return 3;
+  return 1;
 }
 
 function playerValue(player: DirectoryPlayer, key: SortKey): number | string | null {
@@ -257,10 +268,16 @@ export default function PlayerDirectory({ players }: { players: DirectoryPlayer[
   const numStyle = { width: NUM_COL, minWidth: NUM_COL, maxWidth: NUM_COL };
   const nameStyle = { width: NAME_COL, minWidth: NAME_COL, maxWidth: NAME_COL };
   const actionStyle = { width: ACTION_COL, minWidth: ACTION_COL, maxWidth: ACTION_COL };
-  const valueWidth = `calc((100% - ${NUM_COL} - ${NAME_COL} - ${ACTION_COL}) / ${columns.length})`;
+  const totalWeight = columns.reduce((sum, column) => sum + columnWeight(section, column.key), 0);
+  const widthFor = (key: string) => `calc((100% - ${NUM_COL} - ${NAME_COL} - ${ACTION_COL}) * ${columnWeight(section, key)} / ${totalWeight})`;
   const rows = [...players]
     .map((player, index) => ({ player, index }))
-    .sort((a, b) => compare(playerValue(a.player, sort.key), playerValue(b.player, sort.key), sort.dir) || a.player.name.localeCompare(b.player.name) || a.index - b.index)
+    .sort((a, b) => {
+      const primary = sort.key === "position"
+        ? compare(positionRank(a.player.position), positionRank(b.player.position), sort.dir)
+        : compare(playerValue(a.player, sort.key), playerValue(b.player, sort.key), sort.dir);
+      return primary || a.player.name.localeCompare(b.player.name) || a.index - b.index;
+    })
     .map(item => item.player);
 
   const chooseSection = (next: SectionId) => {
@@ -295,7 +312,7 @@ export default function PlayerDirectory({ players }: { players: DirectoryPlayer[
             <col style={{ width: NUM_COL }} />
             <col style={{ width: NAME_COL }} />
             {columns.map(column => (
-              <col key={column.key} style={{ width: valueWidth }} />
+              <col key={column.key} style={{ width: widthFor(column.key) }} />
             ))}
             <col style={{ width: ACTION_COL }} />
           </colgroup>
@@ -321,7 +338,7 @@ export default function PlayerDirectory({ players }: { players: DirectoryPlayer[
                 <th
                   key={column.key}
                   aria-sort={sort.key === column.key ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}
-                  style={{ width: valueWidth }}
+                  style={{ width: widthFor(column.key) }}
                   className={`sticky top-[81px] z-30 py-3 bg-neutral-800 text-center text-neutral-300 text-xs font-semibold border-y border-l border-neutral-700 whitespace-normal leading-tight ${dense ? "px-1" : "px-2"}`}
                 >
                   <button type="button" onClick={() => toggleSort(column.key, column.prefer)} className="inline-flex items-center justify-center w-full text-neutral-300 hover:text-white">
@@ -363,7 +380,7 @@ export default function PlayerDirectory({ players }: { players: DirectoryPlayer[
                       <td
                         key={column.key}
                         title={value}
-                        style={{ width: valueWidth, ...(fill ? { backgroundColor: fill, color: RATING_INK } : {}) }}
+                        style={{ width: widthFor(column.key), ...(fill ? { backgroundColor: fill, color: RATING_INK } : {}) }}
                         className={`py-3 text-center border-b border-l border-neutral-700 overflow-hidden ${dense ? "px-1" : "px-2"} ${fill ? "font-semibold" : "bg-neutral-900 text-neutral-200"}`}
                       >
                         {column.key === "team" ? (
@@ -380,7 +397,7 @@ export default function PlayerDirectory({ players }: { players: DirectoryPlayer[
                     );
                   })}
                   <td style={actionStyle} className={`px-2 py-3 bg-neutral-900 whitespace-nowrap border-b border-l border-r border-neutral-700 ${last ? "rounded-br-lg" : ""}`}>
-                    <div className="flex items-center justify-end gap-3">
+                    <div className="flex items-center justify-center gap-3">
                       <Link href={`/players/${player.id}/edit`} className="text-xs text-neutral-300 hover:text-white">
                         Edit
                       </Link>
