@@ -31,6 +31,26 @@ const ACCESSORY_FIELDS = [
 
 type AccessoryKey = (typeof ACCESSORY_FIELDS)[number]["key"];
 
+export type EditablePlayer = {
+  id: number;
+  team_id?: number | null;
+  first_name?: string;
+  last_name?: string;
+  position?: string | null;
+  overall?: number;
+  height?: string;
+  weight?: number;
+  number?: string;
+  hand?: string;
+  skin_tone?: string;
+  head_model?: string;
+  tshirt_type?: string;
+  sock_style?: string;
+  sock_color?: string;
+  shoes_home?: string;
+  shoes_away?: string;
+} & Partial<Record<AccessoryKey | StatKey, string>>;
+
 const ACCESSORY_ROWS: { key: AccessoryKey; label: string }[][] = [
   [{ key: "headband", label: "Headband" }],
   [
@@ -70,6 +90,10 @@ const HEIGHTS = (() => {
   }
   return options;
 })();
+
+function field(value: unknown) {
+  return value == null ? "" : String(value);
+}
 
 function digitsOnly(value: string, max: number) {
   return value.replace(/\D/g, "").slice(0, max);
@@ -189,39 +213,47 @@ function Menu({
   );
 }
 
-export default function PlayerForm({ teams = [] }: { teams?: { id: number; name: string }[] }) {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [position, setPosition] = useState("");
-  const [overall, setOverall] = useState("");
-  const [height, setHeight] = useState("");
-  const [weight, setWeight] = useState("");
-  const [number, setNumber] = useState("");
-  const [hand, setHand] = useState("");
-  const [skinTone, setSkinTone] = useState("");
-  const [headModel, setHeadModel] = useState("");
-  const [tshirtType, setTshirtType] = useState("None");
-  const [sockStyle, setSockStyle] = useState("");
-  const [sockColor, setSockColor] = useState("");
-  const [shoesHome, setShoesHome] = useState("");
-  const [shoesAway, setShoesAway] = useState("");
+export default function PlayerForm({ teams = [], player }: { teams?: { id: number; name: string }[]; player?: EditablePlayer }) {
+  const editing = player != null;
+  const [firstName, setFirstName] = useState(field(player?.first_name));
+  const [lastName, setLastName] = useState(field(player?.last_name));
+  const [position, setPosition] = useState(field(player?.position));
+  const [overall, setOverall] = useState(field(player?.overall));
+  const [height, setHeight] = useState(field(player?.height));
+  const [weight, setWeight] = useState(field(player?.weight));
+  const [number, setNumber] = useState(field(player?.number));
+  const [hand, setHand] = useState(field(player?.hand));
+  const [skinTone, setSkinTone] = useState(field(player?.skin_tone));
+  const [headModel, setHeadModel] = useState(field(player?.head_model));
+  const [tshirtType, setTshirtType] = useState(player?.tshirt_type || "None");
+  const [sockStyle, setSockStyle] = useState(field(player?.sock_style));
+  const [sockColor, setSockColor] = useState(field(player?.sock_color));
+  const [shoesHome, setShoesHome] = useState(field(player?.shoes_home));
+  const [shoesAway, setShoesAway] = useState(field(player?.shoes_away));
   const [accessories, setAccessories] = useState<Record<AccessoryKey, string>>({
-    headband: "",
-    right_bicep: "",
-    left_bicep: "",
-    right_forearm: "",
-    left_forearm: "",
-    right_elbow: "",
-    left_elbow: "",
-    right_wrist: "",
-    left_wrist: "",
-    right_knee: "",
-    left_knee: "",
-    right_calf: "",
-    left_calf: "",
+    headband: field(player?.headband),
+    right_bicep: field(player?.right_bicep),
+    left_bicep: field(player?.left_bicep),
+    right_forearm: field(player?.right_forearm),
+    left_forearm: field(player?.left_forearm),
+    right_elbow: field(player?.right_elbow),
+    left_elbow: field(player?.left_elbow),
+    right_wrist: field(player?.right_wrist),
+    left_wrist: field(player?.left_wrist),
+    right_knee: field(player?.right_knee),
+    left_knee: field(player?.left_knee),
+    right_calf: field(player?.right_calf),
+    left_calf: field(player?.left_calf),
   });
-  const [stats, setStats] = useState(emptyStats);
-  const [teamId, setTeamId] = useState("free");
+  const [stats, setStats] = useState(() => {
+    const next = emptyStats();
+    if (!player) return next;
+    (Object.keys(next) as StatKey[]).forEach(key => {
+      if (player[key]) next[key] = String(player[key]);
+    });
+    return next;
+  });
+  const [teamId, setTeamId] = useState(player?.team_id ? String(player.team_id) : "free");
   const [message, setMessage] = useState("");
   const [revealNow, setRevealNow] = useState(false);
 
@@ -252,12 +284,13 @@ export default function PlayerForm({ teams = [] }: { teams?: { id: number; name:
     e.preventDefault();
     if (blocked) return;
     setRevealNow(true);
-    setMessage("Creating...");
+    setMessage(editing ? "Saving..." : "Creating...");
     try {
       const res = await fetch("/api/players", {
-        method: "POST",
+        method: editing ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          id: player?.id,
           first_name: firstName,
           last_name: lastName,
           position,
@@ -280,7 +313,7 @@ export default function PlayerForm({ teams = [] }: { teams?: { id: number; name:
       });
       const json = await res.json();
       if (!res.ok) {
-        setMessage(json.error || "Could not create player.");
+        setMessage(json.error || (editing ? "Could not save player." : "Could not create player."));
         return;
       }
       window.location.href = "/players";
@@ -377,10 +410,10 @@ export default function PlayerForm({ teams = [] }: { teams?: { id: number; name:
           <div className="flex-1 flex flex-col justify-between gap-2">
             {ACCESSORY_ROWS.map(row => (
               <div key={row[0].key} className="grid grid-cols-2 gap-x-3">
-                {row.map(field => (
-                  <div key={field.key} className={`flex items-center gap-1.5 min-w-0 ${row.length === 1 ? "col-span-2" : ""}`}>
-                    <span className={compactLabel}>{field.label}</span>
-                    <input value={accessories[field.key]} placeholder="None" onChange={e => setAccessories(current => ({ ...current, [field.key]: e.target.value }))} className={compactField} />
+                {row.map(item => (
+                  <div key={item.key} className={`flex items-center gap-1.5 min-w-0 ${row.length === 1 ? "col-span-2" : ""}`}>
+                    <span className={compactLabel}>{item.label}</span>
+                    <input value={accessories[item.key]} placeholder="None" onChange={e => setAccessories(current => ({ ...current, [item.key]: e.target.value }))} className={compactField} />
                   </div>
                 ))}
               </div>
@@ -398,6 +431,7 @@ export default function PlayerForm({ teams = [] }: { teams?: { id: number; name:
 
       <div className="mt-6 flex items-center justify-end gap-3">
         {message && <p className="text-sm text-amber-300 mr-auto">{message}</p>}
+        {editing && <a href="/players" className="text-sm text-neutral-300 hover:text-white">Cancel</a>}
         <div className="w-64">
           <Menu
             up
@@ -410,7 +444,7 @@ export default function PlayerForm({ teams = [] }: { teams?: { id: number; name:
           />
         </div>
         <button type="submit" disabled={blocked} className={`bg-neutral-200 text-black font-bold px-5 py-2 rounded ${blocked ? "opacity-40 cursor-not-allowed" : "hover:bg-white"}`}>
-          Create Player
+          {editing ? "Save Player" : "Create Player"}
         </button>
       </div>
     </form>
