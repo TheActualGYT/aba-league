@@ -122,6 +122,15 @@ export async function POST(req: NextRequest) {
   }
 
   const data = await db.load();
+  const requestedTeam = body.team_id;
+  let teamId: number | null = null;
+  if (requestedTeam !== null && requestedTeam !== undefined && String(requestedTeam) !== "" && String(requestedTeam) !== "free") {
+    const parsedTeam = Number(requestedTeam);
+    if (!data.teams?.some(team => team.id === parsedTeam)) {
+      return NextResponse.json({ error: "That team no longer exists." }, { status: 400 });
+    }
+    teamId = parsedTeam;
+  }
   if (!data.players) data.players = [] as typeof data.players;
   if (data.nextIds.player == null) {
     data.nextIds.player = data.players.reduce((max, player) => Math.max(max, player.id), 0) + 1;
@@ -131,7 +140,7 @@ export async function POST(req: NextRequest) {
   data.players.push({
     id: newId,
     name: `${firstName} ${lastName}`,
-    team_id: null,
+    team_id: teamId,
     position,
     first_name: firstName,
     last_name: lastName,
