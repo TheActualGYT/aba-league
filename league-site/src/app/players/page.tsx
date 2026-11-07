@@ -12,16 +12,27 @@ function accessory(value: unknown) {
   return show(value, "None");
 }
 
+function directoryName(player: { name?: string; first_name?: string; last_name?: string }) {
+  const last = String(player.last_name ?? "").trim();
+  const first = String(player.first_name ?? "").trim();
+  if (last && first) return `${last}, ${first}`;
+  if (last || first) return last || first;
+  const full = String(player.name ?? "").trim();
+  if (!full) return "\u2014";
+  const parts = full.split(/\s+/);
+  if (parts.length < 2) return full;
+  return `${parts[parts.length - 1]}, ${parts.slice(0, -1).join(" ")}`;
+}
+
 export default async function PlayersPage() {
   const data = await db.load();
   const teams = data.teams || [];
   const players: DirectoryPlayer[] = [...(data.players || [])]
-    .sort((a, b) => a.name.localeCompare(b.name))
     .map(player => {
       const team = teams.find(item => item.id === player.team_id);
       return {
         id: player.id,
-        name: player.name,
+        name: directoryName(player),
         team: team ? team.name : "Free Agent",
         logo: team?.logo || "",
         position: show(player.position),
@@ -73,7 +84,8 @@ export default async function PlayersPage() {
         inside_scoring: show(player.inside_scoring),
         in_game_rating: show(player.in_game_rating),
       };
-    });
+    })
+    .sort((a, b) => a.name.localeCompare(b.name));
 
   return (
     <main
