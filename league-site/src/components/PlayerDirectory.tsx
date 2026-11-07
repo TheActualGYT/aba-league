@@ -11,6 +11,7 @@ export type DirectoryPlayer = {
   id: number;
   name: string;
   team: string;
+  abbreviation: string;
   logo: string;
   position: string;
   rating: string;
@@ -163,6 +164,7 @@ function columnWeight(section: SectionId, key: string) {
 
 function playerValue(player: DirectoryPlayer, key: SortKey): number | string | null {
   if (key === "name") return player.name;
+  if (key === "team") return player.abbreviation.trim() || null;
   const raw = String(player[key] ?? "").trim();
   if (!raw || raw === "\u2014" || raw === "None") return null;
   if (key === "height") return heightInches(raw);
@@ -384,9 +386,9 @@ export default function PlayerDirectory({ players }: { players: DirectoryPlayer[
                         className={`py-3 text-center border-b border-l border-neutral-700 overflow-hidden ${dense ? "px-1" : "px-2"} ${fill ? "font-semibold" : "bg-neutral-900 text-neutral-200"}`}
                       >
                         {column.key === "team" ? (
-                          <span className="flex items-center justify-center gap-1 overflow-hidden">
+                          <span className="inline-flex items-center justify-center gap-1.5">
                             {player.logo && <img src={player.logo} alt="" className="h-5 w-5 shrink-0 object-contain" />}
-                            <span className="truncate">{player.team}</span>
+                            <span>{player.abbreviation}</span>
                           </span>
                         ) : (
                           <span className="block overflow-hidden text-ellipsis whitespace-nowrap">
