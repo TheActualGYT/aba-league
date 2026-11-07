@@ -148,7 +148,7 @@ export default function PlayerForm() {
   const [hand, setHand] = useState("");
   const [skinTone, setSkinTone] = useState("");
   const [headModel, setHeadModel] = useState("");
-  const [tshirtType, setTshirtType] = useState("");
+  const [tshirtType, setTshirtType] = useState("None");
   const [sockStyle, setSockStyle] = useState("");
   const [sockColor, setSockColor] = useState("");
   const [shoesHome, setShoesHome] = useState("");
@@ -316,10 +316,11 @@ export default function PlayerForm() {
               <FieldLabel>Body Type</FieldLabel>
               <div
                 aria-readonly="true"
-                className="w-full min-h-[42px] rounded border border-[#d4d4d4] cursor-default select-none"
+                className="w-full min-h-[42px] rounded border border-[#8a8a8a] cursor-default select-none flex items-center px-3 text-white"
                 style={{
-                  background: "linear-gradient(155deg, #f7f7f7 0%, #d9d9d9 40%, #bdbdbd 52%, #eeeeee 100%)",
-                  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.95), inset 0 -1px 0 rgba(70,70,70,0.2)",
+                  background: "linear-gradient(180deg, #8f8f8f 0%, #6d6d6d 48%, #7c7c7c 100%)",
+                  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.35)",
+                  textShadow: "0 1px 1px rgba(0,0,0,0.55)",
                 }}
               />
             </div>
