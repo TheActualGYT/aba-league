@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import DeletePlayerButton from "@/components/DeletePlayerButton";
@@ -80,11 +80,19 @@ const SECTIONS: { id: SectionId; label: string }[] = [
 const NUM_COL = "2.75rem";
 const NAME_COL = "16.5rem";
 const ACTION_COL = "7.75rem";
-const REP_COL = "12rem";
 const ROW = "h-10 max-h-10";
 const POSITION_ORDER = ["C", "PF", "SF", "SG", "PG"];
+const SHEET_WIDTH: Partial<Record<keyof DirectoryPlayer, string>> = {
+  position: "6rem",
+  rating: "6.75rem",
+  height: "5.5rem",
+  weight: "5.5rem",
+  number: "5rem",
+  hand: "4.75rem",
+  team: "8rem",
+};
 
-const COLUMNS: Record<SectionId, { key: keyof DirectoryPlayer; label: string; note?: string; gap?: boolean; prefer: "high" | "low" | "alpha" }[]> = {
+const COLUMNS: Record<SectionId, { key: keyof DirectoryPlayer; label: string; note?: string; prefer: "high" | "low" | "alpha" }[]> = {
   vitals: [
     { key: "position", label: "Position", prefer: "alpha" },
     { key: "rating", label: "ABA Rating", prefer: "high" },
@@ -140,10 +148,11 @@ const COLUMNS: Record<SectionId, { key: keyof DirectoryPlayer; label: string; no
     { key: "shooting_range", label: "SR", note: "Shooting Range", prefer: "high" },
     { key: "stamina", label: "STM", note: "Stamina", prefer: "high" },
     { key: "inside_scoring", label: "IS", note: "Inside Scoring", prefer: "high" },
-    { key: "in_game_rating", label: "IGR", note: "In-Game Rating", gap: true, prefer: "high" },
+    { key: "in_game_rating", label: "IGR", note: "In-Game Rating", prefer: "high" },
   ],
 };
 
+const ATTRIBUTE_KEYS = new Set(COLUMNS.attributes.map(column => column.key));
 const NUMERIC = new Set([
   "rating", "weight", "number", "head_model",
   "fg", "three_p", "dk", "stl", "blk", "off_reb", "def_reb", "passing",
@@ -170,11 +179,6 @@ function columnWeight(section: SectionId, key: string) {
 function playerValue(player: DirectoryPlayer, key: SortKey): number | string | null {
   if (key === "name") return player.name;
   if (key === "team") return player.abbreviation.trim() || null;
-  if (key === "representative") {
-    const abbr = player.representativeAbbreviation.trim();
-    if (!abbr || abbr === "\u2014") return null;
-    return abbr;
-  }
   const raw = String(player[key] ?? "").trim();
   if (!raw || raw === "\u2014" || raw === "None") return null;
   if (key === "height") return heightInches(raw);
@@ -197,7 +201,7 @@ function compare(a: number | string | null, b: number | string | null, dir: Sort
   return dir === "asc" ? result : -result;
 }
 
-function HeaderLabel({ label, note }: { label: string; note?: string }) {
+function HoverNote({ label, note, children }: { label?: string; note?: string; children?: React.ReactNode }) {
   const [box, setBox] = useState<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
@@ -215,14 +219,14 @@ function HeaderLabel({ label, note }: { label: string; note?: string }) {
 
   return (
     <span
-      className="cursor-default"
+      className="inline-flex cursor-default"
       onMouseEnter={event => {
         const rect = event.currentTarget.getBoundingClientRect();
         setBox({ x: rect.left + rect.width / 2, y: rect.top - 6 });
       }}
       onMouseLeave={() => setBox(null)}
     >
-      {label}
+      {children || label}
       {box && createPortal(
         <span
           className="pointer-events-none fixed z-[80] -translate-x-1/2 -translate-y-full whitespace-nowrap rounded border border-neutral-500 bg-neutral-900 px-2 py-1 text-[10px] font-medium tracking-normal text-white shadow-lg"
@@ -277,25 +281,28 @@ export default function PlayerDirectory({
   emptyLabel = "No players yet.",
   createHref = "/players/new",
   showCreate = true,
-  showRepresentative = false,
+  sheet = false,
 }: {
   players: DirectoryPlayer[];
   emptyLabel?: string;
   createHref?: string;
   showCreate?: boolean;
-  showRepresentative?: boolean;
+  sheet?: boolean;
 }) {
+  const scrollerRef = useRef<HTMLDivElement>(null);
   const [section, setSection] = useState<SectionId>("vitals");
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: "name", dir: "asc" });
-  const columns = COLUMNS[section];
+  const [scroll, setScroll] = useState({ left: 0, max: 0 });
+  const columns = sheet ? [...COLUMNS.vitals, ...COLUMNS.attributes] : COLUMNS[section];
   const dense = columns.length > 10;
   const numStyle = { width: NUM_COL, minWidth: NUM_COL, maxWidth: NUM_COL };
   const nameStyle = { width: NAME_COL, minWidth: NAME_COL, maxWidth: NAME_COL };
   const actionStyle = { width: ACTION_COL, minWidth: ACTION_COL, maxWidth: ACTION_COL };
-  const repStyle = { width: REP_COL, minWidth: REP_COL, maxWidth: REP_COL };
   const totalWeight = columns.reduce((sum, column) => sum + columnWeight(section, column.key), 0);
-  const reserved = showRepresentative ? `${NUM_COL} - ${NAME_COL} - ${ACTION_COL} - ${REP_COL}` : `${NUM_COL} - ${NAME_COL} - ${ACTION_COL}`;
-  const widthFor = (key: string) => `calc((100% - ${reserved}) * ${columnWeight(section, key)} / ${totalWeight})`;
+  const widthFor = (key: string) => sheet
+    ? (SHEET_WIDTH[key as keyof DirectoryPlayer] || "4.15rem")
+    : `calc((100% - ${NUM_COL} - ${NAME_COL} - ${ACTION_COL}) * ${columnWeight(section, key)} / ${totalWeight})`;
+  const headerTop = sheet && scroll.max > 0 ? 119 : 81;
   const rows = [...players]
     .map((player, index) => ({ player, index }))
     .sort((a, b) => {
@@ -306,11 +313,44 @@ export default function PlayerDirectory({
     })
     .map(item => item.player);
 
+  const syncScroll = () => {
+    const node = scrollerRef.current;
+    if (!node) return;
+    setScroll({ left: node.scrollLeft, max: Math.max(0, node.scrollWidth - node.clientWidth) });
+  };
+
+  useEffect(() => {
+    syncScroll();
+    window.addEventListener("resize", syncScroll);
+    return () => window.removeEventListener("resize", syncScroll);
+  }, [players.length, sheet, columns.length]);
+
+  useEffect(() => {
+    if (!sheet) return;
+    const onKey = (event: KeyboardEvent) => {
+      const tag = (event.target as HTMLElement | null)?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+      const node = scrollerRef.current;
+      if (!node) return;
+      const key = event.key.toLowerCase();
+      const delta = key === "arrowleft" || key === "a" || key === "arrowup" || key === "w"
+        ? -160
+        : key === "arrowright" || key === "d" || key === "arrowdown" || key === "s"
+          ? 160
+          : 0;
+      if (!delta) return;
+      event.preventDefault();
+      node.scrollBy({ left: delta });
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [sheet]);
+
   const chooseSection = (next: SectionId) => {
     setSection(next);
     setSort(current => {
       if (current.key === "name") return current;
-      return current.key === "representative" || COLUMNS[next].some(column => column.key === current.key) ? current : { key: "name", dir: "asc" };
+      return COLUMNS[next].some(column => column.key === current.key) ? current : { key: "name", dir: "asc" };
     });
   };
 
@@ -323,119 +363,129 @@ export default function PlayerDirectory({
 
   return (
     <>
-      <div className="mb-6 flex items-center justify-between gap-4">
-        <SectionMenu value={section} onChange={chooseSection} />
-        {showCreate && (
-          <Link href={createHref} className="bg-neutral-200 text-black font-bold px-5 py-2 rounded hover:bg-white">
-            Create Player
-          </Link>
-        )}
-      </div>
+      {!sheet && (
+        <div className="mb-6 flex items-center justify-between gap-4">
+          <SectionMenu value={section} onChange={chooseSection} />
+          {showCreate && (
+            <Link href={createHref} className="bg-neutral-200 text-black font-bold px-5 py-2 rounded hover:bg-white">
+              Create Player
+            </Link>
+          )}
+        </div>
+      )}
 
       {players.length === 0 ? (
         <div className="bg-neutral-900 rounded-lg border border-neutral-700 px-4 py-6 text-center text-neutral-400">{emptyLabel}</div>
       ) : (
-        <table className="w-full table-fixed border-separate border-spacing-0 text-sm leading-5">
-          <colgroup>
-            <col style={{ width: NUM_COL }} />
-            <col style={{ width: NAME_COL }} />
-            {columns.map(column => (
-              <col key={column.key} style={{ width: widthFor(column.key) }} />
-            ))}
-            {showRepresentative && <col style={{ width: REP_COL }} />}
-            <col style={{ width: ACTION_COL }} />
-          </colgroup>
-          <thead>
-            <tr>
-              <th style={numStyle} className="sticky top-[81px] z-30 px-1 py-3 bg-neutral-800 text-center text-neutral-300 text-xs font-semibold border-y border-l border-neutral-700 rounded-tl-lg">#</th>
-              <th
-                aria-sort={sort.key === "name" ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}
-                style={nameStyle}
-                className="sticky top-[81px] z-30 px-3 py-3 bg-neutral-800 text-left text-sm font-semibold whitespace-nowrap border-y border-l border-neutral-700"
-              >
-                <button type="button" onClick={() => toggleSort("name", "alpha")} className="inline-flex items-center text-xs text-neutral-300 hover:text-white">
-                  <span>Player</span>
-                  {sort.key === "name" && <span className="ml-1 text-[9px]">{sort.dir === "asc" ? "\u25b2" : "\u25bc"}</span>}
-                </button>
-              </th>
-              {columns.map(column => (
-                <th
-                  key={column.key}
-                  aria-sort={sort.key === column.key ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}
-                  style={{ width: widthFor(column.key) }}
-                  className={`sticky top-[81px] z-30 py-3 bg-neutral-800 text-center text-neutral-300 text-xs font-semibold border-y border-l border-neutral-700 whitespace-normal leading-tight ${dense ? "px-1" : "px-2"}`}
-                >
-                  <button type="button" onClick={() => toggleSort(column.key, column.prefer)} className="inline-flex items-center justify-center w-full text-neutral-300 hover:text-white">
-                    <HeaderLabel label={column.label} note={column.note} />
-                    {sort.key === column.key && <span className="ml-1 text-[9px]">{sort.dir === "asc" ? "\u25b2" : "\u25bc"}</span>}
-                  </button>
-                </th>
-              ))}
-              {showRepresentative && (
-                <th
-                  aria-sort={sort.key === "representative" ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}
-                  style={repStyle}
-                  className="sticky top-[81px] z-30 px-2 py-3 bg-neutral-800 text-center text-neutral-300 text-xs font-semibold border-y border-l border-neutral-700 whitespace-nowrap"
-                >
-                  <button type="button" onClick={() => toggleSort("representative", "alpha")} className="inline-flex items-center justify-center w-full text-neutral-300 hover:text-white">
-                    <span>VBA Representative</span>
-                    {sort.key === "representative" && <span className="ml-1 text-[9px]">{sort.dir === "asc" ? "\u25b2" : "\u25bc"}</span>}
-                  </button>
-                </th>
-              )}
-              <th style={actionStyle} className="sticky top-[81px] z-30 px-3 py-3 bg-neutral-800 border-y border-l border-r border-neutral-700 rounded-tr-lg" />
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((player, index) => {
-              const last = index === rows.length - 1;
-              return (
-                <tr key={player.id} className="h-10">
-                  <td style={numStyle} className={`${ROW} px-1 py-0 bg-neutral-900 text-center text-neutral-400 border-b border-l border-neutral-700 align-middle ${last ? "rounded-bl-lg" : ""}`}>{index + 1}</td>
-                  <td style={nameStyle} className={`${ROW} px-3 py-0 bg-neutral-900 text-white text-sm font-semibold border-b border-l border-neutral-700 align-middle`}>
-                    <div className="truncate">{player.name}</div>
-                  </td>
-                  {columns.map(column => {
-                    const tinted = section === "attributes" || column.key === "rating";
-                    const fill = tinted ? ratingFill(String(player[column.key] ?? "")) : null;
-                    const value = column.key === "team" ? player.team : String(player[column.key] ?? "");
-                    return (
-                      <td
-                        key={column.key}
-                        title={value}
-                        style={{ width: widthFor(column.key), height: 40, ...(fill ? { backgroundColor: fill, color: RATING_INK } : {}) }}
-                        className={`${ROW} py-0 text-center border-b border-l border-neutral-700 overflow-hidden align-middle ${dense ? "px-1" : "px-2"} ${fill ? "font-semibold" : "bg-neutral-900 text-neutral-200"}`}
-                      >
-                        {column.key === "team" ? (
-                          <span className="flex h-5 items-center justify-center gap-1.5">
-                            {player.logo && <img src={player.logo} alt="" width={16} height={16} className="block h-4 w-4 shrink-0 object-contain" style={{ width: 16, height: 16 }} />}
-                            <span className="truncate leading-5">{player.abbreviation}</span>
-                          </span>
-                        ) : (
-                          <span className="block truncate leading-5">{player[column.key]}</span>
-                        )}
-                      </td>
-                    );
-                  })}
-                  {showRepresentative && (
-                    <td title={player.representative} style={{ ...repStyle, height: 40 }} className={`${ROW} px-2 py-0 bg-neutral-900 text-center text-neutral-200 border-b border-l border-neutral-700 align-middle`}>
-                      <span className="flex h-5 items-center justify-center gap-1.5">
-                        {player.representativeLogo && <img src={player.representativeLogo} alt="" width={16} height={16} className="block h-4 w-4 shrink-0 object-contain" style={{ width: 16, height: 16 }} />}
-                        <span className="truncate leading-5">{player.representativeAbbreviation}</span>
-                      </span>
-                    </td>
-                  )}
-                  <td style={{ ...actionStyle, height: 40 }} className={`${ROW} px-2 py-0 bg-neutral-900 whitespace-nowrap border-b border-l border-r border-neutral-700 align-middle ${last ? "rounded-br-lg" : ""}`}>
-                    <div className="flex h-5 items-center justify-center gap-3">
-                      <Link href={`/players/${player.id}/edit`} className="text-xs leading-5 text-neutral-300 hover:text-white">Edit</Link>
-                      <DeletePlayerButton playerId={player.id} playerName={player.name} />
-                    </div>
-                  </td>
+        <>
+          {sheet && scroll.max > 0 && (
+            <div className="sticky top-[81px] z-40 mb-2 rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2">
+              <input
+                type="range"
+                min={0}
+                max={scroll.max}
+                value={Math.min(scroll.left, scroll.max)}
+                aria-label="Scroll prospects"
+                className="sheet-slider"
+                onChange={event => {
+                  const left = Number(event.target.value);
+                  if (scrollerRef.current) scrollerRef.current.scrollLeft = left;
+                  setScroll(current => ({ ...current, left }));
+                }}
+              />
+            </div>
+          )}
+          <div ref={scrollerRef} onScroll={syncScroll} className="overflow-x-auto">
+            <table className={`${sheet ? "w-max" : "w-full"} table-fixed border-separate border-spacing-0 text-sm leading-5`}>
+              <colgroup>
+                <col style={{ width: NUM_COL }} />
+                <col style={{ width: NAME_COL }} />
+                {columns.map(column => (
+                  <col key={column.key} style={{ width: widthFor(column.key) }} />
+                ))}
+                <col style={{ width: ACTION_COL }} />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th style={{ ...numStyle, top: headerTop }} className={`sticky z-40 px-1 py-3 bg-neutral-800 text-center text-neutral-300 text-xs font-semibold border-y border-l border-neutral-700 rounded-tl-lg ${sheet ? "left-0" : ""}`}>#</th>
+                  <th
+                    aria-sort={sort.key === "name" ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}
+                    style={{ ...nameStyle, top: headerTop, left: sheet ? NUM_COL : undefined }}
+                    className={`sticky z-40 px-3 py-3 bg-neutral-800 text-left text-sm font-semibold whitespace-nowrap border-y border-l border-neutral-700 ${sheet ? "shadow-[6px_0_10px_rgba(0,0,0,0.35)]" : ""}`}
+                  >
+                    <button type="button" onClick={() => toggleSort("name", "alpha")} className="inline-flex items-center text-xs text-neutral-300 hover:text-white">
+                      <span>Player</span>
+                      {sort.key === "name" && <span className="ml-1 text-[9px]">{sort.dir === "asc" ? "\u25b2" : "\u25bc"}</span>}
+                    </button>
+                  </th>
+                  {columns.map(column => (
+                    <th
+                      key={column.key}
+                      aria-sort={sort.key === column.key ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}
+                      style={{ width: widthFor(column.key), top: headerTop }}
+                      className={`sticky z-30 py-3 bg-neutral-800 text-center text-neutral-300 text-xs font-semibold border-y border-l border-neutral-700 whitespace-normal leading-tight ${dense && !sheet ? "px-1" : "px-2"}`}
+                    >
+                      <button type="button" onClick={() => toggleSort(column.key, column.prefer)} className="inline-flex items-center justify-center w-full text-neutral-300 hover:text-white">
+                        <HoverNote label={column.label} note={column.note} />
+                        {sort.key === column.key && <span className="ml-1 text-[9px]">{sort.dir === "asc" ? "\u25b2" : "\u25bc"}</span>}
+                      </button>
+                    </th>
+                  ))}
+                  <th style={{ ...actionStyle, top: headerTop }} className="sticky z-30 px-3 py-3 bg-neutral-800 border-y border-l border-r border-neutral-700 rounded-tr-lg" />
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
+              </thead>
+              <tbody>
+                {rows.map((player, index) => {
+                  const last = index === rows.length - 1;
+                  const repName = player.representative !== "\u2014" ? player.representative : "";
+                  return (
+                    <tr key={player.id} className="h-10">
+                      <td style={numStyle} className={`${ROW} sticky px-1 py-0 bg-neutral-900 text-center text-neutral-400 border-b border-l border-neutral-700 align-middle ${sheet ? "left-0 z-20" : ""} ${last ? "rounded-bl-lg" : ""}`}>{index + 1}</td>
+                      <td style={{ ...nameStyle, left: sheet ? NUM_COL : undefined }} className={`${ROW} sticky px-3 py-0 bg-neutral-900 text-white text-sm font-semibold border-b border-l border-neutral-700 align-middle ${sheet ? "left-[2.75rem] z-20 shadow-[6px_0_10px_rgba(0,0,0,0.35)]" : ""}`}>
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="truncate">{player.name}</span>
+                          {sheet && player.representativeLogo && (
+                            <HoverNote note={repName}>
+                              <img src={player.representativeLogo} alt="" width={16} height={16} className="block h-4 w-4 shrink-0 object-contain" />
+                            </HoverNote>
+                          )}
+                        </div>
+                      </td>
+                      {columns.map(column => {
+                        const tinted = (sheet ? ATTRIBUTE_KEYS.has(column.key) : section === "attributes") || column.key === "rating";
+                        const fill = tinted ? ratingFill(String(player[column.key] ?? "")) : null;
+                        const value = column.key === "team" ? player.team : String(player[column.key] ?? "");
+                        return (
+                          <td
+                            key={column.key}
+                            title={value}
+                            style={{ width: widthFor(column.key), height: 40, ...(fill ? { backgroundColor: fill, color: RATING_INK } : {}) }}
+                            className={`${ROW} py-0 text-center border-b border-l border-neutral-700 overflow-hidden align-middle ${dense && !sheet ? "px-1" : "px-2"} ${fill ? "font-semibold" : "bg-neutral-900 text-neutral-200"}`}
+                          >
+                            {column.key === "team" ? (
+                              <span className="flex h-5 items-center justify-center gap-1.5">
+                                {player.logo && <img src={player.logo} alt="" width={16} height={16} className="block h-4 w-4 shrink-0 object-contain" style={{ width: 16, height: 16 }} />}
+                                <span className="truncate leading-5">{player.abbreviation}</span>
+                              </span>
+                            ) : (
+                              <span className="block truncate leading-5">{player[column.key]}</span>
+                            )}
+                          </td>
+                        );
+                      })}
+                      <td style={{ ...actionStyle, height: 40 }} className={`${ROW} px-2 py-0 bg-neutral-900 whitespace-nowrap border-b border-l border-r border-neutral-700 align-middle ${last ? "rounded-br-lg" : ""}`}>
+                        <div className="flex h-5 items-center justify-center gap-3">
+                          <Link href={`/players/${player.id}/edit`} className="text-xs leading-5 text-neutral-300 hover:text-white">Edit</Link>
+                          <DeletePlayerButton playerId={player.id} playerName={player.name} />
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
     </>
   );
