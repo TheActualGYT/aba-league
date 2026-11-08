@@ -35,6 +35,7 @@ export type EditablePlayer = {
   id: number;
   team_id?: number | null;
   status?: string;
+  vba_representative?: string;
   first_name?: string;
   last_name?: string;
   position?: string | null;
@@ -270,6 +271,7 @@ export default function PlayerForm({
     return next;
   });
   const [teamId, setTeamId] = useState(startingAssignment(player, initialStatus));
+  const [representative, setRepresentative] = useState(field(player?.vba_representative));
   const [message, setMessage] = useState("");
   const [revealNow, setRevealNow] = useState(false);
 
@@ -325,6 +327,7 @@ export default function PlayerForm({
           shoes_away: shoesAway,
           team_id: status === "team" ? Number(teamId) : null,
           status,
+          vba_representative: status === "prospect" ? representative : "",
           ...accessories,
           ...stats,
         }),
@@ -447,10 +450,10 @@ export default function PlayerForm({
         onChange={(key, value) => setStats(current => ({ ...current, [key]: value }))}
       />
 
-      <div className="mt-6 flex items-center justify-end gap-3">
-        {message && <p className="text-sm text-amber-300 mr-auto">{message}</p>}
+      <div className="mt-6 flex items-start justify-end gap-3">
+        {message && <p className="text-sm text-amber-300 mr-auto mt-2">{message}</p>}
         {editing && (
-          <a href={player?.status === "prospect" ? "/draft/prospects" : "/players"} className="text-sm text-neutral-300 hover:text-white">
+          <a href={player?.status === "prospect" ? "/draft/prospects" : "/players"} className="text-sm text-neutral-300 hover:text-white mt-2">
             Cancel
           </a>
         )}
@@ -465,6 +468,12 @@ export default function PlayerForm({
               ...teams.map(team => ({ value: String(team.id), label: team.name })),
             ]}
           />
+          {teamId === "prospect" && (
+            <div className="mt-2">
+              <FieldLabel>VBA Representative</FieldLabel>
+              <input value={representative} maxLength={40} onChange={e => setRepresentative(e.target.value)} className={fieldClass} />
+            </div>
+          )}
         </div>
         <button type="submit" disabled={blocked} className={`bg-neutral-200 text-black font-bold px-5 py-2 rounded ${blocked ? "opacity-40 cursor-not-allowed" : "hover:bg-white"}`}>
           {editing ? "Save Player" : "Create Player"}
