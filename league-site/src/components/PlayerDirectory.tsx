@@ -83,7 +83,7 @@ const POSITION_ORDER = ["C", "PF", "SF", "SG", "PG"];
 const COLUMNS: Record<SectionId, { key: keyof DirectoryPlayer; label: string; note?: string; gap?: boolean; prefer: "high" | "low" | "alpha" }[]> = {
   vitals: [
     { key: "position", label: "Position", prefer: "alpha" },
-    { key: "rating", label: "Rating", prefer: "high" },
+    { key: "rating", label: "ABA Rating", prefer: "high" },
     { key: "height", label: "Height", prefer: "high" },
     { key: "weight", label: "Weight", prefer: "high" },
     { key: "number", label: "Jersey", prefer: "low" },
@@ -263,7 +263,15 @@ function SectionMenu({ value, onChange }: { value: SectionId; onChange: (value: 
   );
 }
 
-export default function PlayerDirectory({ players }: { players: DirectoryPlayer[] }) {
+export default function PlayerDirectory({
+  players,
+  emptyLabel = "No players yet.",
+  createHref = "/players/new",
+}: {
+  players: DirectoryPlayer[];
+  emptyLabel?: string;
+  createHref?: string;
+}) {
   const [section, setSection] = useState<SectionId>("vitals");
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: "name", dir: "asc" });
   const columns = COLUMNS[section];
@@ -302,13 +310,13 @@ export default function PlayerDirectory({ players }: { players: DirectoryPlayer[
     <>
       <div className="mb-6 flex items-center justify-between gap-4">
         <SectionMenu value={section} onChange={chooseSection} />
-        <Link href="/players/new" className="bg-neutral-200 text-black font-bold px-5 py-2 rounded hover:bg-white">
+        <Link href={createHref} className="bg-neutral-200 text-black font-bold px-5 py-2 rounded hover:bg-white">
           Create Player
         </Link>
       </div>
 
       {players.length === 0 ? (
-        <div className="bg-neutral-900 rounded-lg border border-neutral-700 px-4 py-6 text-center text-neutral-400">No players yet.</div>
+        <div className="bg-neutral-900 rounded-lg border border-neutral-700 px-4 py-6 text-center text-neutral-400">{emptyLabel}</div>
       ) : (
         <table className="w-full table-fixed border-separate border-spacing-0 text-sm leading-5">
           <colgroup>
