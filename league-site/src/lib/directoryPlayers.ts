@@ -14,6 +14,7 @@ type SourcePlayer = {
   last_name?: string;
   team_id?: number | null;
   status?: string;
+  vba_representative?: string;
   position?: string | null;
   overall?: number;
   height?: string;
@@ -95,6 +96,7 @@ export function toDirectoryPlayers(players: SourcePlayer[], teams: SourceTeam[])
         team: team ? team.name : prospect ? "Draft Prospect" : "Free Agent",
         abbreviation: team?.abbreviation || (prospect ? "DP" : "FA"),
         logo: team?.logo || "",
+        representative: show(player.vba_representative),
         position: show(player.position),
         rating: show(player.overall),
         height: show(player.height),
