@@ -88,7 +88,6 @@ const POSITION_ORDER = ["C", "PF", "SF", "SG", "PG"];
 const DIVIDER_MARK = [">", ">", "A", "T", "T", "R", "I", "B", "U", "T", "E", "S", ">", ">"];
 const SHEET_WIDTH: Partial<Record<keyof DirectoryPlayer, string>> = {
   position: "6rem",
-  rating: "6.75rem",
   height: "5.5rem",
   weight: "5.5rem",
   number: "5rem",
@@ -343,8 +342,15 @@ export default function PlayerDirectory({
   const [section, setSection] = useState<SectionId>("vitals");
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: "name", dir: "asc" });
   const [scroll, setScroll] = useState({ left: 0, max: 0 });
+  const sheetVitals = COLUMNS.vitals.filter(column => column.key !== "team");
+  const weightAt = sheetVitals.findIndex(column => column.key === "weight");
   const columns = sheet
-    ? [...COLUMNS.vitals.filter(column => column.key !== "team"), ...COLUMNS.attributes]
+    ? [
+        ...sheetVitals.slice(0, weightAt + 1),
+        { key: "body_type" as const, label: "Build", prefer: "alpha" as const },
+        ...sheetVitals.slice(weightAt + 1),
+        ...COLUMNS.attributes,
+      ]
     : COLUMNS[section];
   const dense = columns.length > 10;
   const numStyle = { width: NUM_COL, minWidth: NUM_COL, maxWidth: NUM_COL };
@@ -502,7 +508,7 @@ export default function PlayerDirectory({
                         className={`${frozen ? "sticky z-30 shadow-[6px_0_10px_rgba(0,0,0,0.35)]" : sheet ? "" : "sticky z-30"} py-3 bg-neutral-800 text-center text-neutral-300 text-xs font-semibold border-y border-l border-neutral-700 whitespace-normal leading-tight align-middle ${dense && !sheet ? "px-1" : "px-2"}`}
                       >
                         <button type="button" onClick={() => toggleSort(column.key, column.prefer)} className="inline-flex items-center justify-center w-full text-neutral-300 hover:text-white">
-                          <HoverNote label={column.label} note={column.note} />
+                          <HoverNote label={sheet && column.key === "rating" ? "ABA" : column.label} note={column.note} />
                           {sort.key === column.key && <span className="ml-1 text-[9px]">{sort.dir === "asc" ? "\u25b2" : "\u25bc"}</span>}
                         </button>
                       </th>
