@@ -215,7 +215,7 @@ function HoverNote({ label, note, children }: { label?: string; note?: string; c
     };
   }, [box]);
 
-  if (!note) return <span>{label}</span>;
+  if (!note) return <span>{children || label}</span>;
 
   return (
     <span
@@ -395,7 +395,7 @@ export default function PlayerDirectory({
               />
             </div>
           )}
-          <div ref={scrollerRef} onScroll={syncScroll} className="overflow-x-auto">
+          <div ref={scrollerRef} onScroll={sheet ? syncScroll : undefined} className={sheet ? "overflow-x-auto" : undefined}>
             <table className={`${sheet ? "w-max" : "w-full"} table-fixed border-separate border-spacing-0 text-sm leading-5`}>
               <colgroup>
                 <col style={{ width: NUM_COL }} />
