@@ -58,7 +58,7 @@ function overallError(raw: unknown) {
   const value = String(raw ?? "").trim();
   if (!value) return "";
   if (!/^\d+$/.test(value) || Number(value) < 10 || Number(value) > 99) {
-    return "Rating has to be between 10 and 99.";
+    return "ABA Rating has to be between 10 and 99.";
   }
   return "";
 }
@@ -116,13 +116,19 @@ async function collect(body: any) {
 
   const data = await db.load();
   const requestedTeam = body.team_id;
+  const requestedStatus = String(body.status || "");
+  const teamToken = String(requestedTeam ?? "");
   let teamId: number | null = null;
-  if (requestedTeam !== null && requestedTeam !== undefined && String(requestedTeam) !== "" && String(requestedTeam) !== "free") {
+  let status: "free" | "prospect" | "team" = "free";
+  if (requestedStatus === "prospect" || teamToken === "prospect") {
+    status = "prospect";
+  } else if (requestedTeam !== null && requestedTeam !== undefined && teamToken !== "" && teamToken !== "free") {
     const parsedTeam = Number(requestedTeam);
     if (!data.teams?.some(team => team.id === parsedTeam)) {
       return { error: fail("That team no longer exists.") };
     }
     teamId = parsedTeam;
+    status = "team";
   }
   if (!data.players) data.players = [] as typeof data.players;
 
@@ -131,6 +137,7 @@ async function collect(body: any) {
     entry: {
       name: `${firstName} ${lastName}`,
       team_id: teamId,
+      status,
       position,
       first_name: firstName,
       last_name: lastName,
