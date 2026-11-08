@@ -130,6 +130,12 @@ async function collect(body: any) {
     teamId = parsedTeam;
     status = "team";
   }
+  const representative = status === "prospect" ? text(body.vba_representative) || "" : "";
+  const representativeAbbr = status === "prospect" ? String(body.vba_abbreviation || "").trim().toUpperCase() : "";
+  const representativeLogo = status === "prospect" ? String(body.vba_logo || "").trim() : "";
+  if (representative && (!representativeAbbr || !representativeLogo)) {
+    return { error: fail("Abbreviation and logo are required with a VBA representative.") };
+  }
   if (!data.players) data.players = [] as typeof data.players;
 
   return {
@@ -138,7 +144,9 @@ async function collect(body: any) {
       name: `${firstName} ${lastName}`,
       team_id: teamId,
       status,
-      vba_representative: status === "prospect" ? text(body.vba_representative) || "" : "",
+      vba_representative: representative,
+      vba_abbreviation: representativeAbbr,
+      vba_logo: representativeLogo,
       position,
       first_name: firstName,
       last_name: lastName,
