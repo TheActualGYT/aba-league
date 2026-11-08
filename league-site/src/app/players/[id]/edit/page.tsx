@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import db from "@/lib/db";
 import PlayerForm from "@/components/PlayerForm";
+import { buildUsage } from "@/lib/playerUsage";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +14,7 @@ export default async function EditPlayerPage({ params }: { params: Promise<{ id:
   const teams = [...(data.teams || [])]
     .sort((a, b) => a.name.localeCompare(b.name))
     .map(team => ({ id: team.id, name: team.name }));
+  const usage = buildUsage(data.players || [], player.id);
 
   return (
     <main
@@ -23,7 +25,7 @@ export default async function EditPlayerPage({ params }: { params: Promise<{ id:
       }}
     >
       <h2 className="label-glow text-3xl font-bold mb-8 text-white text-center tracking-wide">EDIT PLAYER</h2>
-      <PlayerForm teams={teams} player={player} />
+      <PlayerForm teams={teams} player={player} usage={usage} />
     </main>
   );
 }

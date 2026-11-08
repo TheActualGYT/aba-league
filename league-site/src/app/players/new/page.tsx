@@ -1,5 +1,6 @@
 import db from "@/lib/db";
 import PlayerForm from "@/components/PlayerForm";
+import { buildUsage } from "@/lib/playerUsage";
 
 export const dynamic = "force-dynamic";
 
@@ -9,6 +10,7 @@ export default async function NewPlayerPage({ searchParams }: { searchParams: Pr
   const teams = [...(data.teams || [])]
     .sort((a, b) => a.name.localeCompare(b.name))
     .map(team => ({ id: team.id, name: team.name }));
+  const usage = buildUsage(data.players || []);
 
   return (
     <main
@@ -19,7 +21,7 @@ export default async function NewPlayerPage({ searchParams }: { searchParams: Pr
       }}
     >
       <h2 className="label-glow text-3xl font-bold mb-8 text-white text-center tracking-wide">CREATE PLAYER</h2>
-      <PlayerForm teams={teams} initialStatus={status === "prospect" ? "prospect" : "free"} />
+      <PlayerForm teams={teams} initialStatus={status === "prospect" ? "prospect" : "free"} usage={usage} />
     </main>
   );
 }

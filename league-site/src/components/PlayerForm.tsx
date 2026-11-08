@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useCloseOnOutside } from "@/components/useCloseOnOutside";
 import AttributeFields, { emptyStats, statError, type StatKey } from "@/components/AttributeFields";
+import UsageNote from "@/components/UsageNote";
+import type { UsageIndex } from "@/lib/playerUsage";
 
 const fieldClass = "w-full h-8 px-2.5 text-sm bg-neutral-800 border border-neutral-600 rounded text-white";
 const labelClass = "block text-[11px] font-semibold tracking-wide text-neutral-400 mb-1";
@@ -228,10 +230,12 @@ export default function PlayerForm({
   teams = [],
   player,
   initialStatus,
+  usage,
 }: {
   teams?: { id: number; name: string }[];
   player?: EditablePlayer;
   initialStatus?: string;
+  usage?: UsageIndex;
 }) {
   const editing = player != null;
   const [firstName, setFirstName] = useState(field(player?.first_name));
@@ -371,37 +375,45 @@ export default function PlayerForm({
             <div>
               <FieldLabel required>First Name</FieldLabel>
               <input value={firstName} maxLength={11} onChange={e => setFirstName(lettersOnly(e.target.value, 11))} className={fieldClass} />
+              <UsageNote index={usage} field="first_name" value={firstName} />
             </div>
             <div>
               <FieldLabel required>Last Name</FieldLabel>
               <input value={lastName} maxLength={11} onChange={e => setLastName(lettersOnly(e.target.value, 11))} className={fieldClass} />
+              <UsageNote index={usage} field="last_name" value={lastName} />
             </div>
             <div>
               <FieldLabel required>Position</FieldLabel>
               <Menu value={position} onChange={setPosition} options={POSITIONS.map(option => ({ value: option, label: option }))} />
+              <UsageNote index={usage} field="position" value={position} />
             </div>
             <div>
               <FieldLabel>ABA Rating</FieldLabel>
               <input value={overall} maxLength={3} onChange={e => { setRevealNow(false); setOverall(digitsOnly(e.target.value, 3)); }} inputMode="numeric" className={`${fieldClass} ${shownOverall ? "abbr-taken" : ""}`} />
               {shownOverall && <p className="text-[11px] text-red-400 mt-1">{shownOverall}</p>}
+              {!overallMessage && <UsageNote index={usage} field="overall" value={overall} />}
             </div>
             <div>
               <FieldLabel>Height</FieldLabel>
               <Menu value={height} onChange={setHeight} options={HEIGHTS.map(option => ({ value: option, label: option }))} />
+              <UsageNote index={usage} field="height" value={height} />
             </div>
             <div>
               <FieldLabel>Weight</FieldLabel>
               <input value={weight} maxLength={3} onChange={e => { setRevealNow(false); setWeight(digitsOnly(e.target.value, 3)); }} inputMode="numeric" className={`${fieldClass} ${shownWeight ? "abbr-taken" : ""}`} />
               {shownWeight && <p className="text-[11px] text-red-400 mt-1">{shownWeight}</p>}
+              {!weightMessage && <UsageNote index={usage} field="weight" value={weight} />}
             </div>
             <div>
               <FieldLabel>Jersey Number</FieldLabel>
               <input value={number} maxLength={2} onChange={e => { setRevealNow(false); setNumber(digitsOnly(e.target.value, 2)); }} inputMode="numeric" className={`${fieldClass} ${shownNumber ? "abbr-taken" : ""}`} />
               {shownNumber && <p className="text-[11px] text-red-400 mt-1">{shownNumber}</p>}
+              {!numberMessage && <UsageNote index={usage} field="number" value={number} />}
             </div>
             <div>
               <FieldLabel>Dominant Hand</FieldLabel>
               <Menu value={hand} onChange={setHand} options={[{ value: "Left", label: "Left" }, { value: "Right", label: "Right" }]} />
+              <UsageNote index={usage} field="hand" value={hand} />
             </div>
           </div>
         </section>
@@ -412,6 +424,7 @@ export default function PlayerForm({
             <div>
               <FieldLabel>Skin Tone</FieldLabel>
               <Menu value={skinTone} onChange={setSkinTone} options={COMPLEXIONS.map(option => ({ value: option, label: option }))} />
+              <UsageNote index={usage} field="skin_tone" value={skinTone} />
             </div>
             <div>
               <FieldLabel>Body Type</FieldLabel>
@@ -421,26 +434,32 @@ export default function PlayerForm({
               <FieldLabel>Head Model</FieldLabel>
               <input value={headModel} maxLength={3} inputMode="numeric" onChange={e => { setRevealNow(false); setHeadModel(digitsOnly(e.target.value, 3)); }} className={`${fieldClass} ${shownHead ? "abbr-taken" : ""}`} />
               {shownHead && <p className="text-[11px] text-red-400 mt-1">{shownHead}</p>}
+              {!headMessage && <UsageNote index={usage} field="head_model" value={headModel} />}
             </div>
             <div>
               <FieldLabel>T-Shirt Type</FieldLabel>
               <Menu value={tshirtType} onChange={setTshirtType} options={TSHIRTS.map(option => ({ value: option, label: option }))} />
+              <UsageNote index={usage} field="tshirt_type" value={tshirtType} />
             </div>
             <div>
               <FieldLabel>Sock Style</FieldLabel>
               <input value={sockStyle} onChange={e => setSockStyle(e.target.value)} className={fieldClass} />
+              <UsageNote index={usage} field="sock_style" value={sockStyle} />
             </div>
             <div>
               <FieldLabel>Sock Color</FieldLabel>
               <Menu value={sockColor} onChange={setSockColor} options={SOCK_COLORS.map(option => ({ value: option, label: option }))} />
+              <UsageNote index={usage} field="sock_color" value={sockColor} />
             </div>
             <div>
               <FieldLabel>Shoes Home</FieldLabel>
               <input value={shoesHome} onChange={e => setShoesHome(e.target.value)} className={fieldClass} />
+              <UsageNote index={usage} field="shoes_home" value={shoesHome} />
             </div>
             <div>
               <FieldLabel>Shoes Away</FieldLabel>
               <input value={shoesAway} onChange={e => setShoesAway(e.target.value)} className={fieldClass} />
+              <UsageNote index={usage} field="shoes_away" value={shoesAway} />
             </div>
           </div>
         </section>
@@ -451,9 +470,12 @@ export default function PlayerForm({
             {ACCESSORY_ROWS.map(row => (
               <div key={row[0].key} className="grid grid-cols-2 gap-x-3">
                 {row.map(item => (
-                  <div key={item.key} className={`flex items-center gap-1.5 min-w-0 ${row.length === 1 ? "col-span-2" : ""}`}>
-                    <span className={compactLabel}>{item.label}</span>
-                    <input value={accessories[item.key]} placeholder="None" onChange={e => setAccessories(current => ({ ...current, [item.key]: e.target.value }))} className={compactField} />
+                  <div key={item.key} className={`flex items-start gap-1.5 min-w-0 ${row.length === 1 ? "col-span-2" : ""}`}>
+                    <span className={`${compactLabel} mt-1`}>{item.label}</span>
+                    <div className="min-w-0 flex-1">
+                      <input value={accessories[item.key]} placeholder="None" onChange={e => setAccessories(current => ({ ...current, [item.key]: e.target.value }))} className={`${compactField} w-full`} />
+                      <UsageNote index={usage} field={item.key} value={accessories[item.key]} />
+                    </div>
                   </div>
                 ))}
               </div>
@@ -464,6 +486,7 @@ export default function PlayerForm({
 
       <AttributeFields
         stats={stats}
+        usage={usage}
         revealNow={revealNow}
         onEdit={() => setRevealNow(false)}
         onChange={(key, value) => setStats(current => ({ ...current, [key]: value }))}

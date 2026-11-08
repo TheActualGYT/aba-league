@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ratingFill, RATING_INK } from "@/lib/ratingColor";
+import { usageHit, type UsageIndex } from "@/lib/playerUsage";
 
 const squareClass = "w-full aspect-square text-center text-sm font-semibold bg-neutral-800 border border-neutral-600 rounded text-white";
 const labelClass = "relative block h-4 text-[11px] font-semibold tracking-wide text-neutral-400 text-center mb-1 whitespace-nowrap cursor-default";
@@ -109,11 +110,13 @@ export default function AttributeFields({
   onChange,
   revealNow,
   onEdit,
+  usage,
 }: {
   stats: Record<StatKey, string>;
   onChange: (key: StatKey, value: string) => void;
   revealNow: boolean;
   onEdit: () => void;
+  usage?: UsageIndex;
 }) {
   const entries = (Object.keys(stats) as StatKey[]).map(key => ({
     key,
@@ -125,6 +128,7 @@ export default function AttributeFields({
     const error = statError(stats[field.key]);
     const shown = revealNow ? error : settled[field.key] || "";
     const fill = shown ? null : ratingFill(stats[field.key]);
+    const hit = error ? null : usageHit(usage, field.key, stats[field.key]);
     return (
       <div key={field.key} className={`flex flex-col items-center flex-1 min-w-0 ${glow ? "ml-6" : ""}`}>
         <Abbrev label={field.label} note={field.title} />
@@ -140,7 +144,7 @@ export default function AttributeFields({
           className={`${squareClass} ${glow && !shown ? "rating-box" : ""} ${shown ? "abbr-taken" : ""}`}
           style={fill ? { backgroundColor: fill, color: RATING_INK, caretColor: RATING_INK } : undefined}
         />
-        <p className="h-3 mt-1 text-[9px] leading-none text-red-400 text-center whitespace-nowrap">{shown}</p>
+        <p title={hit?.title} className={`h-3 mt-1 text-[8px] leading-none text-center whitespace-nowrap ${shown ? "text-red-400" : hit?.shared ? "text-yellow-300" : "text-green-400"}`}>{shown || hit?.text || ""}</p>
       </div>
     );
   };
