@@ -278,6 +278,49 @@ function SectionMenu({ value, onChange }: { value: SectionId; onChange: (value: 
   );
 }
 
+function AttributeRail({ anchor }: { anchor: HTMLTableCellElement | null }) {
+  const [box, setBox] = useState<{ left: number; top: number; width: number } | null>(null);
+
+  useEffect(() => {
+    if (!anchor) return;
+    const labelHeight = DIVIDER_MARK.length * 12;
+    const place = () => {
+      const rect = anchor.getBoundingClientRect();
+      const top = Math.max(rect.top, 92);
+      const bottom = Math.min(rect.bottom, window.innerHeight - 16);
+      const room = bottom - top;
+      const offscreen = rect.right < 12 || rect.left > window.innerWidth - 12;
+      if (offscreen || room < labelHeight) {
+        setBox(null);
+        return;
+      }
+      setBox({ left: rect.left, width: rect.width, top: top + (room - labelHeight) / 2 });
+    };
+    place();
+    const observer = new ResizeObserver(place);
+    observer.observe(anchor);
+    window.addEventListener("scroll", place, true);
+    window.addEventListener("resize", place);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("scroll", place, true);
+      window.removeEventListener("resize", place);
+    };
+  }, [anchor]);
+
+  if (!box || typeof document === "undefined") return null;
+  return createPortal(
+    <div className="pointer-events-none fixed z-20 flex flex-col items-center gap-px" style={{ left: box.left, top: box.top, width: box.width }}>
+      {DIVIDER_MARK.map((glyph, index) => (
+        <span key={index} className={`text-[11px] font-bold leading-none ${glyph === ">" ? "text-neutral-500" : "text-white"}`}>
+          {glyph}
+        </span>
+      ))}
+    </div>,
+    document.body
+  );
+}
+
 export default function PlayerDirectory({
   players,
   emptyLabel = "No players yet.",
@@ -292,6 +335,7 @@ export default function PlayerDirectory({
   sheet?: boolean;
 }) {
   const bodyRef = useRef<HTMLDivElement>(null);
+  const [rail, setRail] = useState<HTMLTableCellElement | null>(null);
   const [section, setSection] = useState<SectionId>("vitals");
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: "name", dir: "asc" });
   const [scroll, setScroll] = useState({ left: 0, max: 0 });
@@ -385,6 +429,7 @@ export default function PlayerDirectory({
         <div className="bg-neutral-900 rounded-lg border border-neutral-700 px-4 py-6 text-center text-neutral-400">{emptyLabel}</div>
       ) : (
         <>
+          {sheet && <AttributeRail anchor={rail} />}
           {sheet && scroll.max > 0 && (
             <div className="border border-b-0 border-neutral-700 rounded-t-lg bg-neutral-900 px-3 pt-2 pb-1">
               <input
@@ -457,13 +502,7 @@ export default function PlayerDirectory({
                     );
                     if (!(sheet && column.key === "fg")) return head;
                     return [
-                      <th key="attributes-divider" style={dividerStyle} className="px-0 py-1 bg-neutral-800 text-center align-middle border-y border-l border-neutral-700">
-                        <span className="flex flex-col items-center justify-center gap-px text-[11px] font-bold leading-none text-white">
-                          {DIVIDER_MARK.map((glyph, glyphIndex) => (
-                            <span key={glyphIndex}>{glyph}</span>
-                          ))}
-                        </span>
-                      </th>,
+                      <th key="attributes-divider" style={dividerStyle} className="bg-neutral-800 border-y border-l border-neutral-700" />,
                       head,
                     ];
                   })}
@@ -510,8 +549,9 @@ export default function PlayerDirectory({
                           </td>
                         );
                         if (!(sheet && column.key === "fg")) return cell;
+                        if (index > 0) return cell;
                         return [
-                          <td key="attributes-divider" style={{ ...dividerStyle, height: 40 }} className={`${ROW} bg-neutral-950 border-b border-l border-neutral-700`} />,
+                          <td key="attributes-divider" ref={setRail} rowSpan={rows.length} style={dividerStyle} className="bg-neutral-950 border-b border-l border-neutral-700 p-0 align-top" />,
                           cell,
                         ];
                       })}
