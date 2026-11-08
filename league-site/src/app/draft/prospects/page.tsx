@@ -18,7 +18,7 @@ export default async function DraftProspectsPage() {
       }}
     >
       <h2 className="label-glow text-3xl font-bold mb-8 text-white text-center tracking-wide">DRAFT PROSPECTS</h2>
-      <PlayerDirectory players={players} emptyLabel="No prospects yet." showCreate={false} showRepresentative />
+      <PlayerDirectory players={players} emptyLabel="No prospects yet." showCreate={false} sheet />
     </main>
   );
 }
