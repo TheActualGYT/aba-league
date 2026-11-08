@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useId, useState, useRef } from "react";
 import { useCloseOnOutside } from "@/components/useCloseOnOutside";
+import DropdownLayer from "@/components/DropdownLayer";
 
 function extractColors(dataUrl: string): Promise<string[]> {
   return new Promise((resolve) => {
@@ -64,10 +65,11 @@ const OWNERS = ["Garrett Jahnke", "Craig Jahnke", "Chad Jahnke"];
 
 function OwnerMenu({ value, onChange }: { value: string; onChange: (value: string) => void }) {
   const [open, setOpen] = useState(false);
+  const ownerId = useId().replace(/:/g, "");
   const rootRef = useCloseOnOutside<HTMLDivElement>(open, setOpen);
 
   return (
-    <div className="relative" ref={rootRef}>
+    <div className="relative" ref={rootRef} data-dropdown-owner={ownerId}>
       <button
         type="button"
         onClick={() => setOpen(current => !current)}
@@ -76,23 +78,25 @@ function OwnerMenu({ value, onChange }: { value: string; onChange: (value: strin
         <span>{value}</span>
         <span className="text-neutral-400 text-[10px]">▼</span>
       </button>
-      {open && (
-        <div className="absolute z-30 mt-1 w-full bg-neutral-800 border border-neutral-600 rounded overflow-hidden shadow-lg">
-          {OWNERS.map(owner => (
-            <button
-              key={owner}
-              type="button"
-              onClick={() => {
-                onChange(owner);
-                setOpen(false);
-              }}
-              className={`block w-full text-left px-3 py-2 text-sm text-white hover:bg-neutral-700 ${value === owner ? "bg-neutral-700" : ""}`}
-            >
-              {owner}
-            </button>
-          ))}
+      <DropdownLayer anchor={rootRef.current} open={open} owner={ownerId} matchWidth>
+        <div className="pt-1">
+          <div className="bg-neutral-800 border border-neutral-600 rounded overflow-hidden shadow-lg">
+            {OWNERS.map(owner => (
+              <button
+                key={owner}
+                type="button"
+                onClick={() => {
+                  onChange(owner);
+                  setOpen(false);
+                }}
+                className={`block w-full text-left px-3 py-2 text-sm text-white hover:bg-neutral-700 ${value === owner ? "bg-neutral-700" : ""}`}
+              >
+                {owner}
+              </button>
+            ))}
+          </div>
         </div>
-      )}
+      </DropdownLayer>
       <input
         required
         value={value}

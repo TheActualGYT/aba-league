@@ -69,11 +69,11 @@ export function buildUsage(players: Array<{ id?: number }>, excludeId?: number):
 
 export function usageHit(index: UsageIndex | undefined, key: string, value: string) {
   const text = value.trim().toLowerCase();
-  if (!text || !index) return null;
+  if (!text || text === "none" || key === "in_game_rating" || !index) return null;
   const count = (index.fields[key] || []).filter(item => item === text).length;
   const percent = index.total > 0 ? Math.round((count / index.total) * 100) : 0;
   if (count === 0) {
-    return { text: "Available", shared: false, title: "No other player has this." };
+    return { text: "0 others", shared: false, title: "0 others" };
   }
   const noun = count === 1 ? "other" : "others";
   return {

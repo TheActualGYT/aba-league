@@ -105,6 +105,29 @@ function useSettledMap(entries: { key: string; error: string }[]) {
   return shown;
 }
 
+function useSettledUsage(stats: Record<StatKey, string>, usage?: UsageIndex) {
+  const [shown, setShown] = useState<Record<string, { text: string; shared: boolean; title: string } | null>>({});
+  const serialized = (Object.keys(stats) as StatKey[]).map(key => {
+    const hit = usageHit(usage, key, stats[key]);
+    return `${key}|${hit?.text || ""}|${hit?.shared ? "1" : "0"}|${hit?.title || ""}`;
+  }).join("~");
+
+  useEffect(() => {
+    setShown({});
+    const timer = window.setTimeout(() => {
+      const next: Record<string, { text: string; shared: boolean; title: string } | null> = {};
+      for (const line of serialized.split("~").filter(Boolean)) {
+        const [key, text, shared, title] = line.split("|");
+        next[key] = text ? { text, shared: shared === "1", title: title || "" } : null;
+      }
+      setShown(next);
+    }, 2000);
+    return () => window.clearTimeout(timer);
+  }, [serialized]);
+
+  return shown;
+}
+
 export default function AttributeFields({
   stats,
   onChange,
@@ -123,12 +146,13 @@ export default function AttributeFields({
     error: statError(stats[key]),
   }));
   const settled = useSettledMap(entries);
+  const usageShown = useSettledUsage(stats, usage);
 
   const renderBox = (field: { key: StatKey; label: string; title: string }, glow = false) => {
     const error = statError(stats[field.key]);
     const shown = revealNow ? error : settled[field.key] || "";
     const fill = shown ? null : ratingFill(stats[field.key]);
-    const hit = error ? null : usageHit(usage, field.key, stats[field.key]);
+    const hit = error ? null : usageShown[field.key];
     return (
       <div key={field.key} className={`flex flex-col items-center flex-1 min-w-0 ${glow ? "ml-6" : ""}`}>
         <Abbrev label={field.label} note={field.title} />

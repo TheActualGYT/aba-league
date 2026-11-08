@@ -12,7 +12,10 @@ export function useCloseOnOutside<T extends HTMLElement>(
     if (!open) return;
     const onPointerDown = (event: PointerEvent) => {
       const target = event.target as Node | null;
-      if (!ref.current || !target || ref.current.contains(target)) return;
+      if (!ref.current || !target) return;
+      if (ref.current.contains(target)) return;
+      const owner = ref.current.getAttribute("data-dropdown-owner");
+      if (owner && target instanceof Element && target.closest(`[data-dropdown-owner="${owner}"]`)) return;
       setOpen(false);
     };
     document.addEventListener("pointerdown", onPointerDown);

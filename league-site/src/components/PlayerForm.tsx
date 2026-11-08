@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { useCloseOnOutside } from "@/components/useCloseOnOutside";
 import AttributeFields, { emptyStats, statError, type StatKey } from "@/components/AttributeFields";
 import UsageNote from "@/components/UsageNote";
+import DropdownLayer from "@/components/DropdownLayer";
 import type { UsageIndex } from "@/lib/playerUsage";
 
 const fieldClass = "w-full h-8 px-2.5 text-sm bg-neutral-800 border border-neutral-600 rounded text-white";
@@ -185,11 +186,12 @@ function Menu({
   up?: boolean;
 }) {
   const [open, setOpen] = useState(false);
+  const owner = useId().replace(/:/g, "");
   const rootRef = useCloseOnOutside<HTMLDivElement>(open, setOpen);
   const current = options.find(option => option.value === value);
 
   return (
-    <div className="relative" ref={rootRef}>
+    <div className="relative" ref={rootRef} data-dropdown-owner={owner}>
       <button
         type="button"
         onClick={() => setOpen(currentOpen => !currentOpen)}
@@ -198,23 +200,25 @@ function Menu({
         <span className="truncate">{current?.label || ""}</span>
         <span className="text-neutral-400 text-[10px] ml-2">▼</span>
       </button>
-      {open && (
-        <div className={`absolute z-30 w-full bg-neutral-800 border border-neutral-600 rounded overflow-hidden shadow-lg max-h-60 overflow-y-auto ${up ? "bottom-full mb-1" : "mt-1"}`}>
-          {options.map(option => (
-            <button
-              key={option.value}
-              type="button"
-              onClick={() => {
-                onChange(option.value);
-                setOpen(false);
-              }}
-              className={`block w-full text-left px-2.5 py-1.5 text-sm text-white hover:bg-neutral-700 ${value === option.value ? "bg-neutral-700" : ""}`}
-            >
-              {option.label}
-            </button>
-          ))}
+      <DropdownLayer anchor={rootRef.current} open={open} owner={owner} matchWidth up={up}>
+        <div className={up ? "pb-1" : "pt-1"}>
+          <div className="bg-neutral-800 border border-neutral-600 rounded overflow-hidden shadow-lg max-h-60 overflow-y-auto">
+            {options.map(option => (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => {
+                  onChange(option.value);
+                  setOpen(false);
+                }}
+                className={`block w-full text-left px-2.5 py-1.5 text-sm text-white hover:bg-neutral-700 ${value === option.value ? "bg-neutral-700" : ""}`}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
         </div>
-      )}
+      </DropdownLayer>
     </div>
   );
 }

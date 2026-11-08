@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import DeletePlayerButton from "@/components/DeletePlayerButton";
+import DropdownLayer from "@/components/DropdownLayer";
 import { useCloseOnOutside } from "@/components/useCloseOnOutside";
 import { ratingFill, RATING_INK } from "@/lib/ratingColor";
 
@@ -244,11 +245,12 @@ function HoverNote({ label, note, children }: { label?: string; note?: string; c
 
 function SectionMenu({ value, onChange }: { value: SectionId; onChange: (value: SectionId) => void }) {
   const [open, setOpen] = useState(false);
+  const owner = useId().replace(/:/g, "");
   const rootRef = useCloseOnOutside<HTMLDivElement>(open, setOpen);
   const current = SECTIONS.find(item => item.id === value);
 
   return (
-    <div className={`relative w-52 ${open ? "z-[80]" : ""}`} ref={rootRef}>
+    <div className="relative w-52" ref={rootRef} data-dropdown-owner={owner}>
       <button
         type="button"
         onClick={() => setOpen(currentOpen => !currentOpen)}
@@ -257,23 +259,25 @@ function SectionMenu({ value, onChange }: { value: SectionId; onChange: (value: 
         <span>{current?.label}</span>
         <span className="text-neutral-400 text-[10px]">▼</span>
       </button>
-      {open && (
-        <div className="absolute z-[80] mt-1 w-full bg-neutral-800 border border-neutral-600 rounded overflow-hidden shadow-lg">
-          {SECTIONS.map(item => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => {
-                onChange(item.id);
-                setOpen(false);
-              }}
-              className={`block w-full text-left px-3 py-2 text-sm text-white hover:bg-neutral-700 ${value === item.id ? "bg-neutral-700" : ""}`}
-            >
-              {item.label}
-            </button>
-          ))}
+      <DropdownLayer anchor={rootRef.current} open={open} owner={owner} matchWidth>
+        <div className="pt-1">
+          <div className="bg-neutral-800 border border-neutral-600 rounded overflow-hidden shadow-lg">
+            {SECTIONS.map(item => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => {
+                  onChange(item.id);
+                  setOpen(false);
+                }}
+                className={`block w-full text-left px-3 py-2 text-sm text-white hover:bg-neutral-700 ${value === item.id ? "bg-neutral-700" : ""}`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
         </div>
-      )}
+      </DropdownLayer>
     </div>
   );
 }
@@ -415,7 +419,7 @@ export default function PlayerDirectory({
   return (
     <>
       {!sheet && (
-        <div className="relative z-[70] mb-6 flex items-center justify-between gap-4">
+        <div className="mb-6 flex items-center justify-between gap-4">
           <SectionMenu value={section} onChange={chooseSection} />
           {showCreate && (
             <Link href={createHref} className="bg-neutral-200 text-black font-bold px-5 py-2 rounded hover:bg-white">
