@@ -13,6 +13,7 @@ export type DirectoryPlayer = {
   team: string;
   abbreviation: string;
   logo: string;
+  representative: string;
   position: string;
   rating: string;
   height: string;
@@ -77,6 +78,7 @@ const SECTIONS: { id: SectionId; label: string }[] = [
 const NUM_COL = "2.75rem";
 const NAME_COL = "16.5rem";
 const ACTION_COL = "7.75rem";
+const REP_COL = "12rem";
 const ROW = "h-10 max-h-10";
 const POSITION_ORDER = ["C", "PF", "SF", "SG", "PG"];
 
@@ -88,7 +90,7 @@ const COLUMNS: Record<SectionId, { key: keyof DirectoryPlayer; label: string; no
     { key: "weight", label: "Weight", prefer: "high" },
     { key: "number", label: "Jersey", prefer: "low" },
     { key: "hand", label: "Hand", prefer: "alpha" },
-    { key: "team", label: "Team", prefer: "alpha" },
+    { key: "team", label: "Status", prefer: "alpha" },
   ],
   appearance: [
     { key: "skin_tone", label: "Skin Tone", prefer: "alpha" },
@@ -267,10 +269,14 @@ export default function PlayerDirectory({
   players,
   emptyLabel = "No players yet.",
   createHref = "/players/new",
+  showCreate = true,
+  showRepresentative = false,
 }: {
   players: DirectoryPlayer[];
   emptyLabel?: string;
   createHref?: string;
+  showCreate?: boolean;
+  showRepresentative?: boolean;
 }) {
   const [section, setSection] = useState<SectionId>("vitals");
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: "name", dir: "asc" });
@@ -279,8 +285,10 @@ export default function PlayerDirectory({
   const numStyle = { width: NUM_COL, minWidth: NUM_COL, maxWidth: NUM_COL };
   const nameStyle = { width: NAME_COL, minWidth: NAME_COL, maxWidth: NAME_COL };
   const actionStyle = { width: ACTION_COL, minWidth: ACTION_COL, maxWidth: ACTION_COL };
+  const repStyle = { width: REP_COL, minWidth: REP_COL, maxWidth: REP_COL };
   const totalWeight = columns.reduce((sum, column) => sum + columnWeight(section, column.key), 0);
-  const widthFor = (key: string) => `calc((100% - ${NUM_COL} - ${NAME_COL} - ${ACTION_COL}) * ${columnWeight(section, key)} / ${totalWeight})`;
+  const reserved = showRepresentative ? `${NUM_COL} - ${NAME_COL} - ${ACTION_COL} - ${REP_COL}` : `${NUM_COL} - ${NAME_COL} - ${ACTION_COL}`;
+  const widthFor = (key: string) => `calc((100% - ${reserved}) * ${columnWeight(section, key)} / ${totalWeight})`;
   const rows = [...players]
     .map((player, index) => ({ player, index }))
     .sort((a, b) => {
@@ -295,7 +303,7 @@ export default function PlayerDirectory({
     setSection(next);
     setSort(current => {
       if (current.key === "name") return current;
-      return COLUMNS[next].some(column => column.key === current.key) ? current : { key: "name", dir: "asc" };
+      return current.key === "representative" || COLUMNS[next].some(column => column.key === current.key) ? current : { key: "name", dir: "asc" };
     });
   };
 
@@ -310,9 +318,11 @@ export default function PlayerDirectory({
     <>
       <div className="mb-6 flex items-center justify-between gap-4">
         <SectionMenu value={section} onChange={chooseSection} />
-        <Link href={createHref} className="bg-neutral-200 text-black font-bold px-5 py-2 rounded hover:bg-white">
-          Create Player
-        </Link>
+        {showCreate && (
+          <Link href={createHref} className="bg-neutral-200 text-black font-bold px-5 py-2 rounded hover:bg-white">
+            Create Player
+          </Link>
+        )}
       </div>
 
       {players.length === 0 ? (
@@ -325,6 +335,7 @@ export default function PlayerDirectory({
             {columns.map(column => (
               <col key={column.key} style={{ width: widthFor(column.key) }} />
             ))}
+            {showRepresentative && <col style={{ width: REP_COL }} />}
             <col style={{ width: ACTION_COL }} />
           </colgroup>
           <thead>
@@ -358,6 +369,18 @@ export default function PlayerDirectory({
                   </button>
                 </th>
               ))}
+              {showRepresentative && (
+                <th
+                  aria-sort={sort.key === "representative" ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}
+                  style={repStyle}
+                  className="sticky top-[81px] z-30 px-2 py-3 bg-neutral-800 text-center text-neutral-300 text-xs font-semibold border-y border-l border-neutral-700 whitespace-nowrap"
+                >
+                  <button type="button" onClick={() => toggleSort("representative", "alpha")} className="inline-flex items-center justify-center w-full text-neutral-300 hover:text-white">
+                    <span>VBA Representative</span>
+                    {sort.key === "representative" && <span className="ml-1 text-[9px]">{sort.dir === "asc" ? "\u25b2" : "\u25bc"}</span>}
+                  </button>
+                </th>
+              )}
               <th
                 style={actionStyle}
                 className="sticky top-[81px] z-30 px-3 py-3 bg-neutral-800 border-y border-l border-r border-neutral-700 rounded-tr-lg"
@@ -416,6 +439,15 @@ export default function PlayerDirectory({
                       </td>
                     );
                   })}
+                  {showRepresentative && (
+                    <td
+                      title={player.representative}
+                      style={{ ...repStyle, height: 40 }}
+                      className={`${ROW} px-2 py-0 bg-neutral-900 text-center text-neutral-200 border-b border-l border-neutral-700 align-middle`}
+                    >
+                      <span className="block truncate leading-5">{player.representative}</span>
+                    </td>
+                  )}
                   <td style={{ ...actionStyle, height: 40 }} className={`${ROW} px-2 py-0 bg-neutral-900 whitespace-nowrap border-b border-l border-r border-neutral-700 align-middle ${last ? "rounded-br-lg" : ""}`}>
                     <div className="flex h-5 items-center justify-center gap-3">
                       <Link href={`/players/${player.id}/edit`} className="text-xs leading-5 text-neutral-300 hover:text-white">
