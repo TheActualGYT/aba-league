@@ -3,7 +3,8 @@ import PlayerForm from "@/components/PlayerForm";
 
 export const dynamic = "force-dynamic";
 
-export default async function NewPlayerPage() {
+export default async function NewPlayerPage({ searchParams }: { searchParams: Promise<{ status?: string }> }) {
+  const { status } = await searchParams;
   const data = await db.load();
   const teams = [...(data.teams || [])]
     .sort((a, b) => a.name.localeCompare(b.name))
@@ -18,7 +19,7 @@ export default async function NewPlayerPage() {
       }}
     >
       <h2 className="label-glow text-3xl font-bold mb-8 text-white text-center tracking-wide">CREATE PLAYER</h2>
-      <PlayerForm teams={teams} />
+      <PlayerForm teams={teams} initialStatus={status === "prospect" ? "prospect" : "free"} />
     </main>
   );
 }

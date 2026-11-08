@@ -1,10 +1,24 @@
-export default function DraftProspectsPage() {
+import db from "@/lib/db";
+import PlayerDirectory from "@/components/PlayerDirectory";
+import { toDirectoryPlayers } from "@/lib/directoryPlayers";
+
+export const dynamic = "force-dynamic";
+
+export default async function DraftProspectsPage() {
+  const data = await db.load();
+  const prospects = (data.players || []).filter(player => player.status === "prospect" && !player.team_id);
+  const players = toDirectoryPlayers(prospects, data.teams || []);
+
   return (
-    <main className="max-w-7xl mx-auto px-6 py-8">
-      <h2 className="text-3xl font-bold text-white mb-4">Draft Prospects</h2>
-      <div className="bg-neutral-900 border border-neutral-700 rounded-lg p-6 text-neutral-400">
-        No prospects yet.
-      </div>
+    <main
+      className="py-8"
+      style={{
+        paddingLeft: "max(16px, calc(50% - 707.56px))",
+        paddingRight: "max(24px, calc(50% - 640px))",
+      }}
+    >
+      <h2 className="label-glow text-3xl font-bold mb-8 text-white text-center tracking-wide">DRAFT PROSPECTS</h2>
+      <PlayerDirectory players={players} emptyLabel="No prospects yet." createHref="/players/new?status=prospect" />
     </main>
   );
 }
