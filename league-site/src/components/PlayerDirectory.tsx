@@ -78,10 +78,13 @@ const SECTIONS: { id: SectionId; label: string }[] = [
 ];
 
 const NUM_COL = "2.75rem";
+const POS_COL = "5.5rem";
 const NAME_COL = "16.5rem";
 const ACTION_COL = "7.75rem";
+const DIVIDER_COL = "1.7rem";
 const ROW = "h-10 max-h-10";
 const POSITION_ORDER = ["C", "PF", "SF", "SG", "PG"];
+const DIVIDER_MARK = [">", ">", "A", "T", "T", "R", "I", "B", "U", "T", "E", "S", ">", ">"];
 const SHEET_WIDTH: Partial<Record<keyof DirectoryPlayer, string>> = {
   position: "6rem",
   rating: "6.75rem",
@@ -94,7 +97,6 @@ const SHEET_WIDTH: Partial<Record<keyof DirectoryPlayer, string>> = {
 
 const COLUMNS: Record<SectionId, { key: keyof DirectoryPlayer; label: string; note?: string; prefer: "high" | "low" | "alpha" }[]> = {
   vitals: [
-    { key: "position", label: "Position", prefer: "alpha" },
     { key: "rating", label: "ABA Rating", prefer: "high" },
     { key: "height", label: "Height", prefer: "high" },
     { key: "weight", label: "Weight", prefer: "high" },
@@ -293,15 +295,19 @@ export default function PlayerDirectory({
   const [section, setSection] = useState<SectionId>("vitals");
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: "name", dir: "asc" });
   const [scroll, setScroll] = useState({ left: 0, max: 0 });
-  const columns = sheet ? [...COLUMNS.vitals, ...COLUMNS.attributes] : COLUMNS[section];
+  const columns = sheet
+    ? [...COLUMNS.vitals.filter(column => column.key !== "team"), ...COLUMNS.attributes]
+    : COLUMNS[section];
   const dense = columns.length > 10;
   const numStyle = { width: NUM_COL, minWidth: NUM_COL, maxWidth: NUM_COL };
+  const posStyle = { width: POS_COL, minWidth: POS_COL, maxWidth: POS_COL };
   const nameStyle = { width: NAME_COL, minWidth: NAME_COL, maxWidth: NAME_COL };
   const actionStyle = { width: ACTION_COL, minWidth: ACTION_COL, maxWidth: ACTION_COL };
+  const dividerStyle = { width: DIVIDER_COL, minWidth: DIVIDER_COL, maxWidth: DIVIDER_COL };
   const totalWeight = columns.reduce((sum, column) => sum + columnWeight(section, column.key), 0);
   const widthFor = (key: string) => sheet
     ? (SHEET_WIDTH[key as keyof DirectoryPlayer] || "4.15rem")
-    : `calc((100% - ${NUM_COL} - ${NAME_COL} - ${ACTION_COL}) * ${columnWeight(section, key)} / ${totalWeight})`;
+    : `calc((100% - ${NUM_COL} - ${POS_COL} - ${NAME_COL} - ${ACTION_COL}) * ${columnWeight(section, key)} / ${totalWeight})`;
   const headerTop = 81;
   const rows = [...players]
     .map((player, index) => ({ player, index }))
@@ -350,7 +356,7 @@ export default function PlayerDirectory({
   const chooseSection = (next: SectionId) => {
     setSection(next);
     setSort(current => {
-      if (current.key === "name") return current;
+      if (current.key === "name" || current.key === "position") return current;
       return COLUMNS[next].some(column => column.key === current.key) ? current : { key: "name", dir: "asc" };
     });
   };
@@ -400,38 +406,67 @@ export default function PlayerDirectory({
             <table className={`${sheet ? "w-max" : "w-full"} table-fixed border-separate border-spacing-0 text-sm leading-5`}>
               <colgroup>
                 <col style={{ width: NUM_COL }} />
+                <col style={{ width: POS_COL }} />
                 <col style={{ width: NAME_COL }} />
                 {columns.map(column => (
-                  <col key={column.key} style={{ width: widthFor(column.key) }} />
+                  sheet && column.key === "fg"
+                    ? [
+                        <col key="attributes-divider" style={{ width: DIVIDER_COL }} />,
+                        <col key={column.key} style={{ width: widthFor(column.key) }} />,
+                      ]
+                    : <col key={column.key} style={{ width: widthFor(column.key) }} />
                 ))}
                 <col style={{ width: ACTION_COL }} />
               </colgroup>
               <thead>
                 <tr>
-                  <th style={sheet ? numStyle : { ...numStyle, top: headerTop }} className={`${sheet ? "" : "sticky z-30"} px-1 py-3 bg-neutral-800 text-center text-neutral-300 text-xs font-semibold border-y border-l border-neutral-700 ${sheet && scroll.max > 0 ? "" : "rounded-tl-lg"}`}>#</th>
+                  <th style={sheet ? numStyle : { ...numStyle, top: headerTop }} className={`${sheet ? "" : "sticky z-30"} px-1 py-3 bg-neutral-800 text-center text-neutral-300 text-xs font-semibold border-y border-l border-neutral-700 align-middle ${sheet && scroll.max > 0 ? "" : "rounded-tl-lg"}`}>#</th>
+                  <th
+                    aria-sort={sort.key === "position" ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}
+                    style={sheet ? posStyle : { ...posStyle, top: headerTop }}
+                    className={`${sheet ? "" : "sticky z-30"} px-1 py-3 bg-neutral-800 text-center text-xs font-semibold border-y border-l border-neutral-700 align-middle`}
+                  >
+                    <button type="button" onClick={() => toggleSort("position", "alpha")} className="inline-flex items-center text-xs text-neutral-300 hover:text-white">
+                      <span>Position</span>
+                      {sort.key === "position" && <span className="ml-1 text-[9px]">{sort.dir === "asc" ? "\u25b2" : "\u25bc"}</span>}
+                    </button>
+                  </th>
                   <th
                     aria-sort={sort.key === "name" ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}
                     style={sheet ? nameStyle : { ...nameStyle, top: headerTop }}
-                    className={`${sheet ? "" : "sticky z-30"} px-3 py-3 bg-neutral-800 text-left text-sm font-semibold whitespace-nowrap border-y border-l border-neutral-700`}
+                    className={`${sheet ? "" : "sticky z-30"} px-3 py-3 bg-neutral-800 text-left text-sm font-semibold whitespace-nowrap border-y border-l border-neutral-700 align-middle`}
                   >
                     <button type="button" onClick={() => toggleSort("name", "alpha")} className="inline-flex items-center text-xs text-neutral-300 hover:text-white">
                       <span>Player</span>
                       {sort.key === "name" && <span className="ml-1 text-[9px]">{sort.dir === "asc" ? "\u25b2" : "\u25bc"}</span>}
                     </button>
                   </th>
-                  {columns.map(column => (
-                    <th
-                      key={column.key}
-                      aria-sort={sort.key === column.key ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}
-                      style={{ width: widthFor(column.key), top: headerTop }}
-                      className={`${sheet ? "" : "sticky z-30"} py-3 bg-neutral-800 text-center text-neutral-300 text-xs font-semibold border-y border-l border-neutral-700 whitespace-normal leading-tight ${dense && !sheet ? "px-1" : "px-2"}`}
-                    >
-                      <button type="button" onClick={() => toggleSort(column.key, column.prefer)} className="inline-flex items-center justify-center w-full text-neutral-300 hover:text-white">
-                        <HoverNote label={column.label} note={column.note} />
-                        {sort.key === column.key && <span className="ml-1 text-[9px]">{sort.dir === "asc" ? "\u25b2" : "\u25bc"}</span>}
-                      </button>
-                    </th>
-                  ))}
+                  {columns.map(column => {
+                    const head = (
+                      <th
+                        key={column.key}
+                        aria-sort={sort.key === column.key ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}
+                        style={sheet ? { width: widthFor(column.key) } : { width: widthFor(column.key), top: headerTop }}
+                        className={`${sheet ? "" : "sticky z-30"} py-3 bg-neutral-800 text-center text-neutral-300 text-xs font-semibold border-y border-l border-neutral-700 whitespace-normal leading-tight align-middle ${dense && !sheet ? "px-1" : "px-2"}`}
+                      >
+                        <button type="button" onClick={() => toggleSort(column.key, column.prefer)} className="inline-flex items-center justify-center w-full text-neutral-300 hover:text-white">
+                          <HoverNote label={column.label} note={column.note} />
+                          {sort.key === column.key && <span className="ml-1 text-[9px]">{sort.dir === "asc" ? "\u25b2" : "\u25bc"}</span>}
+                        </button>
+                      </th>
+                    );
+                    if (!(sheet && column.key === "fg")) return head;
+                    return [
+                      <th key="attributes-divider" style={dividerStyle} className="px-0 py-1 bg-neutral-800 text-center align-middle border-y border-l border-neutral-700">
+                        <span className="flex flex-col items-center justify-center gap-px text-[11px] font-bold leading-none text-white">
+                          {DIVIDER_MARK.map((glyph, glyphIndex) => (
+                            <span key={glyphIndex}>{glyph}</span>
+                          ))}
+                        </span>
+                      </th>,
+                      head,
+                    ];
+                  })}
                   <th style={sheet ? actionStyle : { ...actionStyle, top: headerTop }} className={`${sheet ? "" : "sticky z-30"} px-3 py-3 bg-neutral-800 border-y border-l border-r border-neutral-700 ${sheet && scroll.max > 0 ? "" : "rounded-tr-lg"}`} />
                 </tr>
               </thead>
@@ -442,6 +477,7 @@ export default function PlayerDirectory({
                   return (
                     <tr key={player.id} className="h-10">
                       <td style={numStyle} className={`${ROW} px-1 py-0 bg-neutral-900 text-center text-neutral-400 border-b border-l border-neutral-700 align-middle ${last ? "rounded-bl-lg" : ""}`}>{index + 1}</td>
+                      <td style={posStyle} className={`${ROW} px-1 py-0 bg-neutral-900 text-center text-neutral-200 border-b border-l border-neutral-700 align-middle`}>{player.position}</td>
                       <td style={nameStyle} className={`${ROW} px-3 py-0 bg-neutral-900 text-white text-sm font-semibold border-b border-l border-neutral-700 align-middle`}>
                         <div className="flex items-center gap-2 min-w-0">
                           <span className="truncate">{player.name}</span>
@@ -456,7 +492,7 @@ export default function PlayerDirectory({
                         const tinted = (sheet ? ATTRIBUTE_KEYS.has(column.key) : section === "attributes") || column.key === "rating";
                         const fill = tinted ? ratingFill(String(player[column.key] ?? "")) : null;
                         const value = column.key === "team" ? player.team : String(player[column.key] ?? "");
-                        return (
+                        const cell = (
                           <td
                             key={column.key}
                             title={value}
@@ -473,6 +509,11 @@ export default function PlayerDirectory({
                             )}
                           </td>
                         );
+                        if (!(sheet && column.key === "fg")) return cell;
+                        return [
+                          <td key="attributes-divider" style={{ ...dividerStyle, height: 40 }} className={`${ROW} bg-neutral-950 border-b border-l border-neutral-700`} />,
+                          cell,
+                        ];
                       })}
                       <td style={{ ...actionStyle, height: 40 }} className={`${ROW} px-2 py-0 bg-neutral-900 whitespace-nowrap border-b border-l border-r border-neutral-700 align-middle ${last ? "rounded-br-lg" : ""}`}>
                         <div className="flex h-5 items-center justify-center gap-3">
