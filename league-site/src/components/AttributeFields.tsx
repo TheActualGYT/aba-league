@@ -63,7 +63,8 @@ export function digitsOnly(value: string, max: number) {
 
 export function statError(value: string) {
   if (!value) return "";
-  if (!/^\d{2}$/.test(value)) return "Has to be 2 digits.";
+  const rating = Number(value);
+  if (!/^\d{2}$/.test(value) || rating < 10 || rating > 99) return "Has to be 10\u201399.";
   return "";
 }
 
