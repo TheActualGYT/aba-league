@@ -35,6 +35,7 @@ interface Player {
   name: string;
   team_id: number | null;
   status?: "free" | "prospect" | "team";
+  vba_representative?: string;
   position: string | null;
   first_name?: string;
   last_name?: string;
