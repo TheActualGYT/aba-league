@@ -138,6 +138,7 @@ async function collect(body: any) {
       name: `${firstName} ${lastName}`,
       team_id: teamId,
       status,
+      vba_representative: status === "prospect" ? text(body.vba_representative) || "" : "",
       position,
       first_name: firstName,
       last_name: lastName,
