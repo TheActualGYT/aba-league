@@ -14,6 +14,8 @@ export type DirectoryPlayer = {
   abbreviation: string;
   logo: string;
   representative: string;
+  representativeAbbreviation: string;
+  representativeLogo: string;
   position: string;
   rating: string;
   height: string;
@@ -168,6 +170,11 @@ function columnWeight(section: SectionId, key: string) {
 function playerValue(player: DirectoryPlayer, key: SortKey): number | string | null {
   if (key === "name") return player.name;
   if (key === "team") return player.abbreviation.trim() || null;
+  if (key === "representative") {
+    const abbr = player.representativeAbbreviation.trim();
+    if (!abbr || abbr === "\u2014") return null;
+    return abbr;
+  }
   const raw = String(player[key] ?? "").trim();
   if (!raw || raw === "\u2014" || raw === "None") return null;
   if (key === "height") return heightInches(raw);
@@ -340,12 +347,7 @@ export default function PlayerDirectory({
           </colgroup>
           <thead>
             <tr>
-              <th
-                style={numStyle}
-                className="sticky top-[81px] z-30 px-1 py-3 bg-neutral-800 text-center text-neutral-300 text-xs font-semibold border-y border-l border-neutral-700 rounded-tl-lg"
-              >
-                #
-              </th>
+              <th style={numStyle} className="sticky top-[81px] z-30 px-1 py-3 bg-neutral-800 text-center text-neutral-300 text-xs font-semibold border-y border-l border-neutral-700 rounded-tl-lg">#</th>
               <th
                 aria-sort={sort.key === "name" ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}
                 style={nameStyle}
@@ -381,10 +383,7 @@ export default function PlayerDirectory({
                   </button>
                 </th>
               )}
-              <th
-                style={actionStyle}
-                className="sticky top-[81px] z-30 px-3 py-3 bg-neutral-800 border-y border-l border-r border-neutral-700 rounded-tr-lg"
-              />
+              <th style={actionStyle} className="sticky top-[81px] z-30 px-3 py-3 bg-neutral-800 border-y border-l border-r border-neutral-700 rounded-tr-lg" />
             </tr>
           </thead>
           <tbody>
@@ -392,19 +391,9 @@ export default function PlayerDirectory({
               const last = index === rows.length - 1;
               return (
                 <tr key={player.id} className="h-10">
-                  <td
-                    style={numStyle}
-                    className={`${ROW} px-1 py-0 bg-neutral-900 text-center text-neutral-400 border-b border-l border-neutral-700 align-middle ${last ? "rounded-bl-lg" : ""}`}
-                  >
-                    {index + 1}
-                  </td>
-                  <td
-                    style={nameStyle}
-                    className={`${ROW} px-3 py-0 bg-neutral-900 text-white text-sm font-semibold border-b border-l border-neutral-700 align-middle`}
-                  >
-                    <div className="truncate">
-                      {player.name}
-                    </div>
+                  <td style={numStyle} className={`${ROW} px-1 py-0 bg-neutral-900 text-center text-neutral-400 border-b border-l border-neutral-700 align-middle ${last ? "rounded-bl-lg" : ""}`}>{index + 1}</td>
+                  <td style={nameStyle} className={`${ROW} px-3 py-0 bg-neutral-900 text-white text-sm font-semibold border-b border-l border-neutral-700 align-middle`}>
+                    <div className="truncate">{player.name}</div>
                   </td>
                   {columns.map(column => {
                     const tinted = section === "attributes" || column.key === "rating";
@@ -419,40 +408,26 @@ export default function PlayerDirectory({
                       >
                         {column.key === "team" ? (
                           <span className="flex h-5 items-center justify-center gap-1.5">
-                            {player.logo && (
-                              <img
-                                src={player.logo}
-                                alt=""
-                                width={16}
-                                height={16}
-                                className="block h-4 w-4 shrink-0 object-contain"
-                                style={{ width: 16, height: 16 }}
-                              />
-                            )}
+                            {player.logo && <img src={player.logo} alt="" width={16} height={16} className="block h-4 w-4 shrink-0 object-contain" style={{ width: 16, height: 16 }} />}
                             <span className="truncate leading-5">{player.abbreviation}</span>
                           </span>
                         ) : (
-                          <span className="block truncate leading-5">
-                            {player[column.key]}
-                          </span>
+                          <span className="block truncate leading-5">{player[column.key]}</span>
                         )}
                       </td>
                     );
                   })}
                   {showRepresentative && (
-                    <td
-                      title={player.representative}
-                      style={{ ...repStyle, height: 40 }}
-                      className={`${ROW} px-2 py-0 bg-neutral-900 text-center text-neutral-200 border-b border-l border-neutral-700 align-middle`}
-                    >
-                      <span className="block truncate leading-5">{player.representative}</span>
+                    <td title={player.representative} style={{ ...repStyle, height: 40 }} className={`${ROW} px-2 py-0 bg-neutral-900 text-center text-neutral-200 border-b border-l border-neutral-700 align-middle`}>
+                      <span className="flex h-5 items-center justify-center gap-1.5">
+                        {player.representativeLogo && <img src={player.representativeLogo} alt="" width={16} height={16} className="block h-4 w-4 shrink-0 object-contain" style={{ width: 16, height: 16 }} />}
+                        <span className="truncate leading-5">{player.representativeAbbreviation}</span>
+                      </span>
                     </td>
                   )}
                   <td style={{ ...actionStyle, height: 40 }} className={`${ROW} px-2 py-0 bg-neutral-900 whitespace-nowrap border-b border-l border-r border-neutral-700 align-middle ${last ? "rounded-br-lg" : ""}`}>
                     <div className="flex h-5 items-center justify-center gap-3">
-                      <Link href={`/players/${player.id}/edit`} className="text-xs leading-5 text-neutral-300 hover:text-white">
-                        Edit
-                      </Link>
+                      <Link href={`/players/${player.id}/edit`} className="text-xs leading-5 text-neutral-300 hover:text-white">Edit</Link>
                       <DeletePlayerButton playerId={player.id} playerName={player.name} />
                     </div>
                   </td>
