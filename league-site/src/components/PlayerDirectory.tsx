@@ -320,9 +320,10 @@ export default function PlayerDirectory({
   };
 
   useEffect(() => {
-    syncScroll();
-    window.addEventListener("resize", syncScroll);
-    return () => window.removeEventListener("resize", syncScroll);
+    const onResize = () => syncScroll();
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
   }, [players.length, sheet, columns.length]);
 
   useEffect(() => {
