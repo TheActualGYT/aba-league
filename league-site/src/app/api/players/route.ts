@@ -35,7 +35,10 @@ function text(raw: unknown) {
 function twoDigits(raw: unknown, label: string): { error?: string; value?: string } {
   const value = String(raw ?? "").trim();
   if (!value) return { value: undefined };
-  if (!/^\d{2}$/.test(value)) return { error: `${label} has to be 2 digits.` };
+  const rating = Number(value);
+  if (!/^\d{2}$/.test(value) || rating < 10 || rating > 99) {
+    return { error: `${label} has to be between 10 and 99.` };
+  }
   return { value };
 }
 
