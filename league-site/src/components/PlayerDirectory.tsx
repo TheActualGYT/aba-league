@@ -246,7 +246,7 @@ function SectionMenu({ value, onChange }: { value: SectionId; onChange: (value: 
   const current = SECTIONS.find(item => item.id === value);
 
   return (
-    <div className="relative w-52" ref={rootRef}>
+    <div className={`relative w-52 ${open ? "z-[80]" : ""}`} ref={rootRef}>
       <button
         type="button"
         onClick={() => setOpen(currentOpen => !currentOpen)}
@@ -256,7 +256,7 @@ function SectionMenu({ value, onChange }: { value: SectionId; onChange: (value: 
         <span className="text-neutral-400 text-[10px]">▼</span>
       </button>
       {open && (
-        <div className="absolute z-40 mt-1 w-full bg-neutral-800 border border-neutral-600 rounded overflow-hidden shadow-lg">
+        <div className="absolute z-[80] mt-1 w-full bg-neutral-800 border border-neutral-600 rounded overflow-hidden shadow-lg">
           {SECTIONS.map(item => (
             <button
               key={item.id}
@@ -289,7 +289,7 @@ export default function PlayerDirectory({
   showCreate?: boolean;
   sheet?: boolean;
 }) {
-  const scrollerRef = useRef<HTMLDivElement>(null);
+  const bodyRef = useRef<HTMLDivElement>(null);
   const [section, setSection] = useState<SectionId>("vitals");
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: "name", dir: "asc" });
   const [scroll, setScroll] = useState({ left: 0, max: 0 });
@@ -302,7 +302,7 @@ export default function PlayerDirectory({
   const widthFor = (key: string) => sheet
     ? (SHEET_WIDTH[key as keyof DirectoryPlayer] || "4.15rem")
     : `calc((100% - ${NUM_COL} - ${NAME_COL} - ${ACTION_COL}) * ${columnWeight(section, key)} / ${totalWeight})`;
-  const headerTop = sheet && scroll.max > 0 ? 119 : 81;
+  const headerTop = 81;
   const rows = [...players]
     .map((player, index) => ({ player, index }))
     .sort((a, b) => {
@@ -313,8 +313,8 @@ export default function PlayerDirectory({
     })
     .map(item => item.player);
 
-  const syncScroll = () => {
-    const node = scrollerRef.current;
+  const syncScroll = (source?: HTMLDivElement | null) => {
+    const node = source || bodyRef.current;
     if (!node) return;
     setScroll({ left: node.scrollLeft, max: Math.max(0, node.scrollWidth - node.clientWidth) });
   };
@@ -330,7 +330,7 @@ export default function PlayerDirectory({
     const onKey = (event: KeyboardEvent) => {
       const tag = (event.target as HTMLElement | null)?.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
-      const node = scrollerRef.current;
+      const node = bodyRef.current;
       if (!node) return;
       const key = event.key.toLowerCase();
       const delta = key === "arrowleft" || key === "a" || key === "arrowup" || key === "w"
@@ -364,7 +364,7 @@ export default function PlayerDirectory({
   return (
     <>
       {!sheet && (
-        <div className="mb-6 flex items-center justify-between gap-4">
+        <div className="relative z-[70] mb-6 flex items-center justify-between gap-4">
           <SectionMenu value={section} onChange={chooseSection} />
           {showCreate && (
             <Link href={createHref} className="bg-neutral-200 text-black font-bold px-5 py-2 rounded hover:bg-white">
@@ -379,7 +379,7 @@ export default function PlayerDirectory({
       ) : (
         <>
           {sheet && scroll.max > 0 && (
-            <div className="sticky top-[81px] z-40 mb-2 rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2">
+            <div className="border border-b-0 border-neutral-700 rounded-t-lg bg-neutral-900 px-3 pt-2 pb-1">
               <input
                 type="range"
                 min={0}
@@ -389,13 +389,13 @@ export default function PlayerDirectory({
                 className="sheet-slider"
                 onChange={event => {
                   const left = Number(event.target.value);
-                  if (scrollerRef.current) scrollerRef.current.scrollLeft = left;
+                  if (bodyRef.current) bodyRef.current.scrollLeft = left;
                   setScroll(current => ({ ...current, left }));
                 }}
               />
             </div>
           )}
-          <div ref={scrollerRef} onScroll={sheet ? syncScroll : undefined} className={sheet ? "overflow-x-auto" : undefined}>
+          <div ref={bodyRef} onScroll={sheet ? event => syncScroll(event.currentTarget) : undefined} className={sheet ? "overflow-x-auto" : undefined}>
             <table className={`${sheet ? "w-max" : "w-full"} table-fixed border-separate border-spacing-0 text-sm leading-5`}>
               <colgroup>
                 <col style={{ width: NUM_COL }} />
@@ -407,11 +407,11 @@ export default function PlayerDirectory({
               </colgroup>
               <thead>
                 <tr>
-                  <th style={{ ...numStyle, top: headerTop }} className={`sticky z-40 px-1 py-3 bg-neutral-800 text-center text-neutral-300 text-xs font-semibold border-y border-l border-neutral-700 rounded-tl-lg ${sheet ? "left-0" : ""}`}>#</th>
+                  <th style={sheet ? numStyle : { ...numStyle, top: headerTop }} className={`${sheet ? "" : "sticky z-30"} px-1 py-3 bg-neutral-800 text-center text-neutral-300 text-xs font-semibold border-y border-l border-neutral-700 ${sheet && scroll.max > 0 ? "" : "rounded-tl-lg"}`}>#</th>
                   <th
                     aria-sort={sort.key === "name" ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}
-                    style={{ ...nameStyle, top: headerTop, left: sheet ? NUM_COL : undefined }}
-                    className={`sticky z-40 px-3 py-3 bg-neutral-800 text-left text-sm font-semibold whitespace-nowrap border-y border-l border-neutral-700 ${sheet ? "shadow-[6px_0_10px_rgba(0,0,0,0.35)]" : ""}`}
+                    style={sheet ? nameStyle : { ...nameStyle, top: headerTop }}
+                    className={`${sheet ? "" : "sticky z-30"} px-3 py-3 bg-neutral-800 text-left text-sm font-semibold whitespace-nowrap border-y border-l border-neutral-700`}
                   >
                     <button type="button" onClick={() => toggleSort("name", "alpha")} className="inline-flex items-center text-xs text-neutral-300 hover:text-white">
                       <span>Player</span>
@@ -423,7 +423,7 @@ export default function PlayerDirectory({
                       key={column.key}
                       aria-sort={sort.key === column.key ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}
                       style={{ width: widthFor(column.key), top: headerTop }}
-                      className={`sticky z-30 py-3 bg-neutral-800 text-center text-neutral-300 text-xs font-semibold border-y border-l border-neutral-700 whitespace-normal leading-tight ${dense && !sheet ? "px-1" : "px-2"}`}
+                      className={`${sheet ? "" : "sticky z-30"} py-3 bg-neutral-800 text-center text-neutral-300 text-xs font-semibold border-y border-l border-neutral-700 whitespace-normal leading-tight ${dense && !sheet ? "px-1" : "px-2"}`}
                     >
                       <button type="button" onClick={() => toggleSort(column.key, column.prefer)} className="inline-flex items-center justify-center w-full text-neutral-300 hover:text-white">
                         <HoverNote label={column.label} note={column.note} />
@@ -431,7 +431,7 @@ export default function PlayerDirectory({
                       </button>
                     </th>
                   ))}
-                  <th style={{ ...actionStyle, top: headerTop }} className="sticky z-30 px-3 py-3 bg-neutral-800 border-y border-l border-r border-neutral-700 rounded-tr-lg" />
+                  <th style={sheet ? actionStyle : { ...actionStyle, top: headerTop }} className={`${sheet ? "" : "sticky z-30"} px-3 py-3 bg-neutral-800 border-y border-l border-r border-neutral-700 ${sheet && scroll.max > 0 ? "" : "rounded-tr-lg"}`} />
                 </tr>
               </thead>
               <tbody>
@@ -440,8 +440,8 @@ export default function PlayerDirectory({
                   const repName = player.representative !== "\u2014" ? player.representative : "";
                   return (
                     <tr key={player.id} className="h-10">
-                      <td style={numStyle} className={`${ROW} sticky px-1 py-0 bg-neutral-900 text-center text-neutral-400 border-b border-l border-neutral-700 align-middle ${sheet ? "left-0 z-20" : ""} ${last ? "rounded-bl-lg" : ""}`}>{index + 1}</td>
-                      <td style={{ ...nameStyle, left: sheet ? NUM_COL : undefined }} className={`${ROW} sticky px-3 py-0 bg-neutral-900 text-white text-sm font-semibold border-b border-l border-neutral-700 align-middle ${sheet ? "left-[2.75rem] z-20 shadow-[6px_0_10px_rgba(0,0,0,0.35)]" : ""}`}>
+                      <td style={numStyle} className={`${ROW} px-1 py-0 bg-neutral-900 text-center text-neutral-400 border-b border-l border-neutral-700 align-middle ${last ? "rounded-bl-lg" : ""}`}>{index + 1}</td>
+                      <td style={nameStyle} className={`${ROW} px-3 py-0 bg-neutral-900 text-white text-sm font-semibold border-b border-l border-neutral-700 align-middle`}>
                         <div className="flex items-center gap-2 min-w-0">
                           <span className="truncate">{player.name}</span>
                           {sheet && player.representativeLogo && (
