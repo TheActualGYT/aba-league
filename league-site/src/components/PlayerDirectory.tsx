@@ -88,6 +88,7 @@ const POSITION_ORDER = ["C", "PF", "SF", "SG", "PG"];
 const DIVIDER_MARK = [">", ">", "A", "T", "T", "R", "I", "B", "U", "T", "E", "S", ">", ">"];
 const SHEET_WIDTH: Partial<Record<keyof DirectoryPlayer, string>> = {
   position: "6rem",
+  rating: "6.5rem",
   height: "5.5rem",
   weight: "5.5rem",
   body_type: "5.5rem",
@@ -563,6 +564,13 @@ export default function PlayerDirectory({
                               <span className="flex h-5 items-center justify-center gap-1.5">
                                 {player.logo && <img src={player.logo} alt="" width={16} height={16} className="block h-4 w-4 shrink-0 object-contain" style={{ width: 16, height: 16 }} />}
                                 <span className="truncate leading-5">{player.abbreviation}</span>
+                              </span>
+                            ) : column.key === "rating" ? (
+                              <span className="flex h-5 items-center justify-center gap-1">
+                                <span className="leading-5">{player.rating}</span>
+                                {player.rating === "99" && (
+                                  <img src="/amethyst-rank.png" alt="" title="Amethyst Rank" width={14} height={20} className="block h-5 w-3.5 shrink-0 object-contain" />
+                                )}
                               </span>
                             ) : (
                               <span className="block truncate leading-5">{player[column.key]}</span>

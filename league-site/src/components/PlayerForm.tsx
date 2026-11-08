@@ -246,6 +246,7 @@ export default function PlayerForm({
   const [lastName, setLastName] = useState(field(player?.last_name));
   const [position, setPosition] = useState(field(player?.position));
   const [overall, setOverall] = useState(field(player?.overall));
+  const [showAmethyst, setShowAmethyst] = useState(false);
   const [height, setHeight] = useState(field(player?.height));
   const [weight, setWeight] = useState(field(player?.weight));
   const [number, setNumber] = useState(field(player?.number));
@@ -296,6 +297,13 @@ export default function PlayerForm({
   const settledWeight = useSettledError(weight, weightMessage);
   const settledHead = useSettledError(headModel, headMessage);
   const shownOverall = revealNow ? overallMessage : settledOverall;
+
+  useEffect(() => {
+    setShowAmethyst(false);
+    if (overall.trim() !== "99") return;
+    const timer = window.setTimeout(() => setShowAmethyst(true), 2000);
+    return () => window.clearTimeout(timer);
+  }, [overall]);
   const shownNumber = revealNow ? numberMessage : settledNumber;
   const shownWeight = revealNow ? weightMessage : settledWeight;
   const shownHead = revealNow ? headMessage : settledHead;
@@ -395,7 +403,9 @@ export default function PlayerForm({
               <FieldLabel>ABA Rating</FieldLabel>
               <div className="flex items-center gap-2">
                 <input value={overall} maxLength={3} onChange={e => { setRevealNow(false); setOverall(digitsOnly(e.target.value, 3)); }} inputMode="numeric" className={`${fieldClass} min-w-0 flex-1 ${shownOverall ? "abbr-taken" : ""}`} />
-                <div className="h-8 w-8 shrink-0 rounded border border-neutral-600 bg-neutral-800" aria-label="ABA rating image" />
+                <div className="h-8 w-8 shrink-0 overflow-hidden rounded border border-neutral-600 bg-neutral-950" aria-label="ABA rating image">
+                  {showAmethyst && <img src="/amethyst-rank.png" alt="Amethyst Rank" className="h-full w-full object-contain" />}
+                </div>
               </div>
               {shownOverall && <p className="text-[11px] text-red-400 mt-1">{shownOverall}</p>}
               {!overallMessage && <UsageNote index={usage} field="overall" value={overall} />}
