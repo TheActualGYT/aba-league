@@ -36,6 +36,8 @@ export type EditablePlayer = {
   team_id?: number | null;
   status?: string;
   vba_representative?: string;
+  vba_abbreviation?: string;
+  vba_logo?: string;
   first_name?: string;
   last_name?: string;
   position?: string | null;
@@ -272,6 +274,8 @@ export default function PlayerForm({
   });
   const [teamId, setTeamId] = useState(startingAssignment(player, initialStatus));
   const [representative, setRepresentative] = useState(field(player?.vba_representative));
+  const [representativeAbbr, setRepresentativeAbbr] = useState(field(player?.vba_abbreviation));
+  const [representativeLogo, setRepresentativeLogo] = useState(field(player?.vba_logo));
   const [message, setMessage] = useState("");
   const [revealNow, setRevealNow] = useState(false);
 
@@ -288,6 +292,9 @@ export default function PlayerForm({
   const shownWeight = revealNow ? weightMessage : settledWeight;
   const shownHead = revealNow ? headMessage : settledHead;
   const statsBlocked = (Object.keys(stats) as StatKey[]).some(key => !!statError(stats[key]));
+  const repStarted = teamId === "prospect" && representative.trim().length > 0;
+  const repAbbrMissing = repStarted && !representativeAbbr.trim();
+  const repLogoMissing = repStarted && !representativeLogo;
   const blocked =
     !firstName.trim() ||
     !lastName.trim() ||
@@ -296,7 +303,17 @@ export default function PlayerForm({
     !!numberMessage ||
     !!weightMessage ||
     !!headMessage ||
-    statsBlocked;
+    statsBlocked ||
+    repAbbrMissing ||
+    repLogoMissing;
+
+  const handleRepresentativeLogo = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setRepresentativeLogo(String(reader.result || ""));
+    reader.readAsDataURL(file);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -328,6 +345,8 @@ export default function PlayerForm({
           team_id: status === "team" ? Number(teamId) : null,
           status,
           vba_representative: status === "prospect" ? representative : "",
+          vba_abbreviation: status === "prospect" ? representativeAbbr : "",
+          vba_logo: status === "prospect" ? representativeLogo : "",
           ...accessories,
           ...stats,
         }),
@@ -457,7 +476,7 @@ export default function PlayerForm({
             Cancel
           </a>
         )}
-        <div className="w-64">
+        <div className="w-80">
           <Menu
             up
             value={teamId}
@@ -469,9 +488,34 @@ export default function PlayerForm({
             ]}
           />
           {teamId === "prospect" && (
-            <div className="mt-2">
-              <FieldLabel>VBA Representative</FieldLabel>
-              <input value={representative} maxLength={40} onChange={e => setRepresentative(e.target.value)} className={fieldClass} />
+            <div className="mt-2 space-y-2">
+              <div>
+                <FieldLabel>VBA Representative</FieldLabel>
+                <input value={representative} maxLength={40} onChange={e => setRepresentative(e.target.value)} className={fieldClass} />
+              </div>
+              <div>
+                <FieldLabel>Representative Abbreviation</FieldLabel>
+                <input
+                  value={representativeAbbr}
+                  maxLength={4}
+                  onChange={e => setRepresentativeAbbr(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 4))}
+                  className={`${fieldClass} ${repAbbrMissing ? "abbr-taken" : ""}`}
+                />
+                {repAbbrMissing && <p className="text-[11px] text-red-400 mt-1">Required.</p>}
+              </div>
+              <div>
+                <FieldLabel>Team Logo</FieldLabel>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleRepresentativeLogo}
+                  className={`w-full text-[11px] text-neutral-300 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:bg-neutral-700 file:text-white ${repLogoMissing ? "abbr-taken" : ""}`}
+                />
+                {representativeLogo && (
+                  <img src={representativeLogo} alt="" className="mt-2 h-10 w-10 object-contain bg-neutral-800 rounded border border-neutral-700" />
+                )}
+                {repLogoMissing && <p className="text-[11px] text-red-400 mt-1">Required.</p>}
+              </div>
             </div>
           )}
         </div>
