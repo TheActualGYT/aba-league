@@ -34,6 +34,7 @@ interface Player {
   id: number;
   name: string;
   team_id: number | null;
+  status?: "free" | "prospect" | "team";
   position: string | null;
   first_name?: string;
   last_name?: string;
