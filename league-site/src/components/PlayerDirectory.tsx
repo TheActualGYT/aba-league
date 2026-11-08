@@ -469,11 +469,11 @@ export default function PlayerDirectory({
               </colgroup>
               <thead>
                 <tr>
-                  <th style={sheet ? numStyle : { ...numStyle, top: headerTop }} className={`${sheet ? "" : "sticky z-30"} px-1 py-3 bg-neutral-800 text-center text-neutral-300 text-xs font-semibold border-y border-l border-neutral-700 align-middle ${sheet && scroll.max > 0 ? "" : "rounded-tl-lg"}`}>#</th>
+                  <th style={sheet ? { ...numStyle, left: 0 } : { ...numStyle, top: headerTop }} className={`sticky z-30 px-1 py-3 bg-neutral-800 text-center text-neutral-300 text-xs font-semibold border-y border-l border-neutral-700 align-middle ${sheet && scroll.max > 0 ? "" : "rounded-tl-lg"}`}>#</th>
                   <th
                     aria-sort={sort.key === "position" ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}
-                    style={sheet ? posStyle : { ...posStyle, top: headerTop }}
-                    className={`${sheet ? "" : "sticky z-30"} px-1 py-3 bg-neutral-800 text-center text-xs font-semibold border-y border-l border-neutral-700 align-middle`}
+                    style={sheet ? { ...posStyle, left: NUM_COL } : { ...posStyle, top: headerTop }}
+                    className="sticky z-30 px-1 py-3 bg-neutral-800 text-center text-xs font-semibold border-y border-l border-neutral-700 align-middle"
                   >
                     <button type="button" onClick={() => toggleSort("position", "alpha")} className="inline-flex items-center text-xs text-neutral-300 hover:text-white">
                       <span>Position</span>
@@ -482,8 +482,8 @@ export default function PlayerDirectory({
                   </th>
                   <th
                     aria-sort={sort.key === "name" ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}
-                    style={sheet ? nameStyle : { ...nameStyle, top: headerTop }}
-                    className={`${sheet ? "" : "sticky z-30"} px-3 py-3 bg-neutral-800 text-left text-sm font-semibold whitespace-nowrap border-y border-l border-neutral-700 align-middle`}
+                    style={sheet ? { ...nameStyle, left: `calc(${NUM_COL} + ${POS_COL})` } : { ...nameStyle, top: headerTop }}
+                    className="sticky z-30 px-3 py-3 bg-neutral-800 text-left text-sm font-semibold whitespace-nowrap border-y border-l border-neutral-700 align-middle"
                   >
                     <button type="button" onClick={() => toggleSort("name", "alpha")} className="inline-flex items-center text-xs text-neutral-300 hover:text-white">
                       <span>Player</span>
@@ -491,12 +491,15 @@ export default function PlayerDirectory({
                     </button>
                   </th>
                   {columns.map(column => {
+                    const frozen = sheet && column.key === "rating";
                     const head = (
                       <th
                         key={column.key}
                         aria-sort={sort.key === column.key ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}
-                        style={sheet ? { width: widthFor(column.key) } : { width: widthFor(column.key), top: headerTop }}
-                        className={`${sheet ? "" : "sticky z-30"} py-3 bg-neutral-800 text-center text-neutral-300 text-xs font-semibold border-y border-l border-neutral-700 whitespace-normal leading-tight align-middle ${dense && !sheet ? "px-1" : "px-2"}`}
+                        style={frozen
+                          ? { width: widthFor(column.key), minWidth: widthFor(column.key), maxWidth: widthFor(column.key), left: `calc(${NUM_COL} + ${POS_COL} + ${NAME_COL})` }
+                          : sheet ? { width: widthFor(column.key) } : { width: widthFor(column.key), top: headerTop }}
+                        className={`${frozen ? "sticky z-30 shadow-[6px_0_10px_rgba(0,0,0,0.35)]" : sheet ? "" : "sticky z-30"} py-3 bg-neutral-800 text-center text-neutral-300 text-xs font-semibold border-y border-l border-neutral-700 whitespace-normal leading-tight align-middle ${dense && !sheet ? "px-1" : "px-2"}`}
                       >
                         <button type="button" onClick={() => toggleSort(column.key, column.prefer)} className="inline-flex items-center justify-center w-full text-neutral-300 hover:text-white">
                           <HoverNote label={column.label} note={column.note} />
@@ -506,7 +509,7 @@ export default function PlayerDirectory({
                     );
                     if (!(sheet && column.key === "fg")) return head;
                     return [
-                      <th key="attributes-divider" style={dividerStyle} className="bg-neutral-800 border-y border-l border-neutral-700" />,
+                      <th key="attributes-divider" style={dividerStyle} className="bg-neutral-950 border-y border-l border-neutral-700" />,
                       head,
                     ];
                   })}
@@ -519,9 +522,9 @@ export default function PlayerDirectory({
                   const repName = player.representative !== "\u2014" ? player.representative : "";
                   return (
                     <tr key={player.id} className="h-10">
-                      <td style={numStyle} className={`${ROW} px-1 py-0 bg-neutral-900 text-center text-neutral-400 border-b border-l border-neutral-700 align-middle ${last ? "rounded-bl-lg" : ""}`}>{index + 1}</td>
-                      <td style={posStyle} className={`${ROW} px-1 py-0 bg-neutral-900 text-center text-neutral-200 border-b border-l border-neutral-700 align-middle`}>{player.position}</td>
-                      <td style={nameStyle} className={`${ROW} px-3 py-0 bg-neutral-900 text-white text-sm font-semibold border-b border-l border-neutral-700 align-middle`}>
+                      <td style={sheet ? { ...numStyle, left: 0 } : numStyle} className={`${ROW} ${sheet ? "sticky z-20" : ""} px-1 py-0 bg-neutral-900 text-center text-neutral-400 border-b border-l border-neutral-700 align-middle ${last ? "rounded-bl-lg" : ""}`}>{index + 1}</td>
+                      <td style={sheet ? { ...posStyle, left: NUM_COL } : posStyle} className={`${ROW} ${sheet ? "sticky z-20" : ""} px-1 py-0 bg-neutral-900 text-center text-neutral-200 border-b border-l border-neutral-700 align-middle`}>{player.position}</td>
+                      <td style={sheet ? { ...nameStyle, left: `calc(${NUM_COL} + ${POS_COL})` } : nameStyle} className={`${ROW} ${sheet ? "sticky z-20" : ""} px-3 py-0 bg-neutral-900 text-white text-sm font-semibold border-b border-l border-neutral-700 align-middle`}>
                         <div className="flex items-center gap-2 min-w-0">
                           <span className="truncate">{player.name}</span>
                           {sheet && player.representativeLogo && (
@@ -535,12 +538,18 @@ export default function PlayerDirectory({
                         const tinted = (sheet ? ATTRIBUTE_KEYS.has(column.key) : section === "attributes") || column.key === "rating";
                         const fill = tinted ? ratingFill(String(player[column.key] ?? "")) : null;
                         const value = column.key === "team" ? player.team : String(player[column.key] ?? "");
+                        const frozen = sheet && column.key === "rating";
                         const cell = (
                           <td
                             key={column.key}
                             title={value}
-                            style={{ width: widthFor(column.key), height: 40, ...(fill ? { backgroundColor: fill, color: RATING_INK } : {}) }}
-                            className={`${ROW} py-0 text-center border-b border-l border-neutral-700 overflow-hidden align-middle ${dense && !sheet ? "px-1" : "px-2"} ${fill ? "font-semibold" : "bg-neutral-900 text-neutral-200"}`}
+                            style={{
+                              width: widthFor(column.key),
+                              height: 40,
+                              ...(frozen ? { minWidth: widthFor(column.key), maxWidth: widthFor(column.key), left: `calc(${NUM_COL} + ${POS_COL} + ${NAME_COL})` } : {}),
+                              ...(fill ? { backgroundColor: fill, color: RATING_INK } : {}),
+                            }}
+                            className={`${ROW} ${frozen ? "sticky z-20 shadow-[6px_0_10px_rgba(0,0,0,0.35)]" : ""} py-0 text-center border-b border-l border-neutral-700 overflow-hidden align-middle ${dense && !sheet ? "px-1" : "px-2"} ${fill ? "font-semibold" : "bg-neutral-900 text-neutral-200"}`}
                           >
                             {column.key === "team" ? (
                               <span className="flex h-5 items-center justify-center gap-1.5">

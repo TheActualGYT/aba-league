@@ -364,7 +364,7 @@ export default function PlayerForm({
         setMessage(json.error || (editing ? "Could not save player." : "Could not create player."));
         return;
       }
-      window.location.href = status === "prospect" ? "/draft/prospects" : "/players";
+      window.location.href = editing && status === "prospect" ? "/draft/prospects" : "/players";
     } catch (err: any) {
       setMessage("Network error: " + err.message);
     }
