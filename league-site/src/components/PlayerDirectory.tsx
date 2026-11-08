@@ -506,7 +506,7 @@ export default function PlayerDirectory({
                         style={frozen
                           ? { width: widthFor(column.key), minWidth: widthFor(column.key), maxWidth: widthFor(column.key), left: `calc(${NUM_COL} + ${POS_COL} + ${NAME_COL})` }
                           : sheet ? { width: widthFor(column.key) } : { width: widthFor(column.key), top: headerTop }}
-                        className={`${frozen ? "sticky z-30" : sheet ? "" : "sticky z-30"} py-3 bg-neutral-800 text-center text-neutral-300 text-xs font-semibold border-y border-l border-neutral-700 whitespace-normal leading-tight align-middle ${dense && !sheet ? "px-1" : "px-2"}`}
+                        className={`${frozen ? "sticky z-30 border-r" : sheet ? "" : "sticky z-30"} py-3 bg-neutral-800 text-center text-neutral-300 text-xs font-semibold border-y ${sheet && (column.key === "height" || column.key === "fg") ? "" : "border-l"} border-neutral-700 whitespace-normal leading-tight align-middle ${dense && !sheet ? "px-1" : "px-2"}`}
                       >
                         <button type="button" onClick={() => toggleSort(column.key, column.prefer)} className="inline-flex items-center justify-center w-full text-neutral-300 hover:text-white">
                           <HoverNote label={sheet && column.key === "rating" ? "ABA" : column.label} note={column.note} />
@@ -516,7 +516,7 @@ export default function PlayerDirectory({
                     );
                     if (!(sheet && column.key === "fg")) return head;
                     return [
-                      <th key="attributes-divider" style={dividerStyle} className="bg-neutral-950" />,
+                      <th key="attributes-divider" style={dividerStyle} className="bg-neutral-950 border-y border-l border-r border-neutral-700" />,
                       head,
                     ];
                   })}
@@ -556,7 +556,7 @@ export default function PlayerDirectory({
                               ...(frozen ? { minWidth: widthFor(column.key), maxWidth: widthFor(column.key), left: `calc(${NUM_COL} + ${POS_COL} + ${NAME_COL})` } : {}),
                               ...(fill ? { backgroundColor: fill, color: RATING_INK } : {}),
                             }}
-                            className={`${ROW} ${frozen ? "sticky z-20" : ""} py-0 text-center border-b border-l border-neutral-700 overflow-hidden align-middle ${dense && !sheet ? "px-1" : "px-2"} ${fill ? "font-semibold" : "bg-neutral-900 text-neutral-200"}`}
+                            className={`${ROW} ${frozen ? "sticky z-20 border-r" : ""} py-0 text-center border-b ${sheet && (column.key === "height" || column.key === "fg") ? "" : "border-l"} border-neutral-700 overflow-hidden align-middle ${dense && !sheet ? "px-1" : "px-2"} ${fill ? "font-semibold" : "bg-neutral-900 text-neutral-200"}`}
                           >
                             {column.key === "team" ? (
                               <span className="flex h-5 items-center justify-center gap-1.5">
@@ -571,7 +571,7 @@ export default function PlayerDirectory({
                         if (!(sheet && column.key === "fg")) return cell;
                         if (index > 0) return cell;
                         return [
-                          <td key="attributes-divider" ref={setRail} rowSpan={rows.length} style={dividerStyle} className="bg-neutral-950 p-0 align-top border-0" />,
+                          <td key="attributes-divider" ref={setRail} rowSpan={rows.length} style={dividerStyle} className="bg-neutral-950 p-0 align-top border-l border-r border-b border-neutral-700" />,
                           cell,
                         ];
                       })}
