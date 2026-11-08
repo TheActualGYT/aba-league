@@ -343,7 +343,7 @@ export default function PlayerDirectory({
   const [section, setSection] = useState<SectionId>("vitals");
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: "name", dir: "asc" });
   const [scroll, setScroll] = useState({ left: 0, max: 0 });
-  const sheetVitals = COLUMNS.vitals.filter(column => column.key !== "team");
+  const sheetVitals = COLUMNS.vitals.filter(column => column.key !== "team" && column.key !== "hand");
   const weightAt = sheetVitals.findIndex(column => column.key === "weight");
   const columns = sheet
     ? [
@@ -441,8 +441,9 @@ export default function PlayerDirectory({
       ) : (
         <>
           {sheet && <AttributeRail anchor={rail} />}
+          <div className={sheet ? "overflow-hidden rounded-2xl border border-neutral-700" : undefined}>
           {sheet && scroll.max > 0 && (
-            <div className="border border-b-0 border-neutral-700 rounded-t-lg bg-neutral-900 px-3 pt-2 pb-1">
+            <div className="border-b border-neutral-700 bg-neutral-900 px-3 pt-2 pb-1">
               <input
                 type="range"
                 min={0}
@@ -476,7 +477,7 @@ export default function PlayerDirectory({
               </colgroup>
               <thead>
                 <tr>
-                  <th style={sheet ? { ...numStyle, left: 0 } : { ...numStyle, top: headerTop }} className={`sticky z-30 px-1 py-3 bg-neutral-800 text-center text-neutral-300 text-xs font-semibold border-y border-l border-neutral-700 align-middle ${sheet && scroll.max > 0 ? "" : "rounded-tl-lg"}`}>#</th>
+                  <th style={sheet ? { ...numStyle, left: 0 } : { ...numStyle, top: headerTop }} className={`sticky z-30 px-1 py-3 bg-neutral-800 text-center text-neutral-300 text-xs font-semibold border-y border-l border-neutral-700 align-middle ${sheet ? "" : "rounded-tl-lg"}`}>#</th>
                   <th
                     aria-sort={sort.key === "position" ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}
                     style={sheet ? { ...posStyle, left: NUM_COL } : { ...posStyle, top: headerTop }}
@@ -520,7 +521,7 @@ export default function PlayerDirectory({
                       head,
                     ];
                   })}
-                  <th style={sheet ? actionStyle : { ...actionStyle, top: headerTop }} className={`${sheet ? "" : "sticky z-30"} px-3 py-3 bg-neutral-800 border-y border-l border-r border-neutral-700 ${sheet && scroll.max > 0 ? "" : "rounded-tr-lg"}`} />
+                  <th style={sheet ? actionStyle : { ...actionStyle, top: headerTop }} className={`${sheet ? "" : "sticky z-30"} px-3 py-3 bg-neutral-800 border-y border-l border-r border-neutral-700 ${sheet ? "" : "rounded-tr-lg"}`} />
                 </tr>
               </thead>
               <tbody>
@@ -529,7 +530,7 @@ export default function PlayerDirectory({
                   const repName = player.representative !== "\u2014" ? player.representative : "";
                   return (
                     <tr key={player.id} className="h-10">
-                      <td style={sheet ? { ...numStyle, left: 0 } : numStyle} className={`${ROW} ${sheet ? "sticky z-20" : ""} px-1 py-0 bg-neutral-900 text-center text-neutral-400 border-b border-l border-neutral-700 align-middle ${last ? "rounded-bl-lg" : ""}`}>{index + 1}</td>
+                      <td style={sheet ? { ...numStyle, left: 0 } : numStyle} className={`${ROW} ${sheet ? "sticky z-20" : ""} px-1 py-0 bg-neutral-900 text-center text-neutral-400 border-b border-l border-neutral-700 align-middle ${sheet || !last ? "" : "rounded-bl-lg"}`}>{index + 1}</td>
                       <td style={sheet ? { ...posStyle, left: NUM_COL } : posStyle} className={`${ROW} ${sheet ? "sticky z-20" : ""} px-1 py-0 bg-neutral-900 text-center text-neutral-200 border-b border-l border-neutral-700 align-middle`}>{player.position}</td>
                       <td style={sheet ? { ...nameStyle, left: `calc(${NUM_COL} + ${POS_COL})` } : nameStyle} className={`${ROW} ${sheet ? "sticky z-20" : ""} px-3 py-0 bg-neutral-900 text-white text-sm font-semibold border-b border-l border-neutral-700 align-middle`}>
                         <div className="flex items-center gap-2 min-w-0">
@@ -542,7 +543,7 @@ export default function PlayerDirectory({
                         </div>
                       </td>
                       {columns.map(column => {
-                        const tinted = (sheet ? ATTRIBUTE_KEYS.has(column.key) : section === "attributes") || column.key === "rating";
+                        const tinted = sheet ? ATTRIBUTE_KEYS.has(column.key) : section === "attributes";
                         const fill = tinted ? ratingFill(String(player[column.key] ?? "")) : null;
                         const value = column.key === "team" ? player.team : String(player[column.key] ?? "");
                         const frozen = sheet && column.key === "rating";
@@ -575,7 +576,7 @@ export default function PlayerDirectory({
                           cell,
                         ];
                       })}
-                      <td style={{ ...actionStyle, height: 40 }} className={`${ROW} px-2 py-0 bg-neutral-900 whitespace-nowrap border-b border-l border-r border-neutral-700 align-middle ${last ? "rounded-br-lg" : ""}`}>
+                      <td style={{ ...actionStyle, height: 40 }} className={`${ROW} px-2 py-0 bg-neutral-900 whitespace-nowrap border-b border-l border-r border-neutral-700 align-middle ${sheet || !last ? "" : "rounded-br-lg"}`}>
                         <div className="flex h-5 items-center justify-center gap-3">
                           <Link href={`/players/${player.id}/edit`} className="text-xs leading-5 text-neutral-300 hover:text-white">Edit</Link>
                           <DeletePlayerButton playerId={player.id} playerName={player.name} />
@@ -586,6 +587,7 @@ export default function PlayerDirectory({
                 })}
               </tbody>
             </table>
+          </div>
           </div>
         </>
       )}

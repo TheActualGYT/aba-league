@@ -393,7 +393,10 @@ export default function PlayerForm({
             </div>
             <div>
               <FieldLabel>ABA Rating</FieldLabel>
-              <input value={overall} maxLength={3} onChange={e => { setRevealNow(false); setOverall(digitsOnly(e.target.value, 3)); }} inputMode="numeric" className={`${fieldClass} ${shownOverall ? "abbr-taken" : ""}`} />
+              <div className="flex items-center gap-2">
+                <input value={overall} maxLength={3} onChange={e => { setRevealNow(false); setOverall(digitsOnly(e.target.value, 3)); }} inputMode="numeric" className={`${fieldClass} min-w-0 flex-1 ${shownOverall ? "abbr-taken" : ""}`} />
+                <div className="h-8 w-8 shrink-0 rounded border border-neutral-600 bg-neutral-800" aria-label="ABA rating image" />
+              </div>
               {shownOverall && <p className="text-[11px] text-red-400 mt-1">{shownOverall}</p>}
               {!overallMessage && <UsageNote index={usage} field="overall" value={overall} />}
             </div>
