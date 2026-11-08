@@ -34,6 +34,7 @@ type AccessoryKey = (typeof ACCESSORY_FIELDS)[number]["key"];
 export type EditablePlayer = {
   id: number;
   team_id?: number | null;
+  status?: string;
   first_name?: string;
   last_name?: string;
   position?: string | null;
@@ -119,7 +120,7 @@ function overallError(raw: string) {
   const value = raw.trim();
   if (!value) return "";
   if (!/^\d+$/.test(value) || Number(value) < 10 || Number(value) > 99) {
-    return "Rating has to be between 10 and 99.";
+    return "ABA Rating has to be between 10 and 99.";
   }
   return "";
 }
@@ -213,7 +214,22 @@ function Menu({
   );
 }
 
-export default function PlayerForm({ teams = [], player }: { teams?: { id: number; name: string }[]; player?: EditablePlayer }) {
+function startingAssignment(player?: EditablePlayer, initialStatus?: string) {
+  if (player?.status === "prospect") return "prospect";
+  if (player?.team_id) return String(player.team_id);
+  if (initialStatus === "prospect") return "prospect";
+  return "free";
+}
+
+export default function PlayerForm({
+  teams = [],
+  player,
+  initialStatus,
+}: {
+  teams?: { id: number; name: string }[];
+  player?: EditablePlayer;
+  initialStatus?: string;
+}) {
   const editing = player != null;
   const [firstName, setFirstName] = useState(field(player?.first_name));
   const [lastName, setLastName] = useState(field(player?.last_name));
@@ -253,7 +269,7 @@ export default function PlayerForm({ teams = [], player }: { teams?: { id: numbe
     });
     return next;
   });
-  const [teamId, setTeamId] = useState(player?.team_id ? String(player.team_id) : "free");
+  const [teamId, setTeamId] = useState(startingAssignment(player, initialStatus));
   const [message, setMessage] = useState("");
   const [revealNow, setRevealNow] = useState(false);
 
@@ -285,6 +301,7 @@ export default function PlayerForm({ teams = [], player }: { teams?: { id: numbe
     if (blocked) return;
     setRevealNow(true);
     setMessage(editing ? "Saving..." : "Creating...");
+    const status = teamId === "prospect" ? "prospect" : teamId === "free" ? "free" : "team";
     try {
       const res = await fetch("/api/players", {
         method: editing ? "PATCH" : "POST",
@@ -306,7 +323,8 @@ export default function PlayerForm({ teams = [], player }: { teams?: { id: numbe
           sock_color: sockColor,
           shoes_home: shoesHome,
           shoes_away: shoesAway,
-          team_id: teamId === "free" ? null : Number(teamId),
+          team_id: status === "team" ? Number(teamId) : null,
+          status,
           ...accessories,
           ...stats,
         }),
@@ -316,7 +334,7 @@ export default function PlayerForm({ teams = [], player }: { teams?: { id: numbe
         setMessage(json.error || (editing ? "Could not save player." : "Could not create player."));
         return;
       }
-      window.location.href = "/players";
+      window.location.href = status === "prospect" ? "/draft/prospects" : "/players";
     } catch (err: any) {
       setMessage("Network error: " + err.message);
     }
@@ -341,7 +359,7 @@ export default function PlayerForm({ teams = [], player }: { teams?: { id: numbe
               <Menu value={position} onChange={setPosition} options={POSITIONS.map(option => ({ value: option, label: option }))} />
             </div>
             <div>
-              <FieldLabel>Rating</FieldLabel>
+              <FieldLabel>ABA Rating</FieldLabel>
               <input value={overall} maxLength={3} onChange={e => { setRevealNow(false); setOverall(digitsOnly(e.target.value, 3)); }} inputMode="numeric" className={`${fieldClass} ${shownOverall ? "abbr-taken" : ""}`} />
               {shownOverall && <p className="text-[11px] text-red-400 mt-1">{shownOverall}</p>}
             </div>
@@ -431,7 +449,11 @@ export default function PlayerForm({ teams = [], player }: { teams?: { id: numbe
 
       <div className="mt-6 flex items-center justify-end gap-3">
         {message && <p className="text-sm text-amber-300 mr-auto">{message}</p>}
-        {editing && <a href="/players" className="text-sm text-neutral-300 hover:text-white">Cancel</a>}
+        {editing && (
+          <a href={player?.status === "prospect" ? "/draft/prospects" : "/players"} className="text-sm text-neutral-300 hover:text-white">
+            Cancel
+          </a>
+        )}
         <div className="w-64">
           <Menu
             up
@@ -439,6 +461,7 @@ export default function PlayerForm({ teams = [], player }: { teams?: { id: numbe
             onChange={setTeamId}
             options={[
               { value: "free", label: "Free Agent" },
+              { value: "prospect", label: "Draft Prospect" },
               ...teams.map(team => ({ value: String(team.id), label: team.name })),
             ]}
           />
