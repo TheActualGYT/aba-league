@@ -26,7 +26,7 @@ interface Team {
   ownership: string;
   head_coach?: string;
   assistant_coach?: string;
-  colors: string[]; // hex colors extracted from logo
+  colors: string[];
   created_by: number;
 }
 
@@ -36,6 +36,8 @@ interface Player {
   team_id: number | null;
   status?: "free" | "prospect" | "team";
   vba_representative?: string;
+  vba_abbreviation?: string;
+  vba_logo?: string;
   position: string | null;
   first_name?: string;
   last_name?: string;
