@@ -121,6 +121,7 @@ interface Data {
     news: number;
   };
   next_picker_id?: number | null;
+  draft_picks?: { slot: string; team_id: number }[];
 }
 
 const ROSTERS_ALREADY_SET = [

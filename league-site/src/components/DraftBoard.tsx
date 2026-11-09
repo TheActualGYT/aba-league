@@ -31,11 +31,42 @@ export type ProspectSection = {
   players: DraftProspect[];
 };
 
+export type PickerTeam = {
+  id: number;
+  abbreviation: string;
+  logo?: string;
+  ownership?: string;
+};
+
+export type DraftPick = { slot: string; teamId: number };
+export type RosterPlayer = { id: number; teamId: number; name: string; position: string };
+
 function boardRows() {
   return Array.from({ length: ROUNDS }, (_, index) => {
     const round = index + 1;
     return Array.from({ length: PICKS }, (_, pick) => `${round}.${String(pick + 1).padStart(2, "0")}`);
   });
+}
+
+function cycleTaken(picks: DraftPick[], teamIds: number[]) {
+  const ids = new Set(teamIds);
+  let taken = new Set<number>();
+  for (const pick of picks) {
+    if (!ids.has(pick.teamId)) continue;
+    taken.add(pick.teamId);
+    if (taken.size === ids.size) taken = new Set();
+  }
+  return taken;
+}
+
+function nextOpenSlot(picks: DraftPick[]) {
+  const used = new Set(picks.map(pick => pick.slot));
+  for (const row of boardRows()) {
+    for (const slot of row) {
+      if (!used.has(slot)) return slot;
+    }
+  }
+  return null;
 }
 
 function shown(value: string) {
@@ -50,13 +81,13 @@ function ProspectTable({ players, slots }: { players: DraftProspect[]; slots: nu
     <table className="w-full table-fixed border-collapse text-sm">
       <colgroup>
         <col style={{ width: "3.25rem" }} />
-        <col style={{ width: "38%" }} />
         <col />
-        <col style={{ width: "3.25rem" }} />
-        <col />
-        <col />
-        <col />
-        <col />
+        <col style={{ width: "4.75rem" }} />
+        <col style={{ width: "4.75rem" }} />
+        <col style={{ width: "4.75rem" }} />
+        <col style={{ width: "4.75rem" }} />
+        <col style={{ width: "4.75rem" }} />
+        <col style={{ width: "4.75rem" }} />
       </colgroup>
       <thead>
         <tr className="text-left text-xs uppercase tracking-wide text-neutral-400">
@@ -100,61 +131,72 @@ export default function DraftBoard({
   teams,
   pickerTeams,
   nextPickerId,
+  picks: initialPicks,
+  roster,
   sections,
 }: {
   teams: { id: number; abbreviation: string; logo?: string }[];
-  pickerTeams: { id: number; abbreviation: string; logo?: string }[];
+  pickerTeams: PickerTeam[];
   nextPickerId: number | null;
+  picks: DraftPick[];
+  roster: RosterPlayer[];
   sections: ProspectSection[];
 }) {
   const bodyRef = useRef<HTMLDivElement>(null);
   const spinRef = useRef<number | null>(null);
-  const beforeSpin = useRef(0);
+  const beforeSpin = useRef<number | null>(null);
   const [scroll, setScroll] = useState({ left: 0, max: 0 });
-  const startIndex = Math.max(0, pickerTeams.findIndex(team => team.id === nextPickerId));
-  const [pickerIndex, setPickerIndex] = useState(startIndex);
+  const [picks, setPicks] = useState(initialPicks);
+  const [selectedId, setSelectedId] = useState<number | null>(nextPickerId);
   const [spinning, setSpinning] = useState(false);
   const [pending, setPending] = useState(false);
   const rows = boardRows();
-  const picker = pickerTeams[pickerIndex];
+  const taken = cycleTaken(picks, pickerTeams.map(team => team.id));
+  const pool = pickerTeams.filter(team => !taken.has(team.id));
+  const activePool = pool.length ? pool : pickerTeams;
+  const picker = activePool.find(team => team.id === selectedId) || activePool[0];
+  const teamById = new Map(pickerTeams.map(team => [team.id, team]));
+  const pickBySlot = new Map(picks.map(pick => [pick.slot, pick.teamId]));
+  const clockRoster = roster.filter(player => player.teamId === picker?.id);
+  const clockPicks = picks.filter(pick => pick.teamId === picker?.id);
 
-  const savePicker = (index: number) => {
-    const team = pickerTeams[index];
-    if (!team) return;
+  const savePicker = (teamId: number) => {
     fetch("/api/draft/picker", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ teamId: team.id }),
+      body: JSON.stringify({ teamId }),
     }).catch(() => undefined);
   };
 
-  const choosePicker = (next: number) => {
-    if (!pickerTeams.length || spinning || pending) return;
-    const index = (next + pickerTeams.length) % pickerTeams.length;
-    setPickerIndex(index);
-    savePicker(index);
+  const choosePicker = (step: number) => {
+    if (!activePool.length || spinning || pending || !picker) return;
+    const current = Math.max(0, activePool.findIndex(team => team.id === picker.id));
+    const team = activePool[(current + step + activePool.length) % activePool.length];
+    setSelectedId(team.id);
+    savePicker(team.id);
   };
 
   const randomize = () => {
-    if (!pickerTeams.length || spinning || pending) return;
-    const count = pickerTeams.length;
+    if (!activePool.length || spinning || pending || !picker) return;
+    const count = activePool.length;
+    const startIndex = Math.max(0, activePool.findIndex(team => team.id === picker.id));
     const finalIndex = Math.floor(Math.random() * count);
     const loops = count === 1 ? 0 : 8;
-    const totalSteps = loops * count + ((finalIndex - pickerIndex + count) % count);
-    beforeSpin.current = pickerIndex;
+    const totalSteps = loops * count + ((finalIndex - startIndex + count) % count);
+    beforeSpin.current = picker.id;
     setSpinning(true);
     const start = performance.now();
 
     const frame = (now: number) => {
       const t = Math.min(1, (now - start) / 5000);
-      const eased = 1 - Math.pow(1 - t, 3);
-      const step = Math.min(totalSteps, Math.floor(eased * (totalSteps + 1)));
-      setPickerIndex((beforeSpin.current + step) % count);
+      const eased = t <= 0.32 ? (t / 0.32) * 0.62 : 0.62 + (1 - Math.pow(1 - (t - 0.32) / 0.68, 4)) * 0.38;
+      const step = Math.min(totalSteps, Math.floor(Math.min(1, eased) * (totalSteps + 1)));
+      setSelectedId(activePool[(startIndex + step) % count].id);
       if (t < 1) {
         spinRef.current = requestAnimationFrame(frame);
         return;
       }
-      setPickerIndex(finalIndex);
+      setSelectedId(activePool[finalIndex].id);
       setSpinning(false);
       setPending(true);
       spinRef.current = null;
@@ -164,12 +206,28 @@ export default function DraftBoard({
   };
 
   const continuePick = () => {
-    savePicker(pickerIndex);
+    if (!picker) return;
+    const slot = nextOpenSlot(picks);
+    if (!slot) return;
+    const nextPicks = [...picks, { slot, teamId: picker.id }];
+    setPicks(nextPicks);
     setPending(false);
+    const takenAfter = cycleTaken(nextPicks, pickerTeams.map(team => team.id));
+    const nextPool = pickerTeams.filter(team => !takenAfter.has(team.id));
+    const openPool = nextPool.length ? nextPool : pickerTeams;
+    const current = Math.max(0, pickerTeams.findIndex(team => team.id === picker.id));
+    const following = pickerTeams[(current + 1) % pickerTeams.length];
+    const nextTeam = openPool.find(team => team.id === following.id) || openPool[0];
+    setSelectedId(nextTeam?.id ?? null);
+    fetch("/api/draft/pick", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ teamId: picker.id }),
+    }).catch(() => undefined);
   };
 
   const rejectPick = () => {
-    setPickerIndex(beforeSpin.current);
+    setSelectedId(beforeSpin.current);
     setPending(false);
   };
 
@@ -198,7 +256,7 @@ export default function DraftBoard({
     >
       <h2 className="label-glow text-3xl font-bold mb-8 text-white text-center tracking-wide">DRAFT BOARD</h2>
       {picker && (
-        <div className="mb-8">
+        <div className="mb-8 flex items-start justify-between gap-6">
           <div className="inline-flex flex-col items-center rounded-xl border border-neutral-700 bg-neutral-900 px-5 py-4">
             <button
               type="button"
@@ -213,7 +271,7 @@ export default function DraftBoard({
                 type="button"
                 aria-label="Previous team"
                 disabled={spinning || pending}
-                onClick={() => choosePicker(pickerIndex - 1)}
+                onClick={() => choosePicker(-1)}
                 className="flex h-9 w-9 items-center justify-center rounded-md border border-neutral-600 text-xl leading-none text-white hover:bg-neutral-800 disabled:opacity-40"
               >
                 ‹
@@ -229,7 +287,7 @@ export default function DraftBoard({
                 type="button"
                 aria-label="Next team"
                 disabled={spinning || pending}
-                onClick={() => choosePicker(pickerIndex + 1)}
+                onClick={() => choosePicker(1)}
                 className="flex h-9 w-9 items-center justify-center rounded-md border border-neutral-600 text-xl leading-none text-white hover:bg-neutral-800 disabled:opacity-40"
               >
                 ›
@@ -248,6 +306,41 @@ export default function DraftBoard({
               </div>
             )}
           </div>
+          <aside className="w-80 max-h-72 overflow-y-auto rounded-xl border border-neutral-700 bg-neutral-900 px-4 py-4">
+            <h3 className="text-center text-sm font-bold tracking-[0.14em] text-white">YOU'RE ON THE CLOCK</h3>
+            <div className="mt-3 flex justify-center">
+              {picker.logo ? (
+                <img src={picker.logo} alt="" className="h-16 w-16 object-contain" />
+              ) : (
+                <span className="text-sm text-neutral-300">{picker.abbreviation}</span>
+              )}
+            </div>
+            <p className="mt-2 text-center text-sm text-white">{picker.ownership || "N/A"}</p>
+            <div className="mt-4 border-t border-neutral-700 pt-3">
+              <p className="mb-1 text-[11px] uppercase tracking-wide text-neutral-400">Draft</p>
+              {clockPicks.length === 0 ? (
+                <p className="text-sm text-neutral-500">-</p>
+              ) : (
+                <div className="flex flex-wrap gap-1">
+                  {clockPicks.map(pick => (
+                    <span key={pick.slot} className="rounded border border-neutral-600 px-1.5 py-0.5 text-xs text-white">{pick.slot}</span>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="mt-3">
+              <p className="mb-1 text-[11px] uppercase tracking-wide text-neutral-400">Roster</p>
+              {clockRoster.length === 0 ? (
+                <p className="text-sm text-neutral-500">No roster yet.</p>
+              ) : (
+                clockRoster.map(player => (
+                  <p key={player.id} className="truncate text-sm text-white">
+                    {player.position ? `${player.position} ` : ""}{player.name}
+                  </p>
+                ))
+              )}
+            </div>
+          </aside>
         </div>
       )}
       <div className="overflow-hidden rounded-2xl border border-neutral-700">
@@ -279,15 +372,26 @@ export default function DraftBoard({
                   >
                     ROUND {index + 1}
                   </td>
-                  {row.map(slot => (
-                    <td
-                      key={slot}
-                      style={{ width: CELL, height: ROW_H }}
-                      className="border border-neutral-600 bg-neutral-950 text-xl text-white/50"
-                    >
-                      {slot}
-                    </td>
-                  ))}
+                  {row.map(slot => {
+                    const placed = teamById.get(pickBySlot.get(slot) || -1);
+                    return (
+                      <td
+                        key={slot}
+                        style={{ width: CELL, height: ROW_H }}
+                        className="border border-neutral-600 bg-neutral-950 text-xl text-white/50"
+                      >
+                        {placed ? (
+                          <span className="flex h-full items-center justify-center">
+                            {placed.logo ? (
+                              <img src={placed.logo} alt="" className="h-16 w-16 animate-pulse object-contain" />
+                            ) : (
+                              <span className="animate-pulse text-sm font-semibold text-white">{placed.abbreviation}</span>
+                            )}
+                          </span>
+                        ) : slot}
+                      </td>
+                    );
+                  })}
                 </tr>
               ))}
             </tbody>

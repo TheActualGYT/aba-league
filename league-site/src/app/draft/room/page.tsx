@@ -33,6 +33,7 @@ export default async function DraftRoomPage() {
     id: team.id,
     abbreviation: team.abbreviation,
     logo: team.logo,
+    ownership: team.ownership || "",
   }));
   const teams = ordered
     .filter(team => team.draft_eligible !== false)
@@ -78,11 +79,22 @@ export default async function DraftRoomPage() {
   });
 
   const storedPicker = ordered.find(team => team.id === data.next_picker_id);
+  const picks = (data.draft_picks || []).map(pick => ({ slot: pick.slot, teamId: pick.team_id }));
+  const roster = (data.players || [])
+    .filter(player => player.team_id && player.status !== "prospect")
+    .map(player => ({
+      id: player.id,
+      teamId: player.team_id as number,
+      name: prospectName(player),
+      position: player.position || "",
+    }));
   return (
     <DraftBoard
       teams={teams}
       pickerTeams={pickerTeams}
       nextPickerId={storedPicker?.id ?? null}
+      picks={picks}
+      roster={roster}
       sections={sections}
     />
   );
