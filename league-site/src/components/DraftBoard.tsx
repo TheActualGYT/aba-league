@@ -104,22 +104,69 @@ export default function DraftBoard({
   sections: ProspectSection[];
 }) {
   const bodyRef = useRef<HTMLDivElement>(null);
+  const spinRef = useRef<number | null>(null);
+  const beforeSpin = useRef(0);
   const [scroll, setScroll] = useState({ left: 0, max: 0 });
   const startIndex = Math.max(0, pickerTeams.findIndex(team => team.id === nextPickerId));
   const [pickerIndex, setPickerIndex] = useState(startIndex);
+  const [spinning, setSpinning] = useState(false);
+  const [pending, setPending] = useState(false);
   const rows = boardRows();
   const picker = pickerTeams[pickerIndex];
 
-  const choosePicker = (next: number) => {
-    if (!pickerTeams.length) return;
-    const index = (next + pickerTeams.length) % pickerTeams.length;
-    setPickerIndex(index);
+  const savePicker = (index: number) => {
     const team = pickerTeams[index];
+    if (!team) return;
     fetch("/api/draft/picker", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ teamId: team.id }),
     }).catch(() => undefined);
+  };
+
+  const choosePicker = (next: number) => {
+    if (!pickerTeams.length || spinning || pending) return;
+    const index = (next + pickerTeams.length) % pickerTeams.length;
+    setPickerIndex(index);
+    savePicker(index);
+  };
+
+  const randomize = () => {
+    if (!pickerTeams.length || spinning || pending) return;
+    const count = pickerTeams.length;
+    const finalIndex = Math.floor(Math.random() * count);
+    const loops = count === 1 ? 0 : 8;
+    const totalSteps = loops * count + ((finalIndex - pickerIndex + count) % count);
+    beforeSpin.current = pickerIndex;
+    setSpinning(true);
+    const start = performance.now();
+
+    const frame = (now: number) => {
+      const t = Math.min(1, (now - start) / 5000);
+      const eased = 1 - Math.pow(1 - t, 3);
+      const step = Math.min(totalSteps, Math.floor(eased * (totalSteps + 1)));
+      setPickerIndex((beforeSpin.current + step) % count);
+      if (t < 1) {
+        spinRef.current = requestAnimationFrame(frame);
+        return;
+      }
+      setPickerIndex(finalIndex);
+      setSpinning(false);
+      setPending(true);
+      spinRef.current = null;
+    };
+
+    spinRef.current = requestAnimationFrame(frame);
+  };
+
+  const continuePick = () => {
+    savePicker(pickerIndex);
+    setPending(false);
+  };
+
+  const rejectPick = () => {
+    setPickerIndex(beforeSpin.current);
+    setPending(false);
   };
 
   const syncScroll = () => {
@@ -131,7 +178,10 @@ export default function DraftBoard({
   useEffect(() => {
     syncScroll();
     window.addEventListener("resize", syncScroll);
-    return () => window.removeEventListener("resize", syncScroll);
+    return () => {
+      window.removeEventListener("resize", syncScroll);
+      if (spinRef.current) cancelAnimationFrame(spinRef.current);
+    };
   }, []);
 
   return (
@@ -144,17 +194,18 @@ export default function DraftBoard({
     >
       <h2 className="label-glow text-3xl font-bold mb-8 text-white text-center tracking-wide">DRAFT BOARD</h2>
       {picker && (
-        <div className="mb-8 flex flex-col items-center">
+        <div className="mb-8 flex flex-col items-start">
           <div className="flex items-center gap-4">
             <button
               type="button"
               aria-label="Previous team"
+              disabled={spinning || pending}
               onClick={() => choosePicker(pickerIndex - 1)}
-              className="flex h-10 w-10 items-center justify-center rounded border border-neutral-600 text-2xl leading-none text-white hover:bg-neutral-800"
+              className="flex h-10 w-10 items-center justify-center rounded border border-neutral-600 text-2xl leading-none text-white hover:bg-neutral-800 disabled:opacity-40"
             >
               ‹
             </button>
-            <div className="flex h-20 w-20 items-center justify-center rounded border border-neutral-500 bg-neutral-950">
+            <div className={`flex h-20 w-20 items-center justify-center rounded border bg-neutral-950 ${spinning ? "border-white" : "border-neutral-500"}`}>
               {picker.logo ? (
                 <img src={picker.logo} alt="" className="h-16 w-16 object-contain" />
               ) : (
@@ -164,13 +215,32 @@ export default function DraftBoard({
             <button
               type="button"
               aria-label="Next team"
+              disabled={spinning || pending}
               onClick={() => choosePicker(pickerIndex + 1)}
-              className="flex h-10 w-10 items-center justify-center rounded border border-neutral-600 text-2xl leading-none text-white hover:bg-neutral-800"
+              className="flex h-10 w-10 items-center justify-center rounded border border-neutral-600 text-2xl leading-none text-white hover:bg-neutral-800 disabled:opacity-40"
             >
               ›
             </button>
+            <button
+              type="button"
+              onClick={randomize}
+              disabled={spinning || pending}
+              className="h-10 rounded border border-neutral-500 px-4 text-sm font-semibold text-white hover:bg-neutral-800 disabled:opacity-40"
+            >
+              {spinning ? "Randomizing" : "Randomize"}
+            </button>
           </div>
           <p className="mt-2 text-xs tracking-wide text-neutral-300">PICKING NEXT · {picker.abbreviation}</p>
+          {pending && (
+            <div className="mt-3 flex items-center gap-3">
+              <button type="button" onClick={continuePick} className="h-9 rounded bg-neutral-200 px-4 text-sm font-bold text-black">
+                Continue
+              </button>
+              <button type="button" onClick={rejectPick} className="h-9 rounded px-3 text-sm font-semibold text-red-400 hover:text-red-300">
+                Reject
+              </button>
+            </div>
+          )}
         </div>
       )}
       <div className="overflow-hidden rounded-2xl border border-neutral-700">
