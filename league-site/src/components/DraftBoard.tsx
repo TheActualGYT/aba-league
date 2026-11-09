@@ -54,7 +54,7 @@ export type PickPlayer = {
 function PickGraphic({ player, logo }: { player: PickPlayer; logo?: string }) {
   const rank = abaRank(player.rating);
   const dark = rank?.name === "Black";
-  const color = dark ? "#1c1c1c" : rank?.color || "#d4d4d4";
+  const color = rank?.name === "Diamond" ? "#d7ecff" : dark ? "#1c1c1c" : rank?.color || "#d4d4d4";
   return (
     <div className="relative h-full w-full overflow-hidden text-left" style={{ background: color, containerType: "size", color: dark ? "#fff" : "#111", fontFamily: "Inter, sans-serif" }}>
       <div className="absolute inset-x-0 bottom-0 h-1/4" style={{ background: "rgba(0,0,0,0.22)" }} />
@@ -62,8 +62,8 @@ function PickGraphic({ player, logo }: { player: PickPlayer; logo?: string }) {
         <img
           src={logo}
           alt=""
-          className="pointer-events-none absolute bottom-0 right-0 h-[40%] w-auto max-w-none object-contain"
-          style={{ transform: "translate(16%, 14%)" }}
+          className="pointer-events-none absolute object-contain"
+          style={{ height: "42%", width: "auto", right: "4cqw", bottom: "5%" }}
         />
       )}
       <div className="relative flex h-full items-start justify-between px-[8cqw] pt-[7cqw] text-left">
@@ -333,10 +333,9 @@ export default function DraftBoard({
       }}
     >
       <h2 className="label-glow text-3xl font-bold mb-8 text-white text-center tracking-wide">DRAFT BOARD</h2>
-      <div className="mb-8 flex items-stretch justify-between gap-6">
-          <div className="flex items-stretch gap-4">
+      <div className="mb-8 flex items-stretch gap-4">
           {picker && (
-          <div className="flex w-64 flex-col items-center rounded-xl border border-neutral-700 bg-neutral-900 px-5 py-4">
+          <div className="flex w-64 shrink-0 flex-col items-center rounded-xl border border-neutral-700 bg-neutral-900 px-5 py-4">
             <button
               type="button"
               onClick={randomize}
@@ -386,7 +385,7 @@ export default function DraftBoard({
             )}
           </div>
           )}
-          <aside className="flex w-64 flex-col items-center justify-center rounded-xl border border-neutral-700 bg-neutral-900 px-4 py-4">
+          <aside className="flex min-w-64 flex-1 flex-col items-center justify-center rounded-xl border border-neutral-700 bg-neutral-900 px-4 py-4">
             <h3 className="text-center text-sm font-bold tracking-[0.14em] text-white">YOU'RE ON THE CLOCK</h3>
             {onClock && openPick ? (
               <>
@@ -404,8 +403,7 @@ export default function DraftBoard({
               <p className="mt-6 text-3xl font-bold tracking-wide text-white">N/A</p>
             )}
           </aside>
-          </div>
-          <aside className="flex w-80 flex-col rounded-xl border border-neutral-700 bg-neutral-900 px-4 py-4">
+          <aside className="flex w-80 shrink-0 flex-col rounded-xl border border-neutral-700 bg-neutral-900 px-4 py-4">
             <h3 className="text-center text-sm font-bold tracking-[0.14em] text-white">DRAFT LOG</h3>
             <div className="mt-3 flex flex-1 flex-col">
               {Array.from({ length: 4 }, (_, index) => recentPicks[index] || null).map((pick, index) => {
