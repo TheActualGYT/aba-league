@@ -99,6 +99,26 @@ interface Game {
   away_score: number;
 }
 
+interface BoxScore {
+  game_id: number;
+  player_id: number;
+  pts?: number;
+  ast?: number;
+  orb?: number;
+  drb?: number;
+  reb?: number;
+  stl?: number;
+  blk?: number;
+  to?: number;
+  pf?: number;
+  fgm?: number;
+  fga?: number;
+  tpm?: number;
+  tpa?: number;
+  ftm?: number;
+  fta?: number;
+}
+
 interface News {
   id: number;
   title: string;
@@ -112,6 +132,7 @@ interface Data {
   teams: Team[];
   players: Player[];
   games: Game[];
+  box_scores?: BoxScore[];
   news: News[];
   nextIds: {
     user: number;
