@@ -174,7 +174,7 @@ export default function DraftBoard({
   const pickBySlot = new Map(picks.map(pick => [pick.slot, pick]));
   const names = new Map(playerNames.map(player => [player.id, player.name]));
   const onClock = openPick ? teamById.get(openPick.teamId) : undefined;
-  const clockPicks = picks.filter(pick => pick.teamId === onClock?.id);
+  const recentPicks = [...picks].filter(pick => pick.playerId).slice(-3).reverse();
   const locked = Boolean(openPick);
 
   const savePicker = (teamId: number) => {
@@ -286,8 +286,9 @@ export default function DraftBoard({
       }}
     >
       <h2 className="label-glow text-3xl font-bold mb-8 text-white text-center tracking-wide">DRAFT BOARD</h2>
-      {(picker || onClock) && (
+      {(picker || onClock || recentPicks.length > 0) && (
         <div className="mb-8 flex items-start justify-between gap-6">
+          <div className="flex items-start gap-4">
           {picker && (
           <div className="inline-flex flex-col items-center rounded-xl border border-neutral-700 bg-neutral-900 px-5 py-4">
             <button
@@ -339,8 +340,8 @@ export default function DraftBoard({
             )}
           </div>
           )}
-          {onClock && (
-          <aside className="w-80 rounded-xl border border-neutral-700 bg-neutral-900 px-4 py-4">
+          {onClock && openPick && (
+          <aside className="w-64 rounded-xl border border-neutral-700 bg-neutral-900 px-4 py-4">
             <h3 className="text-center text-sm font-bold tracking-[0.14em] text-white">YOU'RE ON THE CLOCK</h3>
             <div className="mt-3 flex justify-center">
               {onClock.logo ? (
@@ -350,15 +351,24 @@ export default function DraftBoard({
               )}
             </div>
             <p className="mt-2 text-center text-sm text-white">{onClock.ownership || "N/A"}</p>
-            <div className="mt-4 border-t border-neutral-700 pt-3">
-              <p className="mb-1 text-[11px] uppercase tracking-wide text-neutral-400">Draft</p>
-              <div className="flex flex-wrap gap-1">
-                {clockPicks.map(pick => (
-                  <span key={pick.slot} className="rounded border border-neutral-600 px-1.5 py-0.5 text-xs text-white">{pick.slot}</span>
-                ))}
-              </div>
-            </div>
+            <p className="mt-4 text-center text-sm font-bold tracking-[0.16em] text-white">DRAFT {openPick.slot}</p>
           </aside>
+          )}
+          </div>
+          {recentPicks.length > 0 && (
+            <div className="min-w-52">
+              {recentPicks.map(pick => {
+                const team = teamById.get(pick.teamId);
+                const name = pick.playerId ? names.get(pick.playerId) : "";
+                return (
+                  <div key={pick.slot} className="mb-2 flex items-center justify-end gap-2">
+                    <span className="text-xs font-bold tracking-wide text-neutral-400">{pick.slot}</span>
+                    {team?.logo && <img src={team.logo} alt="" className="h-5 w-5 object-contain" />}
+                    <span className="max-w-40 truncate text-sm text-white">{name}</span>
+                  </div>
+                );
+              })}
+            </div>
           )}
         </div>
       )}
