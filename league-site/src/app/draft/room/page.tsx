@@ -63,7 +63,7 @@ export default async function DraftRoomPage() {
         fg: player.fg || "",
         threeP: player.three_p || "",
       })),
-  })).filter(section => section.players.length > 0);
+  }));
 
   return <DraftBoard teams={teams} sections={sections} />;
 }

@@ -11,6 +11,7 @@ const ROW_H = 112;
 const ROUND_W = 156;
 const SUMMARY_W = 96;
 const SUMMARY_H = 64;
+const PROSPECT_SLOTS = 5;
 
 export type DraftProspect = {
   id: number;
@@ -37,10 +38,13 @@ function boardRows() {
 }
 
 function shown(value: string) {
-  return value || "\u2014";
+  return value || "-";
 }
 
 function ProspectTable({ players }: { players: DraftProspect[] }) {
+  const rows: Array<DraftProspect | null> = players.slice(0, PROSPECT_SLOTS);
+  while (rows.length < PROSPECT_SLOTS) rows.push(null);
+
   return (
     <table className="w-full border-collapse text-sm">
       <thead>
@@ -55,22 +59,22 @@ function ProspectTable({ players }: { players: DraftProspect[] }) {
         </tr>
       </thead>
       <tbody>
-        {players.map(player => {
-          const rank = abaRank(player.rating);
+        {rows.map((player, index) => {
+          const rank = player ? abaRank(player.rating) : null;
           return (
-            <tr key={player.id}>
-              <td className="border-b border-neutral-800 px-2 py-2 text-neutral-200">{shown(player.position)}</td>
-              <td className="border-b border-neutral-800 px-2 py-2 text-white">{player.name}</td>
+            <tr key={player?.id ?? `empty-${index}`}>
+              <td className="border-b border-neutral-800 px-2 py-2 text-neutral-200">{player ? shown(player.position) : "-"}</td>
+              <td className="border-b border-neutral-800 px-2 py-2 text-white">{player ? player.name : "-"}</td>
               <td className="border-b border-neutral-800 px-2 py-2 text-white">
                 <span className="inline-flex items-center gap-1.5">
-                  <span>{shown(player.rating)}</span>
+                  <span>{player ? shown(player.rating) : "-"}</span>
                   {rank && <img src={rank.src} alt="" title={rank.name} className="h-5 w-auto object-contain" />}
                 </span>
               </td>
-              <td className="border-b border-neutral-800 px-2 py-2 text-neutral-200">{shown(player.height)}</td>
-              <td className="border-b border-neutral-800 px-2 py-2 text-neutral-200">{shown(player.weight)}</td>
-              <td className="border-b border-neutral-800 px-2 py-2 text-neutral-200">{shown(player.fg)}</td>
-              <td className="border-b border-neutral-800 px-2 py-2 text-neutral-200">{shown(player.threeP)}</td>
+              <td className="border-b border-neutral-800 px-2 py-2 text-neutral-200">{player ? shown(player.height) : "-"}</td>
+              <td className="border-b border-neutral-800 px-2 py-2 text-neutral-200">{player ? shown(player.weight) : "-"}</td>
+              <td className="border-b border-neutral-800 px-2 py-2 text-neutral-200">{player ? shown(player.fg) : "-"}</td>
+              <td className="border-b border-neutral-800 px-2 py-2 text-neutral-200">{player ? shown(player.threeP) : "-"}</td>
             </tr>
           );
         })}
@@ -164,21 +168,17 @@ export default function DraftBoard({
               View all prospects
             </Link>
           </div>
-          {sections.length === 0 ? (
-            <p className="text-neutral-400">No prospects yet.</p>
-          ) : (
-            <div className="space-y-8">
-              {sections.map(section => (
-                <div key={section.name}>
-                  <div className="mb-2 flex items-center gap-2">
-                    <img src={section.src} alt="" className="h-6 w-auto object-contain" />
-                    <h4 className="text-sm font-bold tracking-wide text-white">{section.name}</h4>
-                  </div>
-                  <ProspectTable players={section.players} />
+          <div className="space-y-8">
+            {sections.map(section => (
+              <div key={section.name}>
+                <div className="mb-2 flex items-center gap-2">
+                  <img src={section.src} alt="" className="h-6 w-auto object-contain" />
+                  <h4 className="text-sm font-bold tracking-wide text-white">{section.name}</h4>
                 </div>
-              ))}
-            </div>
-          )}
+                <ProspectTable players={section.players} />
+              </div>
+            ))}
+          </div>
         </section>
         <section className="shrink-0">
           <h3 className="label-glow mb-6 text-center text-3xl font-bold tracking-wide text-white">DRAFT SUMMARY</h3>
