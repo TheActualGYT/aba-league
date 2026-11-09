@@ -7,8 +7,8 @@ const PICKS = 20;
 const CELL = 168;
 const ROW_H = 112;
 const ROUND_W = 156;
-const SUMMARY_W = 144;
-const SUMMARY_H = 96;
+const SUMMARY_W = 96;
+const SUMMARY_H = 64;
 
 function boardRows() {
   return Array.from({ length: ROUNDS }, (_, index) => {
@@ -17,7 +17,7 @@ function boardRows() {
   });
 }
 
-export default function DraftBoard({ teams }: { teams: { id: number; name: string; logo?: string }[] }) {
+export default function DraftBoard({ teams }: { teams: { id: number; abbreviation: string; logo?: string }[] }) {
   const bodyRef = useRef<HTMLDivElement>(null);
   const [scroll, setScroll] = useState({ left: 0, max: 0 });
   const rows = boardRows();
@@ -88,25 +88,28 @@ export default function DraftBoard({ teams }: { teams: { id: number; name: strin
         </div>
       </div>
 
-      <section className="mt-10 flex justify-end">
-        <div>
+      <div className="mt-10 flex items-start justify-between gap-10">
+        <section>
+          <h3 className="label-glow mb-6 text-3xl font-bold tracking-wide text-white">PERSONAL TARGETS</h3>
+        </section>
+        <section>
           <h3 className="label-glow mb-6 text-center text-3xl font-bold tracking-wide text-white">DRAFT SUMMARY</h3>
           {teams.length === 0 ? (
             <p className="text-center text-neutral-400">No teams yet.</p>
           ) : (
-            <div className="space-y-5">
+            <div className="space-y-3">
               {teams.map(team => (
-                <div key={team.id}>
-                  <div className="mb-2 flex items-center gap-2 text-white">
-                    {team.logo && <img src={team.logo} alt="" className="h-6 w-6 shrink-0 object-contain" />}
-                    <span className="font-semibold">{team.name}</span>
+                <div key={team.id} className="flex items-stretch">
+                  <div style={{ width: 52, height: SUMMARY_H }} className="flex shrink-0 flex-col items-center justify-center pr-2">
+                    {team.logo && <img src={team.logo} alt="" className="h-8 max-w-full object-contain" />}
+                    <span className="mt-1 text-[11px] font-semibold leading-none tracking-wide text-white">{team.abbreviation}</span>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex">
                     {Array.from({ length: ROUNDS }, (_, pick) => (
                       <div
                         key={pick}
                         style={{ width: SUMMARY_W, height: SUMMARY_H }}
-                        className="border border-neutral-600 bg-neutral-950"
+                        className={`border-y border-r border-neutral-600 bg-neutral-950 ${pick === 0 ? "border-l" : ""}`}
                       />
                     ))}
                   </div>
@@ -114,8 +117,8 @@ export default function DraftBoard({ teams }: { teams: { id: number; name: strin
               ))}
             </div>
           )}
-        </div>
-      </section>
+        </section>
+      </div>
     </main>
   );
 }
