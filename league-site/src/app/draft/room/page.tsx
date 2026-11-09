@@ -1,5 +1,10 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+
 const ROUNDS = 5;
 const PICKS = 20;
+const CELL = 168;
 
 function boardRows() {
   return Array.from({ length: ROUNDS }, (_, index) => {
@@ -11,7 +16,21 @@ function boardRows() {
 }
 
 export default function DraftRoomPage() {
+  const bodyRef = useRef<HTMLDivElement>(null);
+  const [scroll, setScroll] = useState({ left: 0, max: 0 });
   const rows = boardRows();
+
+  const syncScroll = () => {
+    const node = bodyRef.current;
+    if (!node) return;
+    setScroll({ left: node.scrollLeft, max: Math.max(0, node.scrollWidth - node.clientWidth) });
+  };
+
+  useEffect(() => {
+    syncScroll();
+    window.addEventListener("resize", syncScroll);
+    return () => window.removeEventListener("resize", syncScroll);
+  }, []);
 
   return (
     <main
@@ -21,27 +40,44 @@ export default function DraftRoomPage() {
         paddingRight: "max(24px, calc(50% - 640px))",
       }}
     >
-      <div className="overflow-x-auto rounded-lg border border-neutral-600">
-        <table className="w-full min-w-[980px] table-fixed border-collapse text-center">
-          <thead>
-            <tr>
-              <th colSpan={PICKS} className="border border-neutral-600 bg-neutral-100 px-3 py-2 text-left text-sm font-bold tracking-wide text-black">
-                DRAFT BOARD
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map(row => (
-              <tr key={row[0]}>
-                {row.map(slot => (
-                  <td key={slot} className="border border-neutral-600 bg-neutral-950 px-0.5 py-3 text-[11px] leading-none text-neutral-100">
-                    {slot}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <h2 className="label-glow text-3xl font-bold mb-8 text-white text-center tracking-wide">DRAFT BOARD</h2>
+      <div className="overflow-hidden rounded-2xl border border-neutral-700">
+        {scroll.max > 0 && (
+          <div className="border-b border-neutral-700 bg-neutral-900 px-3 pt-2 pb-1">
+            <input
+              type="range"
+              min={0}
+              max={scroll.max}
+              value={Math.min(scroll.left, scroll.max)}
+              aria-label="Scroll draft board"
+              className="sheet-slider"
+              onChange={event => {
+                const left = Number(event.target.value);
+                if (bodyRef.current) bodyRef.current.scrollLeft = left;
+                setScroll(current => ({ ...current, left }));
+              }}
+            />
+          </div>
+        )}
+        <div ref={bodyRef} onScroll={syncScroll} className="overflow-x-auto">
+          <table className="border-collapse text-center" style={{ width: PICKS * CELL }}>
+            <tbody>
+              {rows.map(row => (
+                <tr key={row[0]}>
+                  {row.map(slot => (
+                    <td
+                      key={slot}
+                      style={{ width: CELL, height: 112 }}
+                      className="border border-neutral-600 bg-neutral-950 text-xl text-white/50"
+                    >
+                      {slot}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </main>
   );
