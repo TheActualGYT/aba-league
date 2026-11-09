@@ -409,7 +409,7 @@ export default function PlayerForm({
                   <div className="h-8 w-8 overflow-hidden rounded border border-neutral-600 bg-neutral-950">
                     {shownRank && <img src={shownRank.src} alt={`${shownRank.name} Rank`} className="h-full w-full object-contain" />}
                   </div>
-                  {shownRank && <span className={`absolute left-1/2 top-full mt-1 -translate-x-1/2 whitespace-nowrap text-center text-[10px] leading-none ${shownRank.label}`}>{shownRank.name}</span>}
+                  {shownRank && <span className="absolute left-1/2 top-full mt-1 -translate-x-1/2 whitespace-nowrap text-center text-[10px] leading-none text-white">{shownRank.name}</span>}
                 </div>
               </div>
               {shownOverall && <p className="text-[11px] text-red-400 mt-1">{shownOverall}</p>}
@@ -516,11 +516,6 @@ export default function PlayerForm({
 
       <div className="mt-6 flex items-start justify-end gap-3">
         {message && <p className="text-sm text-amber-300 mr-auto mt-2">{message}</p>}
-        {editing && (
-          <a href={player?.status === "prospect" ? "/draft/prospects" : "/players"} className="text-sm text-neutral-300 hover:text-white mt-2">
-            Cancel
-          </a>
-        )}
         <div className="w-80">
           <Menu
             up
@@ -564,9 +559,16 @@ export default function PlayerForm({
             </div>
           )}
         </div>
-        <button type="submit" disabled={blocked} className={`bg-neutral-200 text-black font-bold px-5 py-2 rounded ${blocked ? "opacity-40 cursor-not-allowed" : "hover:bg-white"}`}>
-          {editing ? "Save Player" : "Create Player"}
-        </button>
+        <div className="flex flex-col items-center gap-2">
+          <button type="submit" disabled={blocked} className={`bg-neutral-200 text-black font-bold px-5 py-2 rounded ${blocked ? "opacity-40 cursor-not-allowed" : "hover:bg-white"}`}>
+            {editing ? "Save Player" : "Create Player"}
+          </button>
+          {editing && (
+            <a href={player?.status === "prospect" ? "/draft/prospects" : "/players"} className="text-sm text-red-400 hover:text-red-300">
+              Cancel
+            </a>
+          )}
+        </div>
       </div>
     </form>
   );

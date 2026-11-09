@@ -7,7 +7,7 @@ import DeletePlayerButton from "@/components/DeletePlayerButton";
 import DropdownLayer from "@/components/DropdownLayer";
 import { useCloseOnOutside } from "@/components/useCloseOnOutside";
 import { ratingFill, RATING_INK } from "@/lib/ratingColor";
-import { abaRank } from "@/lib/abaRank";
+import { abaRank, ABA_RANK_NAMES } from "@/lib/abaRank";
 
 export type DirectoryPlayer = {
   id: number;
@@ -284,6 +284,45 @@ function SectionMenu({ value, onChange }: { value: SectionId; onChange: (value: 
   );
 }
 
+function RankMenu({ value, onChange }: { value: string; onChange: (value: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const owner = useId().replace(/:/g, "");
+  const rootRef = useCloseOnOutside<HTMLDivElement>(open, setOpen);
+  const options = ["All Ranks", ...ABA_RANK_NAMES];
+
+  return (
+    <div className="relative w-40" ref={rootRef} data-dropdown-owner={owner}>
+      <button
+        type="button"
+        onClick={() => setOpen(currentOpen => !currentOpen)}
+        className="w-full h-10 px-3 bg-neutral-800 border border-neutral-600 rounded text-white text-left flex items-center justify-between"
+      >
+        <span className="truncate">{value}</span>
+        <span className="text-neutral-400 text-[10px]">▼</span>
+      </button>
+      <DropdownLayer anchor={rootRef.current} open={open} owner={owner} matchWidth>
+        <div className="pt-1">
+          <div className="bg-neutral-800 border border-neutral-600 rounded overflow-hidden shadow-lg max-h-80 overflow-y-auto">
+            {options.map(item => (
+              <button
+                key={item}
+                type="button"
+                onClick={() => {
+                  onChange(item);
+                  setOpen(false);
+                }}
+                className={`block w-full text-left px-3 py-2 text-sm text-white hover:bg-neutral-700 ${value === item ? "bg-neutral-700" : ""}`}
+              >
+                {item}
+              </button>
+            ))}
+          </div>
+        </div>
+      </DropdownLayer>
+    </div>
+  );
+}
+
 function AttributeRail({ anchor }: { anchor: HTMLTableCellElement | null }) {
   const [box, setBox] = useState<{ left: number; top: number; width: number } | null>(null);
 
@@ -344,6 +383,7 @@ export default function PlayerDirectory({
   const [rail, setRail] = useState<HTMLTableCellElement | null>(null);
   const [section, setSection] = useState<SectionId>("vitals");
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: "name", dir: "asc" });
+  const [rankFilter, setRankFilter] = useState("All Ranks");
   const [scroll, setScroll] = useState({ left: 0, max: 0 });
   const sheetVitals = COLUMNS.vitals.filter(column => column.key !== "team" && column.key !== "hand");
   const weightAt = sheetVitals.findIndex(column => column.key === "weight");
@@ -366,7 +406,8 @@ export default function PlayerDirectory({
     ? (SHEET_WIDTH[key as keyof DirectoryPlayer] || "4.15rem")
     : `calc((100% - ${NUM_COL} - ${POS_COL} - ${NAME_COL} - ${ACTION_COL}) * ${columnWeight(section, key)} / ${totalWeight})`;
   const headerTop = 81;
-  const rows = [...players]
+  const roster = rankFilter === "All Ranks" ? players : players.filter(player => abaRank(player.rating)?.name === rankFilter);
+  const rows = [...roster]
     .map((player, index) => ({ player, index }))
     .sort((a, b) => {
       const primary = sort.key === "position"
@@ -429,7 +470,10 @@ export default function PlayerDirectory({
     <>
       {!sheet && (
         <div className="mb-6 flex items-center justify-between gap-4">
-          <SectionMenu value={section} onChange={chooseSection} />
+          <div className="flex items-center gap-3">
+            <SectionMenu value={section} onChange={chooseSection} />
+            <RankMenu value={rankFilter} onChange={setRankFilter} />
+          </div>
           {showCreate && (
             <Link href={createHref} className="bg-neutral-200 text-black font-bold px-5 py-2 rounded hover:bg-white">
               Create Player
@@ -438,8 +482,16 @@ export default function PlayerDirectory({
         </div>
       )}
 
+      {sheet && players.length > 0 && (
+        <div className="mb-4">
+          <RankMenu value={rankFilter} onChange={setRankFilter} />
+        </div>
+      )}
+
       {players.length === 0 ? (
         <div className="bg-neutral-900 rounded-lg border border-neutral-700 px-4 py-6 text-center text-neutral-400">{emptyLabel}</div>
+      ) : roster.length === 0 ? (
+        <div className="bg-neutral-900 rounded-lg border border-neutral-700 px-4 py-6 text-center text-neutral-400">No players in this rank.</div>
       ) : (
         <>
           {sheet && <AttributeRail anchor={rail} />}
