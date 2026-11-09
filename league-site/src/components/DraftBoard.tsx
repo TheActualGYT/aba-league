@@ -151,14 +151,14 @@ function ProspectTable({
   return (
     <table className="w-full table-fixed border-collapse text-sm">
       <colgroup>
-        <col style={{ width: "3.25rem" }} />
+        <col style={{ width: "2.5rem" }} />
+        <col style={{ width: "58%" }} />
         <col />
-        <col style={{ width: "4.75rem" }} />
-        <col style={{ width: "4.75rem" }} />
-        <col style={{ width: "4.75rem" }} />
-        <col style={{ width: "4.75rem" }} />
-        <col style={{ width: "4.75rem" }} />
-        <col style={{ width: "4.75rem" }} />
+        <col />
+        <col />
+        <col />
+        <col />
+        <col />
       </colgroup>
       <thead>
         <tr className="text-left text-xs uppercase tracking-wide text-neutral-400">
@@ -311,6 +311,8 @@ export default function DraftBoard({
       setBlockNote(position ? `${position} is already filled.` : "That player needs a position.");
       return;
     }
+    const teamName = onClock.name || onClock.abbreviation;
+    if (!window.confirm(`Draft ${prospect?.name || "this player"} to ${teamName}?`)) return;
     setBlockNote("");
     setPicks(current => current.map(pick => pick.slot === openPick.slot ? { ...pick, playerId } : pick));
     setLists(current => current.map(section => ({
