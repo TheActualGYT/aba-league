@@ -56,28 +56,28 @@ function PickGraphic({ player, logo }: { player: PickPlayer; logo?: string }) {
   const dark = rank?.name === "Black";
   const color = dark ? "#1c1c1c" : rank?.color || "#d4d4d4";
   return (
-    <div className="relative h-full w-full overflow-hidden" style={{ background: color, containerType: "size", color: dark ? "#fff" : "#111" }}>
-      <div className="absolute inset-x-0 bottom-0 h-[46%]" style={{ background: "rgba(0,0,0,0.18)" }} />
+    <div className="relative h-full w-full overflow-hidden text-left" style={{ background: color, containerType: "size", color: dark ? "#fff" : "#111", fontFamily: "Inter, sans-serif" }}>
+      <div className="absolute inset-x-0 bottom-0 h-1/4" style={{ background: "rgba(0,0,0,0.22)" }} />
       {logo && (
         <img
           src={logo}
           alt=""
-          className="pointer-events-none absolute bottom-0 right-0 h-[88%] w-auto max-w-none object-contain"
-          style={{ transform: "translate(32%, 20%)" }}
+          className="pointer-events-none absolute bottom-0 right-0 h-[40%] w-auto max-w-none object-contain"
+          style={{ transform: "translate(16%, 14%)" }}
         />
       )}
-      <div className="relative flex h-full flex-col justify-between px-[5cqw] py-[7cqw]">
+      <div className="relative flex h-full flex-col justify-between px-[5cqw] py-[7cqw] text-left">
         <div className="flex items-start justify-between gap-[2cqw]">
-          <div className="min-w-0 leading-[0.86] font-black">
-            <div className="truncate" style={{ fontSize: "13cqw" }}>{player.first}</div>
-            <div className="truncate" style={{ fontSize: "15cqw" }}>{player.last}</div>
+          <div className="min-w-0 text-left font-black leading-[0.92]">
+            <div className="truncate" style={{ fontSize: "11cqw" }}>{player.first}</div>
+            <div className="truncate" style={{ fontSize: "11cqw" }}>{player.last}</div>
           </div>
           <div className="shrink-0 text-right font-black leading-[0.95]" style={{ fontSize: "8cqw" }}>
             <div>{player.height}</div>
             <div>{player.weight}</div>
           </div>
         </div>
-        <div className="font-black leading-none" style={{ fontSize: "11cqw" }}>
+        <div className="self-start text-left font-black leading-none" style={{ fontSize: "9cqw" }}>
           {[player.position, player.rating].filter(Boolean).join(" / ")}
         </div>
       </div>
