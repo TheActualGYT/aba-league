@@ -287,10 +287,10 @@ export default function DraftBoard({
     >
       <h2 className="label-glow text-3xl font-bold mb-8 text-white text-center tracking-wide">DRAFT BOARD</h2>
       {(picker || onClock || recentPicks.length > 0) && (
-        <div className="mb-8 flex items-start justify-between gap-6">
-          <div className="flex items-start gap-4">
+        <div className="mb-8 flex items-stretch justify-between gap-6">
+          <div className="flex items-stretch gap-4">
           {picker && (
-          <div className="inline-flex flex-col items-center rounded-xl border border-neutral-700 bg-neutral-900 px-5 py-4">
+          <div className="flex w-64 flex-col items-center rounded-xl border border-neutral-700 bg-neutral-900 px-5 py-4">
             <button
               type="button"
               onClick={randomize}
@@ -310,11 +310,11 @@ export default function DraftBoard({
                 ‹
               </button>
               <div className={`flex h-20 w-20 items-center justify-center rounded-lg border bg-neutral-950 ${spinning ? "border-white" : "border-neutral-500"}`}>
-                {picker.logo ? (
+                {!onClock && picker.logo ? (
                   <img src={picker.logo} alt="" className="h-16 w-16 object-contain" />
-                ) : (
+                ) : !onClock ? (
                   <span className="text-xs text-neutral-400">{picker.abbreviation}</span>
-                )}
+                ) : null}
               </div>
               <button
                 type="button"
@@ -327,7 +327,7 @@ export default function DraftBoard({
               </button>
             </div>
             <p className="mt-3 text-[11px] uppercase tracking-[0.16em] text-neutral-400">Picking next</p>
-            <p className="text-sm font-semibold tracking-wide text-white">{picker.abbreviation}</p>
+            <p className="text-sm font-semibold tracking-wide text-white">{onClock ? "\u00a0" : picker.abbreviation}</p>
             {pending && (
               <div className="mt-3 flex items-center gap-3">
                 <button type="button" onClick={continuePick} className="h-8 rounded bg-neutral-200 px-4 text-sm font-bold text-black">
@@ -341,7 +341,7 @@ export default function DraftBoard({
           </div>
           )}
           {onClock && openPick && (
-          <aside className="w-64 rounded-xl border border-neutral-700 bg-neutral-900 px-4 py-4">
+          <aside className="flex w-64 flex-col items-center justify-center rounded-xl border border-neutral-700 bg-neutral-900 px-4 py-4">
             <h3 className="text-center text-sm font-bold tracking-[0.14em] text-white">YOU'RE ON THE CLOCK</h3>
             <div className="mt-3 flex justify-center">
               {onClock.logo ? (
@@ -355,21 +355,30 @@ export default function DraftBoard({
           </aside>
           )}
           </div>
-          {recentPicks.length > 0 && (
-            <div className="min-w-52">
-              {recentPicks.map(pick => {
-                const team = teamById.get(pick.teamId);
-                const name = pick.playerId ? names.get(pick.playerId) : "";
-                return (
-                  <div key={pick.slot} className="mb-2 flex items-center justify-end gap-2">
-                    <span className="text-xs font-bold tracking-wide text-neutral-400">{pick.slot}</span>
-                    {team?.logo && <img src={team.logo} alt="" className="h-5 w-5 object-contain" />}
-                    <span className="max-w-40 truncate text-sm text-white">{name}</span>
-                  </div>
-                );
-              })}
+          <aside className="flex w-80 flex-col rounded-xl border border-neutral-700 bg-neutral-900 px-4 py-4">
+            <h3 className="text-center text-sm font-bold tracking-[0.14em] text-white">DRAFT LOG</h3>
+            <div className="mt-3 flex flex-1 flex-col justify-center gap-3">
+              {recentPicks.length === 0 ? (
+                <p className="text-center text-sm text-neutral-500">No picks yet.</p>
+              ) : (
+                recentPicks.map(pick => {
+                  const team = teamById.get(pick.teamId);
+                  const name = pick.playerId ? names.get(pick.playerId) : "";
+                  return (
+                    <div key={pick.slot} className="flex items-center gap-3">
+                      <span className="w-10 shrink-0 text-xs font-bold tracking-wide text-neutral-400">{pick.slot}</span>
+                      {team?.logo ? (
+                        <img src={team.logo} alt="" className="h-8 w-8 shrink-0 object-contain" />
+                      ) : (
+                        <span className="w-8 shrink-0 text-center text-[10px] text-neutral-400">{team?.abbreviation}</span>
+                      )}
+                      <span className="truncate text-sm font-semibold text-white">{name}</span>
+                    </div>
+                  );
+                })
+              )}
             </div>
-          )}
+          </aside>
         </div>
       )}
       <div className="overflow-hidden rounded-2xl border border-neutral-700">
