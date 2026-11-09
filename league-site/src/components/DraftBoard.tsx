@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { abaRank } from "@/lib/abaRank";
 
 const ROUNDS = 5;
 const PICKS = 20;
@@ -10,6 +11,17 @@ const ROUND_W = 156;
 const SUMMARY_W = 96;
 const SUMMARY_H = 64;
 
+export type DraftProspect = {
+  id: number;
+  position: string;
+  name: string;
+  rating: string;
+  height: string;
+  weight: string;
+  fg: string;
+  threeP: string;
+};
+
 function boardRows() {
   return Array.from({ length: ROUNDS }, (_, index) => {
     const round = index + 1;
@@ -17,7 +29,17 @@ function boardRows() {
   });
 }
 
-export default function DraftBoard({ teams }: { teams: { id: number; abbreviation: string; logo?: string }[] }) {
+function shown(value: string) {
+  return value || "\u2014";
+}
+
+export default function DraftBoard({
+  teams,
+  prospects,
+}: {
+  teams: { id: number; abbreviation: string; logo?: string }[];
+  prospects: DraftProspect[];
+}) {
   const bodyRef = useRef<HTMLDivElement>(null);
   const [scroll, setScroll] = useState({ left: 0, max: 0 });
   const rows = boardRows();
@@ -88,11 +110,49 @@ export default function DraftBoard({ teams }: { teams: { id: number; abbreviatio
         </div>
       </div>
 
-      <div className="mt-10 flex items-start justify-between gap-10">
-        <section>
-          <h3 className="label-glow mb-6 text-3xl font-bold tracking-wide text-white">PERSONAL TARGETS</h3>
+      <div className="mt-10 flex items-start justify-between gap-8">
+        <section className="min-w-0 flex-1">
+          <h3 className="label-glow mb-6 text-3xl font-bold tracking-wide text-white">TOP REMAINING PROSPECTS</h3>
+          {prospects.length === 0 ? (
+            <p className="text-neutral-400">No prospects yet.</p>
+          ) : (
+            <table className="w-full border-collapse text-sm">
+              <thead>
+                <tr className="text-left text-xs uppercase tracking-wide text-neutral-400">
+                  <th className="border-b border-neutral-700 px-2 py-2 font-semibold">Position</th>
+                  <th className="border-b border-neutral-700 px-2 py-2 font-semibold">Player Name</th>
+                  <th className="border-b border-neutral-700 px-2 py-2 font-semibold">ABA Rating</th>
+                  <th className="border-b border-neutral-700 px-2 py-2 font-semibold">HT</th>
+                  <th className="border-b border-neutral-700 px-2 py-2 font-semibold">WT</th>
+                  <th className="border-b border-neutral-700 px-2 py-2 font-semibold">FG</th>
+                  <th className="border-b border-neutral-700 px-2 py-2 font-semibold">3P</th>
+                </tr>
+              </thead>
+              <tbody>
+                {prospects.map(player => {
+                  const rank = abaRank(player.rating);
+                  return (
+                    <tr key={player.id}>
+                      <td className="border-b border-neutral-800 px-2 py-2 text-neutral-200">{shown(player.position)}</td>
+                      <td className="border-b border-neutral-800 px-2 py-2 text-white">{player.name}</td>
+                      <td className="border-b border-neutral-800 px-2 py-2 text-white">
+                        <span className="inline-flex items-center gap-1.5">
+                          <span>{shown(player.rating)}</span>
+                          {rank && <img src={rank.src} alt="" title={rank.name} className="h-5 w-auto object-contain" />}
+                        </span>
+                      </td>
+                      <td className="border-b border-neutral-800 px-2 py-2 text-neutral-200">{shown(player.height)}</td>
+                      <td className="border-b border-neutral-800 px-2 py-2 text-neutral-200">{shown(player.weight)}</td>
+                      <td className="border-b border-neutral-800 px-2 py-2 text-neutral-200">{shown(player.fg)}</td>
+                      <td className="border-b border-neutral-800 px-2 py-2 text-neutral-200">{shown(player.threeP)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
         </section>
-        <section>
+        <section className="shrink-0">
           <h3 className="label-glow mb-6 text-center text-3xl font-bold tracking-wide text-white">DRAFT SUMMARY</h3>
           {teams.length === 0 ? (
             <p className="text-center text-neutral-400">No teams yet.</p>
