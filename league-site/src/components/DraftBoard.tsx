@@ -145,12 +145,14 @@ export default function DraftBoard({
   pickerTeams,
   nextPickerId,
   picks: initialPicks,
+  playerNames,
   sections,
 }: {
   teams: { id: number; abbreviation: string; logo?: string }[];
   pickerTeams: PickerTeam[];
   nextPickerId: number | null;
   picks: DraftPick[];
+  playerNames: { id: number; name: string }[];
   sections: ProspectSection[];
 }) {
   const bodyRef = useRef<HTMLDivElement>(null);
@@ -170,6 +172,7 @@ export default function DraftBoard({
   const picker = activePool.find(team => team.id === selectedId) || activePool[0];
   const teamById = new Map(pickerTeams.map(team => [team.id, team]));
   const pickBySlot = new Map(picks.map(pick => [pick.slot, pick]));
+  const names = new Map(playerNames.map(player => [player.id, player.name]));
   const onClock = openPick ? teamById.get(openPick.teamId) : undefined;
   const clockPicks = picks.filter(pick => pick.teamId === onClock?.id);
   const locked = Boolean(openPick);
@@ -250,6 +253,13 @@ export default function DraftBoard({
   const rejectPick = () => {
     setSelectedId(beforeSpin.current);
     setPending(false);
+  };
+
+  const resetDraft = () => {
+    if (!window.confirm("Reset the entire draft? This clears every pick.")) return;
+    fetch("/api/draft/reset", { method: "POST" })
+      .then(() => window.location.reload())
+      .catch(() => undefined);
   };
 
   const syncScroll = () => {
@@ -443,13 +453,20 @@ export default function DraftBoard({
                     <span className="mt-1 text-[11px] font-semibold leading-none tracking-wide text-white">{team.abbreviation}</span>
                   </div>
                   <div className="flex">
-                    {Array.from({ length: ROUNDS }, (_, pick) => (
-                      <div
-                        key={pick}
-                        style={{ width: SUMMARY_W, height: SUMMARY_H }}
-                        className={`border-y border-r border-neutral-600 bg-neutral-950 ${pick === 0 ? "border-l" : ""}`}
-                      />
-                    ))}
+                    {Array.from({ length: ROUNDS }, (_, index) => {
+                      const drafted = picks.filter(pick => pick.teamId === team.id && pick.playerId);
+                      const playerId = drafted[index]?.playerId;
+                      const name = playerId ? names.get(playerId) : "";
+                      return (
+                        <div
+                          key={index}
+                          style={{ width: SUMMARY_W, height: SUMMARY_H }}
+                          className={`flex items-center justify-center overflow-hidden border-y border-r border-neutral-600 bg-neutral-950 px-1 ${index === 0 ? "border-l" : ""}`}
+                        >
+                          {name && <span className="line-clamp-2 text-center text-[11px] leading-tight text-white">{name}</span>}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               ))}
@@ -457,6 +474,13 @@ export default function DraftBoard({
           )}
         </section>
       </div>
+      <button
+        type="button"
+        onClick={resetDraft}
+        className="fixed bottom-5 right-5 z-40 rounded border border-red-500/70 bg-neutral-950 px-4 py-2 text-sm font-semibold text-red-400 hover:bg-neutral-900"
+      >
+        Reset Draft
+      </button>
     </main>
   );
 }

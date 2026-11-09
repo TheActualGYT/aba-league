@@ -29,19 +29,18 @@ function prospectName(player: { name: string; first_name?: string; last_name?: s
 export default async function DraftRoomPage() {
   const data = await db.load();
   const ordered = [...(data.teams || [])].sort((a, b) => a.name.localeCompare(b.name));
-  const pickerTeams = ordered.map(team => ({
+  const eligible = ordered.filter(team => team.draft_eligible !== false);
+  const pickerTeams = eligible.map(team => ({
     id: team.id,
     abbreviation: team.abbreviation,
     logo: team.logo,
     ownership: team.ownership || "",
   }));
-  const teams = ordered
-    .filter(team => team.draft_eligible !== false)
-    .map(team => ({
-      id: team.id,
-      abbreviation: team.abbreviation,
-      logo: team.logo,
-    }));
+  const teams = eligible.map(team => ({
+    id: team.id,
+    abbreviation: team.abbreviation,
+    logo: team.logo,
+  }));
 
   const ranked = [...(data.players || [])]
     .filter(player => player.status === "prospect" && !player.team_id)
@@ -78,11 +77,15 @@ export default async function DraftRoomPage() {
     };
   });
 
-  const storedPicker = ordered.find(team => team.id === data.next_picker_id);
+  const storedPicker = eligible.find(team => team.id === data.next_picker_id);
   const picks = (data.draft_picks || []).map(pick => ({
     slot: pick.slot,
     teamId: pick.team_id,
     playerId: pick.player_id,
+  }));
+  const playerNames = (data.players || []).map(player => ({
+    id: player.id,
+    name: prospectName(player),
   }));
   return (
     <DraftBoard
@@ -90,6 +93,7 @@ export default async function DraftRoomPage() {
       pickerTeams={pickerTeams}
       nextPickerId={storedPicker?.id ?? null}
       picks={picks}
+      playerNames={playerNames}
       sections={sections}
     />
   );

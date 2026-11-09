@@ -26,7 +26,9 @@ function cycleTaken(picks: { team_id: number }[], teamIds: number[]) {
 export async function POST(req: NextRequest) {
   const { teamId } = await req.json();
   const data = await db.load();
-  const teams = [...(data.teams || [])].sort((a, b) => a.name.localeCompare(b.name));
+  const teams = [...(data.teams || [])]
+    .filter(item => item.draft_eligible !== false)
+    .sort((a, b) => a.name.localeCompare(b.name));
   const team = teams.find(item => item.id === Number(teamId));
   if (!team) return NextResponse.json({ error: "Team not found" }, { status: 404 });
 

@@ -123,6 +123,7 @@ interface Data {
   next_picker_id?: number | null;
   draft_picks?: { slot: string; team_id: number; player_id?: number }[];
   cleared_slot_101?: boolean;
+  full_draft_reset_v1?: boolean;
 }
 
 const ROSTERS_ALREADY_SET = [
@@ -171,6 +172,19 @@ async function saveData(data: Data) {
   `;
 }
 
+function clearDraft(data: Data) {
+  const drafted = new Set(
+    (data.draft_picks || []).map(pick => pick.player_id).filter((id): id is number => typeof id === "number"),
+  );
+  for (const player of data.players || []) {
+    if (!drafted.has(player.id)) continue;
+    player.team_id = null;
+    player.status = "prospect";
+  }
+  data.draft_picks = [];
+  data.next_picker_id = null;
+}
+
 async function applyDraftEligibility(data: Data) {
   let changed = false;
   for (const team of data.teams || []) {
@@ -182,6 +196,11 @@ async function applyDraftEligibility(data: Data) {
   if (!data.cleared_slot_101) {
     data.draft_picks = (data.draft_picks || []).filter(pick => pick.slot !== "1.01");
     data.cleared_slot_101 = true;
+    changed = true;
+  }
+  if (!data.full_draft_reset_v1) {
+    clearDraft(data);
+    data.full_draft_reset_v1 = true;
     changed = true;
   }
   if (changed) await saveData(data);
@@ -203,6 +222,7 @@ async function loadData(): Promise<Data> {
 export const db = {
   load: () => loadData(),
   save: (data: Data) => saveData(data),
+  clearDraft,
 };
 
 export default db;
