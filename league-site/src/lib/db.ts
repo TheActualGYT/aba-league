@@ -28,6 +28,7 @@ interface Team {
   assistant_coach?: string;
   colors: string[];
   created_by: number;
+  draft_eligible?: boolean;
 }
 
 interface Player {
@@ -121,6 +122,18 @@ interface Data {
   };
 }
 
+const ROSTERS_ALREADY_SET = [
+  "baylor", "buffalo", "cincinnati", "colorado", "duke", "houston",
+  "marquette", "memphis", "michigan", "missouri", "st johns", "saint johns",
+  "stanford", "texas tech", "texas", "utep",
+];
+
+function rosterAlreadySet(name: string) {
+  const normalized = name.toLowerCase().replace(/['\u2019.]/g, "").replace(/[^a-z0-9]+/g, " ").trim();
+  const keys = [...ROSTERS_ALREADY_SET].sort((a, b) => b.length - a.length);
+  return keys.some(key => normalized === key || normalized.startsWith(`${key} `));
+}
+
 function getInitialData(): Data {
   const hash = bcrypt.hashSync('password123', 10);
   return {
@@ -146,6 +159,26 @@ async function ensureTable() {
   `;
 }
 
+async function saveData(data: Data) {
+  await ensureTable();
+  await sql`
+    INSERT INTO league_data (id, data)
+    VALUES (1, ${sql.json(data as any)})
+    ON CONFLICT (id) DO UPDATE SET data = EXCLUDED.data
+  `;
+}
+
+async function applyDraftEligibility(data: Data) {
+  let changed = false;
+  for (const team of data.teams || []) {
+    if (typeof team.draft_eligible !== "boolean") {
+      team.draft_eligible = !rosterAlreadySet(team.name);
+      changed = true;
+    }
+  }
+  if (changed) await saveData(data);
+}
+
 async function loadData(): Promise<Data> {
   await ensureTable();
   const rows = await sql`SELECT data FROM league_data WHERE id = 1`;
@@ -154,16 +187,9 @@ async function loadData(): Promise<Data> {
     await sql`INSERT INTO league_data (id, data) VALUES (1, ${sql.json(initial as any)})`;
     return initial;
   }
-  return rows[0].data as Data;
-}
-
-async function saveData(data: Data) {
-  await ensureTable();
-  await sql`
-    INSERT INTO league_data (id, data)
-    VALUES (1, ${sql.json(data as any)})
-    ON CONFLICT (id) DO UPDATE SET data = EXCLUDED.data
-  `;
+  const data = rows[0].data as Data;
+  await applyDraftEligibility(data);
+  return data;
 }
 
 export const db = {
