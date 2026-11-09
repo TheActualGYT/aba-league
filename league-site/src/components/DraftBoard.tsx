@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { abaRank } from "@/lib/abaRank";
 
 const ROUNDS = 5;
@@ -17,6 +17,7 @@ export type DraftProspect = {
   position: string;
   name: string;
   rating: string;
+  igr: string;
   height: string;
   weight: string;
   fg: string;
@@ -48,9 +49,10 @@ function ProspectTable({ players, slots }: { players: DraftProspect[]; slots: nu
   return (
     <table className="w-full table-fixed border-collapse text-sm">
       <colgroup>
-        <col style={{ width: "4.5rem" }} />
-        <col style={{ width: "42%" }} />
+        <col style={{ width: "3.25rem" }} />
+        <col style={{ width: "38%" }} />
         <col />
+        <col style={{ width: "3.25rem" }} />
         <col />
         <col />
         <col />
@@ -58,9 +60,10 @@ function ProspectTable({ players, slots }: { players: DraftProspect[]; slots: nu
       </colgroup>
       <thead>
         <tr className="text-left text-xs uppercase tracking-wide text-neutral-400">
-          <th className="border-b border-neutral-700 px-1 py-2 text-center font-semibold">Position</th>
+          <th className="border-b border-neutral-700 px-1 py-2 text-center font-semibold">Pos</th>
           <th className="border-b border-neutral-700 px-3 py-2 font-semibold">Player Name</th>
-          <th className="border-b border-neutral-700 px-2 py-2 font-semibold">ABA Rating</th>
+          <th className="border-b border-neutral-700 px-2 py-2 font-semibold">ABA</th>
+          <th className="border-b border-neutral-700 px-2 py-2 font-semibold">IGR</th>
           <th className="border-b border-neutral-700 px-2 py-2 font-semibold">HT</th>
           <th className="border-b border-neutral-700 px-2 py-2 font-semibold">WT</th>
           <th className="border-b border-neutral-700 px-2 py-2 font-semibold">FG</th>
@@ -80,6 +83,7 @@ function ProspectTable({ players, slots }: { players: DraftProspect[]; slots: nu
                   {rank && <img src={rank.src} alt="" title={rank.name} className="h-5 w-auto object-contain" />}
                 </span>
               </td>
+              <td className="border-b border-neutral-800 px-2 py-2 text-neutral-200">{player ? shown(player.igr) : "-"}</td>
               <td className="border-b border-neutral-800 px-2 py-2 text-neutral-200">{player ? shown(player.height) : "-"}</td>
               <td className="border-b border-neutral-800 px-2 py-2 text-neutral-200">{player ? shown(player.weight) : "-"}</td>
               <td className="border-b border-neutral-800 px-2 py-2 text-neutral-200">{player ? shown(player.fg) : "-"}</td>
@@ -194,53 +198,56 @@ export default function DraftBoard({
     >
       <h2 className="label-glow text-3xl font-bold mb-8 text-white text-center tracking-wide">DRAFT BOARD</h2>
       {picker && (
-        <div className="mb-8 flex flex-col items-start">
-          <div className="flex items-center gap-4">
-            <button
-              type="button"
-              aria-label="Previous team"
-              disabled={spinning || pending}
-              onClick={() => choosePicker(pickerIndex - 1)}
-              className="flex h-10 w-10 items-center justify-center rounded border border-neutral-600 text-2xl leading-none text-white hover:bg-neutral-800 disabled:opacity-40"
-            >
-              ‹
-            </button>
-            <div className={`flex h-20 w-20 items-center justify-center rounded border bg-neutral-950 ${spinning ? "border-white" : "border-neutral-500"}`}>
-              {picker.logo ? (
-                <img src={picker.logo} alt="" className="h-16 w-16 object-contain" />
-              ) : (
-                <span className="text-xs text-neutral-400">{picker.abbreviation}</span>
-              )}
-            </div>
-            <button
-              type="button"
-              aria-label="Next team"
-              disabled={spinning || pending}
-              onClick={() => choosePicker(pickerIndex + 1)}
-              className="flex h-10 w-10 items-center justify-center rounded border border-neutral-600 text-2xl leading-none text-white hover:bg-neutral-800 disabled:opacity-40"
-            >
-              ›
-            </button>
+        <div className="mb-8">
+          <div className="inline-flex flex-col items-center rounded-xl border border-neutral-700 bg-neutral-900 px-5 py-4">
             <button
               type="button"
               onClick={randomize}
               disabled={spinning || pending}
-              className="h-10 rounded border border-neutral-500 px-4 text-sm font-semibold text-white hover:bg-neutral-800 disabled:opacity-40"
+              className="mb-3 h-8 rounded-full border border-neutral-500 px-4 text-xs font-semibold tracking-wide text-white hover:bg-neutral-800 disabled:opacity-40"
             >
               {spinning ? "Randomizing" : "Randomize"}
             </button>
-          </div>
-          <p className="mt-2 text-xs tracking-wide text-neutral-300">PICKING NEXT · {picker.abbreviation}</p>
-          {pending && (
-            <div className="mt-3 flex items-center gap-3">
-              <button type="button" onClick={continuePick} className="h-9 rounded bg-neutral-200 px-4 text-sm font-bold text-black">
-                Continue
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                aria-label="Previous team"
+                disabled={spinning || pending}
+                onClick={() => choosePicker(pickerIndex - 1)}
+                className="flex h-9 w-9 items-center justify-center rounded-md border border-neutral-600 text-xl leading-none text-white hover:bg-neutral-800 disabled:opacity-40"
+              >
+                ‹
               </button>
-              <button type="button" onClick={rejectPick} className="h-9 rounded px-3 text-sm font-semibold text-red-400 hover:text-red-300">
-                Reject
+              <div className={`flex h-20 w-20 items-center justify-center rounded-lg border bg-neutral-950 ${spinning ? "border-white" : "border-neutral-500"}`}>
+                {picker.logo ? (
+                  <img src={picker.logo} alt="" className="h-16 w-16 object-contain" />
+                ) : (
+                  <span className="text-xs text-neutral-400">{picker.abbreviation}</span>
+                )}
+              </div>
+              <button
+                type="button"
+                aria-label="Next team"
+                disabled={spinning || pending}
+                onClick={() => choosePicker(pickerIndex + 1)}
+                className="flex h-9 w-9 items-center justify-center rounded-md border border-neutral-600 text-xl leading-none text-white hover:bg-neutral-800 disabled:opacity-40"
+              >
+                ›
               </button>
             </div>
-          )}
+            <p className="mt-3 text-[11px] uppercase tracking-[0.16em] text-neutral-400">Picking next</p>
+            <p className="text-sm font-semibold tracking-wide text-white">{picker.abbreviation}</p>
+            {pending && (
+              <div className="mt-3 flex items-center gap-3">
+                <button type="button" onClick={continuePick} className="h-8 rounded bg-neutral-200 px-4 text-sm font-bold text-black">
+                  Continue
+                </button>
+                <button type="button" onClick={rejectPick} className="h-8 px-2 text-sm font-semibold text-red-400 hover:text-red-300">
+                  Reject
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       )}
       <div className="overflow-hidden rounded-2xl border border-neutral-700">
@@ -289,7 +296,7 @@ export default function DraftBoard({
       </div>
 
       <div className="mt-10 flex items-start justify-between gap-8">
-        <section className="min-w-0 flex-1">
+        <section className="min-w-0 flex-1" style={{ zoom: 0.96 } as CSSProperties}>
           <div className="mb-6 flex flex-wrap items-baseline gap-x-4 gap-y-1">
             <h3 className="label-glow text-3xl font-bold tracking-wide text-white">REMAINING PROSPECTS</h3>
             <Link href="/draft/prospects" className="text-sm text-neutral-300 underline hover:text-white">

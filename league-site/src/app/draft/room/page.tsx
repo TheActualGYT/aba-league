@@ -55,7 +55,7 @@ export default async function DraftRoomPage() {
     });
 
   const sections = ABA_RANKS.map(rank => {
-    const slots = SHORT_BADGES.has(rank.name) ? 3 : 5;
+    const slots = SHORT_BADGES.has(rank.name) ? 3 : 4;
     return {
       name: rank.name,
       src: rank.src,
@@ -68,6 +68,7 @@ export default async function DraftRoomPage() {
           position: player.position || "",
           name: prospectName(player),
           rating: player.overall != null ? String(player.overall) : "",
+          igr: player.in_game_rating || "",
           height: player.height || "",
           weight: player.weight != null ? String(player.weight) : "",
           fg: player.fg || "",
