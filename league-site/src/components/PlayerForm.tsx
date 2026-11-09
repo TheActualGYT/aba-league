@@ -403,8 +403,11 @@ export default function PlayerForm({
               <FieldLabel>ABA Rating</FieldLabel>
               <div className="flex items-center gap-2">
                 <input value={overall} maxLength={3} onChange={e => { setRevealNow(false); setOverall(digitsOnly(e.target.value, 3)); }} inputMode="numeric" className={`${fieldClass} min-w-0 flex-1 ${shownOverall ? "abbr-taken" : ""}`} />
-                <div className="h-8 w-8 shrink-0 overflow-hidden rounded border border-neutral-600 bg-neutral-950" aria-label="ABA rating image">
-                  {showAmethyst && <img src="/amethyst-rank.png" alt="Amethyst Rank" className="h-full w-full object-contain" />}
+                <div className="relative h-8 w-8 shrink-0">
+                  <div className="h-8 w-8 overflow-hidden rounded border border-neutral-600 bg-neutral-950">
+                    {showAmethyst && <img src="/amethyst-rank.png" alt="Amethyst Rank" className="h-full w-full object-contain" />}
+                  </div>
+                  {showAmethyst && <span className="absolute left-1/2 top-full mt-1 -translate-x-1/2 whitespace-nowrap text-center text-[10px] leading-none text-purple-300">Amethyst</span>}
                 </div>
               </div>
               {shownOverall && <p className="text-[11px] text-red-400 mt-1">{shownOverall}</p>}

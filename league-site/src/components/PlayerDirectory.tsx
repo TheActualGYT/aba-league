@@ -566,10 +566,10 @@ export default function PlayerDirectory({
                                 <span className="truncate leading-5">{player.abbreviation}</span>
                               </span>
                             ) : column.key === "rating" ? (
-                              <span className="flex h-5 items-center justify-center gap-1">
+                              <span className="inline-flex h-8 max-h-8 items-center justify-center gap-1.5">
                                 <span className="leading-5">{player.rating}</span>
                                 {player.rating === "99" && (
-                                  <img src="/amethyst-rank.png" alt="" title="Amethyst Rank" width={14} height={20} className="block h-5 w-3.5 shrink-0 object-contain" />
+                                  <img src="/amethyst-rank.png" alt="" title="Amethyst" width={22} height={32} className="block h-8 w-auto max-h-8 shrink-0 object-contain" />
                                 )}
                               </span>
                             ) : (
