@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { abaRank } from "@/lib/abaRank";
 
@@ -22,6 +23,12 @@ export type DraftProspect = {
   threeP: string;
 };
 
+export type ProspectSection = {
+  name: string;
+  src: string;
+  players: DraftProspect[];
+};
+
 function boardRows() {
   return Array.from({ length: ROUNDS }, (_, index) => {
     const round = index + 1;
@@ -33,12 +40,51 @@ function shown(value: string) {
   return value || "\u2014";
 }
 
+function ProspectTable({ players }: { players: DraftProspect[] }) {
+  return (
+    <table className="w-full border-collapse text-sm">
+      <thead>
+        <tr className="text-left text-xs uppercase tracking-wide text-neutral-400">
+          <th className="border-b border-neutral-700 px-2 py-2 font-semibold">Position</th>
+          <th className="border-b border-neutral-700 px-2 py-2 font-semibold">Player Name</th>
+          <th className="border-b border-neutral-700 px-2 py-2 font-semibold">ABA Rating</th>
+          <th className="border-b border-neutral-700 px-2 py-2 font-semibold">HT</th>
+          <th className="border-b border-neutral-700 px-2 py-2 font-semibold">WT</th>
+          <th className="border-b border-neutral-700 px-2 py-2 font-semibold">FG</th>
+          <th className="border-b border-neutral-700 px-2 py-2 font-semibold">3P</th>
+        </tr>
+      </thead>
+      <tbody>
+        {players.map(player => {
+          const rank = abaRank(player.rating);
+          return (
+            <tr key={player.id}>
+              <td className="border-b border-neutral-800 px-2 py-2 text-neutral-200">{shown(player.position)}</td>
+              <td className="border-b border-neutral-800 px-2 py-2 text-white">{player.name}</td>
+              <td className="border-b border-neutral-800 px-2 py-2 text-white">
+                <span className="inline-flex items-center gap-1.5">
+                  <span>{shown(player.rating)}</span>
+                  {rank && <img src={rank.src} alt="" title={rank.name} className="h-5 w-auto object-contain" />}
+                </span>
+              </td>
+              <td className="border-b border-neutral-800 px-2 py-2 text-neutral-200">{shown(player.height)}</td>
+              <td className="border-b border-neutral-800 px-2 py-2 text-neutral-200">{shown(player.weight)}</td>
+              <td className="border-b border-neutral-800 px-2 py-2 text-neutral-200">{shown(player.fg)}</td>
+              <td className="border-b border-neutral-800 px-2 py-2 text-neutral-200">{shown(player.threeP)}</td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  );
+}
+
 export default function DraftBoard({
   teams,
-  prospects,
+  sections,
 }: {
   teams: { id: number; abbreviation: string; logo?: string }[];
-  prospects: DraftProspect[];
+  sections: ProspectSection[];
 }) {
   const bodyRef = useRef<HTMLDivElement>(null);
   const [scroll, setScroll] = useState({ left: 0, max: 0 });
@@ -112,44 +158,26 @@ export default function DraftBoard({
 
       <div className="mt-10 flex items-start justify-between gap-8">
         <section className="min-w-0 flex-1">
-          <h3 className="label-glow mb-6 text-3xl font-bold tracking-wide text-white">TOP REMAINING PROSPECTS</h3>
-          {prospects.length === 0 ? (
+          <div className="mb-6 flex flex-wrap items-baseline gap-x-4 gap-y-1">
+            <h3 className="label-glow text-3xl font-bold tracking-wide text-white">REMAINING PROSPECTS</h3>
+            <Link href="/draft/prospects" className="text-sm text-neutral-300 underline hover:text-white">
+              View all prospects
+            </Link>
+          </div>
+          {sections.length === 0 ? (
             <p className="text-neutral-400">No prospects yet.</p>
           ) : (
-            <table className="w-full border-collapse text-sm">
-              <thead>
-                <tr className="text-left text-xs uppercase tracking-wide text-neutral-400">
-                  <th className="border-b border-neutral-700 px-2 py-2 font-semibold">Position</th>
-                  <th className="border-b border-neutral-700 px-2 py-2 font-semibold">Player Name</th>
-                  <th className="border-b border-neutral-700 px-2 py-2 font-semibold">ABA Rating</th>
-                  <th className="border-b border-neutral-700 px-2 py-2 font-semibold">HT</th>
-                  <th className="border-b border-neutral-700 px-2 py-2 font-semibold">WT</th>
-                  <th className="border-b border-neutral-700 px-2 py-2 font-semibold">FG</th>
-                  <th className="border-b border-neutral-700 px-2 py-2 font-semibold">3P</th>
-                </tr>
-              </thead>
-              <tbody>
-                {prospects.map(player => {
-                  const rank = abaRank(player.rating);
-                  return (
-                    <tr key={player.id}>
-                      <td className="border-b border-neutral-800 px-2 py-2 text-neutral-200">{shown(player.position)}</td>
-                      <td className="border-b border-neutral-800 px-2 py-2 text-white">{player.name}</td>
-                      <td className="border-b border-neutral-800 px-2 py-2 text-white">
-                        <span className="inline-flex items-center gap-1.5">
-                          <span>{shown(player.rating)}</span>
-                          {rank && <img src={rank.src} alt="" title={rank.name} className="h-5 w-auto object-contain" />}
-                        </span>
-                      </td>
-                      <td className="border-b border-neutral-800 px-2 py-2 text-neutral-200">{shown(player.height)}</td>
-                      <td className="border-b border-neutral-800 px-2 py-2 text-neutral-200">{shown(player.weight)}</td>
-                      <td className="border-b border-neutral-800 px-2 py-2 text-neutral-200">{shown(player.fg)}</td>
-                      <td className="border-b border-neutral-800 px-2 py-2 text-neutral-200">{shown(player.threeP)}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+            <div className="space-y-8">
+              {sections.map(section => (
+                <div key={section.name}>
+                  <div className="mb-2 flex items-center gap-2">
+                    <img src={section.src} alt="" className="h-6 w-auto object-contain" />
+                    <h4 className="text-sm font-bold tracking-wide text-white">{section.name}</h4>
+                  </div>
+                  <ProspectTable players={section.players} />
+                </div>
+              ))}
+            </div>
           )}
         </section>
         <section className="shrink-0">
