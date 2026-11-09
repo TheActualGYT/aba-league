@@ -40,6 +40,46 @@ function OwnerMenu({ value, onChange }: { value: string; onChange: (value: strin
   );
 }
 
+function EligibilityMenu({ value, onChange }: { value: boolean; onChange: (value: boolean) => void }) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useCloseOnOutside<HTMLDivElement>(open, setOpen);
+  const options = [
+    { label: "Eligible", value: true },
+    { label: "Not eligible", value: false },
+  ];
+  const current = options.find(option => option.value === value)?.label || "Eligible";
+
+  return (
+    <div className="relative" ref={rootRef}>
+      <button
+        type="button"
+        onClick={() => setOpen(currentOpen => !currentOpen)}
+        className="w-full px-3 py-2 bg-neutral-800 border border-neutral-600 rounded text-white text-left flex items-center justify-between min-h-[42px]"
+      >
+        <span>{current}</span>
+        <span className="text-neutral-400 text-[10px]">▼</span>
+      </button>
+      {open && (
+        <div className="absolute z-30 mt-1 w-full bg-neutral-800 border border-neutral-600 rounded overflow-hidden shadow-lg">
+          {options.map(option => (
+            <button
+              key={option.label}
+              type="button"
+              onClick={() => {
+                onChange(option.value);
+                setOpen(false);
+              }}
+              className={`block w-full text-left px-3 py-2 text-sm text-white hover:bg-neutral-700 ${value === option.value ? "bg-neutral-700" : ""}`}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function EditTeamButton({
   team,
   teams = [],
@@ -54,9 +94,9 @@ export default function EditTeamButton({
   const [ownership, setOwnership] = useState(team.ownership || "");
   const [headCoach, setHeadCoach] = useState(team.head_coach || "");
   const [assistantCoach, setAssistantCoach] = useState(team.assistant_coach || "");
+  const [draftEligible, setDraftEligible] = useState(team.draft_eligible !== false);
   const [logo, setLogo] = useState(team.logo || "");
   const [colors, setColors] = useState<string[]>(team.colors || []);
-  const [draftEligible, setDraftEligible] = useState(team.draft_eligible !== false);
   const [message, setMessage] = useState("");
   const [removeIndex, setRemoveIndex] = useState<number | null>(null);
   const [eyedropperMode, setEyedropperMode] = useState(false);
@@ -211,6 +251,10 @@ export default function EditTeamButton({
                 <input value={assistantCoach} onChange={e => setAssistantCoach(e.target.value)} placeholder="Add assistant coach" className="w-full px-3 py-2 bg-neutral-800 border border-neutral-600 rounded text-white" />
               </div>
               <div>
+                <label className="block text-sm text-neutral-300 mb-1">Draft Eligible</label>
+                <EligibilityMenu value={draftEligible} onChange={setDraftEligible} />
+              </div>
+              <div>
                 <label className="block text-sm text-neutral-300 mb-1">Logo</label>
                 <input type="file" accept="image/*" onChange={handleFile} className="text-sm text-neutral-300" />
                 {logo && (
@@ -261,16 +305,6 @@ export default function EditTeamButton({
                     <button type="button" onClick={() => setRemoveIndex(null)} className="bg-neutral-700 text-white px-2 py-0.5 rounded">No</button>
                   </div>
                 )}
-              </div>
-              <div className="border border-neutral-700 rounded-lg p-3">
-                <p className="text-xs font-bold tracking-wide text-white mb-2">DRAFT ELIGIBLE</p>
-                <button
-                  type="button"
-                  onClick={() => setDraftEligible(current => !current)}
-                  className={`h-9 px-3 rounded text-sm font-semibold ${draftEligible ? "bg-neutral-200 text-black" : "bg-neutral-800 text-neutral-300 border border-neutral-600"}`}
-                >
-                  {draftEligible ? "Eligible" : "Not eligible"}
-                </button>
               </div>
             </div>
             <div className="flex justify-end gap-2 mt-5">
