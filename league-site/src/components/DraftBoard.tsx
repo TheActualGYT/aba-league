@@ -10,8 +10,8 @@ const PICKS = 20;
 const CELL = 168;
 const ROW_H = 112;
 const ROUND_W = 156;
-const SUMMARY_W = 136;
-const SUMMARY_H = 90;
+const SUMMARY_W = 118;
+const SUMMARY_H = 78;
 const POSITIONS = ["C", "PF", "SF", "SG", "PG"];
 
 function biggerLogo(team?: { abbreviation?: string; name?: string }) {
@@ -90,11 +90,10 @@ function PickGraphic({ player, team }: { player: PickPlayer; team?: { logo?: str
           <div>{player.weight || "N/A"}</div>
         </div>
       </div>
-      <div className="absolute bottom-0 left-0 flex h-1/4 items-center gap-[1.4cqw] pl-[8cqw]">
+      <div className="absolute bottom-0 left-0 flex h-1/4 items-center pl-[8cqw]">
         <div className="text-left font-black leading-none" style={{ fontSize: "9cqw" }}>
           {player.position ? `${player.position} / ${player.rating || "N/A"}` : (player.rating || "N/A")}
         </div>
-        {rank && <img src={rank.src} alt="" title={rank.name} className="object-contain" style={{ height: "13cqw", width: "auto" }} />}
       </div>
     </div>
   );
@@ -152,11 +151,11 @@ function ProspectTable({
         <col style={{ width: "2.5rem" }} />
         <col style={{ width: "54%" }} />
         <col style={{ width: "5.25rem" }} />
-        <col />
-        <col />
-        <col />
-        <col />
-        <col />
+        <col style={{ width: "3.7rem" }} />
+        <col style={{ width: "3.7rem" }} />
+        <col style={{ width: "3.7rem" }} />
+        <col style={{ width: "3.7rem" }} />
+        <col style={{ width: "3.7rem" }} />
       </colgroup>
       <thead>
         <tr className="text-left text-xs uppercase tracking-wide text-neutral-400">
@@ -538,10 +537,10 @@ export default function DraftBoard({
 
       <div className="mt-10 flex items-start justify-between gap-8">
         <section className="min-w-0 flex-1" style={{ zoom: 0.96 } as CSSProperties}>
-          <div className="mb-6 flex flex-wrap items-baseline gap-x-4 gap-y-1">
+          <div className="mb-6 text-center">
             <h3 className="label-glow text-3xl font-bold tracking-wide text-white">REMAINING PROSPECTS</h3>
-            {blockNote && <p className="text-sm font-semibold text-red-400">{blockNote}</p>}
-            <Link href="/draft/prospects" className="text-sm text-neutral-300 underline hover:text-white">
+            {blockNote && <p className="mt-2 text-sm font-semibold text-red-400">{blockNote}</p>}
+            <Link href="/draft/prospects" className="mt-2 inline-block text-sm text-neutral-300 underline hover:text-white">
               View all prospects
             </Link>
           </div>
@@ -565,8 +564,8 @@ export default function DraftBoard({
             <div className="space-y-3">
               {teams.map(team => (
                 <div key={team.id} className="flex items-stretch">
-                  <div style={{ width: 52, height: SUMMARY_H }} className="flex shrink-0 flex-col items-center justify-center pr-2">
-                    {team.logo && <img src={team.logo} alt="" className={`h-8 max-w-full object-contain ${biggerLogo(team) ? "scale-110" : ""}`} />}
+                  <div style={{ width: 68, height: SUMMARY_H }} className="flex shrink-0 flex-col items-center justify-center pr-3">
+                    {team.logo && <img src={team.logo} alt="" className={`h-9 max-w-full object-contain ${biggerLogo(team) ? "scale-110" : ""}`} />}
                     <span className="mt-1 text-[11px] font-semibold leading-none tracking-wide text-white">{team.abbreviation}</span>
                   </div>
                   <div className="flex">
