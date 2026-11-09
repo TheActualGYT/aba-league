@@ -9,7 +9,7 @@ export default async function DraftRoomPage() {
     .sort((a, b) => a.name.localeCompare(b.name))
     .map(team => ({
       id: team.id,
-      name: team.name,
+      abbreviation: team.abbreviation,
       logo: team.logo,
     }));
 
