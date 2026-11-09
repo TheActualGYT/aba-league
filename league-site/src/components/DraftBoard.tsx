@@ -75,7 +75,7 @@ function PickGraphic({ player, team }: { player: PickPlayer; team?: { logo?: str
           alt=""
           className="pointer-events-none absolute object-contain"
           style={{
-            height: biggerLogo(team) ? "58%" : "42%",
+            height: "42%",
             width: "auto",
             right: "4cqw",
             bottom: "5%",
@@ -89,13 +89,13 @@ function PickGraphic({ player, team }: { player: PickPlayer; team?: { logo?: str
           <div className="truncate" style={{ fontSize: "11cqw", lineHeight: 1, marginTop: "1.6cqw" }}>{player.last}</div>
         </div>
         <div className="shrink-0 text-right font-black leading-[1.05]" style={{ fontSize: "9.5cqw" }}>
-          <div>{player.height}</div>
-          <div>{player.weight}</div>
+          <div>{player.height || "N/A"}</div>
+          <div>{player.weight || "N/A"}</div>
         </div>
       </div>
       <div className="absolute bottom-0 left-0 flex h-1/4 items-center pl-[8cqw]">
         <div className="text-left font-black leading-none" style={{ fontSize: "9cqw" }}>
-          {[player.position, player.rating].filter(Boolean).join(" / ")}
+          {player.position ? `${player.position} / ${player.rating || "N/A"}` : (player.rating || "N/A")}
         </div>
       </div>
     </div>
@@ -383,7 +383,7 @@ export default function DraftBoard({
               </button>
               <div className={`flex h-20 w-20 items-center justify-center rounded-lg border bg-neutral-950 ${spinning ? "border-white" : "border-neutral-500"}`}>
                 {!onClock && picker.logo ? (
-                  <img src={picker.logo} alt="" className={`h-16 w-16 object-contain ${biggerLogo(picker) ? "scale-125" : ""}`} />
+                  <img src={picker.logo} alt="" className={`h-16 w-16 object-contain ${biggerLogo(picker) ? "scale-110" : ""}`} />
                 ) : !onClock ? (
                   <span className="text-xs text-neutral-400">{picker.abbreviation}</span>
                 ) : null}
@@ -418,7 +418,7 @@ export default function DraftBoard({
               <>
                 <div className="mt-3 flex justify-center">
                   {onClock.logo ? (
-                    <img src={onClock.logo} alt="" className={`h-16 w-16 object-contain ${biggerLogo(onClock) ? "scale-125" : ""}`} />
+                    <img src={onClock.logo} alt="" className={`h-16 w-16 object-contain ${biggerLogo(onClock) ? "scale-110" : ""}`} />
                   ) : (
                     <span className="text-sm text-neutral-300">{onClock.abbreviation}</span>
                   )}
@@ -446,7 +446,7 @@ export default function DraftBoard({
                       <>
                         <span className="w-10 shrink-0 text-xs font-bold tracking-wide text-neutral-400">{pick.slot}</span>
                         {team?.logo ? (
-                          <img src={team.logo} alt="" className={`h-7 w-7 shrink-0 object-contain ${biggerLogo(team) ? "scale-125" : ""}`} />
+                          <img src={team.logo} alt="" className={`h-7 w-7 shrink-0 object-contain ${biggerLogo(team) ? "scale-110" : ""}`} />
                         ) : (
                           <span className="w-7 shrink-0 text-center text-[10px] text-neutral-400">{team?.abbreviation}</span>
                         )}
@@ -507,7 +507,7 @@ export default function DraftBoard({
                         ) : placed ? (
                           <span className="flex h-full items-center justify-center">
                             {placed.logo ? (
-                              <img src={placed.logo} alt="" className={`h-16 w-16 object-contain ${waiting ? "animate-pulse" : ""} ${biggerLogo(placed) ? "scale-125" : ""}`} />
+                              <img src={placed.logo} alt="" className={`h-16 w-16 object-contain ${waiting ? "animate-pulse" : ""} ${biggerLogo(placed) ? "scale-110" : ""}`} />
                             ) : (
                               <span className={`text-sm font-semibold text-white ${waiting ? "animate-pulse" : ""}`}>{placed.abbreviation}</span>
                             )}
@@ -553,7 +553,7 @@ export default function DraftBoard({
               {teams.map(team => (
                 <div key={team.id} className="flex items-stretch">
                   <div style={{ width: 52, height: SUMMARY_H }} className="flex shrink-0 flex-col items-center justify-center pr-2">
-                    {team.logo && <img src={team.logo} alt="" className={`h-8 max-w-full object-contain ${biggerLogo(team) ? "scale-125" : ""}`} />}
+                    {team.logo && <img src={team.logo} alt="" className={`h-8 max-w-full object-contain ${biggerLogo(team) ? "scale-110" : ""}`} />}
                     <span className="mt-1 text-[11px] font-semibold leading-none tracking-wide text-white">{team.abbreviation}</span>
                   </div>
                   <div className="flex">
