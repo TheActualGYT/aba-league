@@ -153,13 +153,13 @@ function ProspectTable({
     <table className="w-full table-fixed border-collapse text-sm">
       <colgroup>
         <col style={{ width: "2.5rem" }} />
-        <col style={{ width: "46%" }} />
-        <col style={{ width: "7.25rem" }} />
-        <col style={{ width: "3.5rem" }} />
-        <col style={{ width: "3.5rem" }} />
-        <col style={{ width: "3.5rem" }} />
-        <col style={{ width: "3.5rem" }} />
-        <col style={{ width: "3.5rem" }} />
+        <col style={{ width: "54%" }} />
+        <col style={{ width: "5.25rem" }} />
+        <col />
+        <col />
+        <col />
+        <col />
+        <col />
       </colgroup>
       <thead>
         <tr className="text-left text-xs uppercase tracking-wide text-neutral-400">
