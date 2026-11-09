@@ -6,6 +6,7 @@ export const dynamic = "force-dynamic";
 export default async function DraftRoomPage() {
   const data = await db.load();
   const teams = [...(data.teams || [])]
+    .filter(team => team.draft_eligible !== false)
     .sort((a, b) => a.name.localeCompare(b.name))
     .map(team => ({
       id: team.id,
