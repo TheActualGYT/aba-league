@@ -83,11 +83,20 @@ export default async function DraftRoomPage() {
     teamId: pick.team_id,
     playerId: pick.player_id,
   }));
-  const playerNames = (data.players || []).map(player => ({
-    id: player.id,
-    name: prospectName(player),
-    rating: player.overall != null ? String(player.overall) : "",
-  }));
+  const playerNames = (data.players || []).map(player => {
+    const named = prospectName(player);
+    const [fallbackLast, ...fallbackRest] = named.split(", ");
+    return {
+      id: player.id,
+      name: named,
+      first: player.first_name?.trim() || fallbackRest.join(" ") || named,
+      last: player.last_name?.trim() || (fallbackRest.length ? fallbackLast : ""),
+      height: player.height || "",
+      weight: player.weight != null ? String(player.weight) : "",
+      position: player.position || "",
+      rating: player.overall != null ? String(player.overall) : "",
+    };
+  });
   return (
     <DraftBoard
       teams={teams}

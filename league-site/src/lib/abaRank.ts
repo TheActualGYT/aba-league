@@ -1,6 +1,7 @@
 export type AbaRank = {
   name: string;
   src: string;
+  color: string;
 };
 
 const RANKS: { min: number; max: number; name: string; src: string; color: string }[] = [
@@ -27,5 +28,5 @@ export function abaRank(value: unknown): AbaRank | null {
   if (rating < 10 || rating > 100) return null;
   const rank = RANKS.find(item => rating >= item.min && rating <= item.max);
   if (!rank) return null;
-  return { name: rank.name, src: rank.src };
+  return { name: rank.name, src: rank.src, color: rank.color };
 }

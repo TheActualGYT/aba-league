@@ -9,8 +9,8 @@ const PICKS = 20;
 const CELL = 168;
 const ROW_H = 112;
 const ROUND_W = 156;
-const SUMMARY_W = 96;
-const SUMMARY_H = 64;
+const SUMMARY_W = 136;
+const SUMMARY_H = 90;
 
 export type DraftProspect = {
   id: number;
@@ -39,6 +39,51 @@ export type PickerTeam = {
 };
 
 export type DraftPick = { slot: string; teamId: number; playerId?: number };
+
+export type PickPlayer = {
+  id: number;
+  name: string;
+  first: string;
+  last: string;
+  height: string;
+  weight: string;
+  position: string;
+  rating: string;
+};
+
+function PickGraphic({ player, logo }: { player: PickPlayer; logo?: string }) {
+  const rank = abaRank(player.rating);
+  const dark = rank?.name === "Black";
+  const color = dark ? "#1c1c1c" : rank?.color || "#d4d4d4";
+  return (
+    <div className="relative h-full w-full overflow-hidden" style={{ background: color, containerType: "size", color: dark ? "#fff" : "#111" }}>
+      <div className="absolute inset-x-0 bottom-0 h-[46%]" style={{ background: "rgba(0,0,0,0.18)" }} />
+      {logo && (
+        <img
+          src={logo}
+          alt=""
+          className="pointer-events-none absolute bottom-0 right-0 h-[88%] w-auto max-w-none object-contain"
+          style={{ transform: "translate(32%, 20%)" }}
+        />
+      )}
+      <div className="relative flex h-full flex-col justify-between px-[5cqw] py-[7cqw]">
+        <div className="flex items-start justify-between gap-[2cqw]">
+          <div className="min-w-0 leading-[0.86] font-black">
+            <div className="truncate" style={{ fontSize: "13cqw" }}>{player.first}</div>
+            <div className="truncate" style={{ fontSize: "15cqw" }}>{player.last}</div>
+          </div>
+          <div className="shrink-0 text-right font-black leading-[0.95]" style={{ fontSize: "8cqw" }}>
+            <div>{player.height}</div>
+            <div>{player.weight}</div>
+          </div>
+        </div>
+        <div className="font-black leading-none" style={{ fontSize: "11cqw" }}>
+          {[player.position, player.rating].filter(Boolean).join(" / ")}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function boardRows() {
   return Array.from({ length: ROUNDS }, (_, index) => {
@@ -152,7 +197,7 @@ export default function DraftBoard({
   pickerTeams: PickerTeam[];
   nextPickerId: number | null;
   picks: DraftPick[];
-  playerNames: { id: number; name: string; rating: string }[];
+  playerNames: PickPlayer[];
   sections: ProspectSection[];
 }) {
   const bodyRef = useRef<HTMLDivElement>(null);
@@ -174,6 +219,7 @@ export default function DraftBoard({
   const pickBySlot = new Map(picks.map(pick => [pick.slot, pick]));
   const names = new Map(playerNames.map(player => [player.id, player.name]));
   const ratings = new Map(playerNames.map(player => [player.id, player.rating]));
+  const playersById = new Map(playerNames.map(player => [player.id, player]));
   const onClock = openPick ? teamById.get(openPick.teamId) : undefined;
   const recentPicks = [...picks].filter(pick => pick.playerId).slice(-4).reverse();
   const locked = Boolean(openPick);
@@ -287,8 +333,7 @@ export default function DraftBoard({
       }}
     >
       <h2 className="label-glow text-3xl font-bold mb-8 text-white text-center tracking-wide">DRAFT BOARD</h2>
-      {(picker || onClock || recentPicks.length > 0) && (
-        <div className="mb-8 flex items-stretch justify-between gap-6">
+      <div className="mb-8 flex items-stretch justify-between gap-6">
           <div className="flex items-stretch gap-4">
           {picker && (
           <div className="flex w-64 flex-col items-center rounded-xl border border-neutral-700 bg-neutral-900 px-5 py-4">
@@ -341,20 +386,24 @@ export default function DraftBoard({
             )}
           </div>
           )}
-          {onClock && openPick && (
           <aside className="flex w-64 flex-col items-center justify-center rounded-xl border border-neutral-700 bg-neutral-900 px-4 py-4">
             <h3 className="text-center text-sm font-bold tracking-[0.14em] text-white">YOU'RE ON THE CLOCK</h3>
-            <div className="mt-3 flex justify-center">
-              {onClock.logo ? (
-                <img src={onClock.logo} alt="" className="h-16 w-16 object-contain" />
-              ) : (
-                <span className="text-sm text-neutral-300">{onClock.abbreviation}</span>
-              )}
-            </div>
-            <p className="mt-2 text-center text-sm text-white">{onClock.ownership || "N/A"}</p>
-            <p className="mt-4 text-center text-sm font-bold tracking-[0.16em] text-white">DRAFT {openPick.slot}</p>
+            {onClock && openPick ? (
+              <>
+                <div className="mt-3 flex justify-center">
+                  {onClock.logo ? (
+                    <img src={onClock.logo} alt="" className="h-16 w-16 object-contain" />
+                  ) : (
+                    <span className="text-sm text-neutral-300">{onClock.abbreviation}</span>
+                  )}
+                </div>
+                <p className="mt-2 text-center text-sm text-white">{onClock.ownership || "N/A"}</p>
+                <p className="mt-4 text-center text-sm font-bold tracking-[0.16em] text-white">DRAFT {openPick.slot}</p>
+              </>
+            ) : (
+              <p className="mt-6 text-3xl font-bold tracking-wide text-white">N/A</p>
+            )}
           </aside>
-          )}
           </div>
           <aside className="flex w-80 flex-col rounded-xl border border-neutral-700 bg-neutral-900 px-4 py-4">
             <h3 className="text-center text-sm font-bold tracking-[0.14em] text-white">DRAFT LOG</h3>
@@ -386,7 +435,6 @@ export default function DraftBoard({
             </div>
           </aside>
         </div>
-      )}
       <div className="overflow-hidden rounded-2xl border border-neutral-700">
         {scroll.max > 0 && (
           <div className="border-b border-neutral-700 bg-neutral-900 px-3 pt-2 pb-1">
@@ -420,13 +468,18 @@ export default function DraftBoard({
                     const placedPick = pickBySlot.get(slot);
                     const placed = placedPick ? teamById.get(placedPick.teamId) : undefined;
                     const waiting = Boolean(placedPick && !placedPick.playerId);
+                    const draftedPlayer = placedPick?.playerId ? playersById.get(placedPick.playerId) : undefined;
                     return (
                       <td
                         key={slot}
                         style={{ width: CELL, height: ROW_H }}
-                        className="border border-neutral-600 bg-neutral-950 text-xl text-white/50"
+                        className="relative overflow-hidden border border-neutral-600 bg-neutral-950 p-0 text-xl text-white/50"
                       >
-                        {placed ? (
+                        {draftedPlayer ? (
+                          <div className="absolute inset-0">
+                            <PickGraphic player={draftedPlayer} logo={placed?.logo} />
+                          </div>
+                        ) : placed ? (
                           <span className="flex h-full items-center justify-center">
                             {placed.logo ? (
                               <img src={placed.logo} alt="" className={`h-16 w-16 object-contain ${waiting ? "animate-pulse" : ""}`} />
@@ -481,14 +534,14 @@ export default function DraftBoard({
                     {Array.from({ length: ROUNDS }, (_, index) => {
                       const drafted = picks.filter(pick => pick.teamId === team.id && pick.playerId);
                       const playerId = drafted[index]?.playerId;
-                      const name = playerId ? names.get(playerId) : "";
+                      const player = playerId ? playersById.get(playerId) : undefined;
                       return (
                         <div
                           key={index}
                           style={{ width: SUMMARY_W, height: SUMMARY_H }}
-                          className={`flex items-center justify-center overflow-hidden border-y border-r border-neutral-600 bg-neutral-950 px-1 ${index === 0 ? "border-l" : ""}`}
+                          className={`relative overflow-hidden border-y border-r border-neutral-600 bg-neutral-950 ${index === 0 ? "border-l" : ""}`}
                         >
-                          {name && <span className="line-clamp-2 text-center text-[11px] leading-tight text-white">{name}</span>}
+                          {player && <PickGraphic player={player} logo={team.logo} />}
                         </div>
                       );
                     })}
