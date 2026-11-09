@@ -7,7 +7,7 @@ import DeletePlayerButton from "@/components/DeletePlayerButton";
 import DropdownLayer from "@/components/DropdownLayer";
 import { useCloseOnOutside } from "@/components/useCloseOnOutside";
 import { ratingFill, RATING_INK } from "@/lib/ratingColor";
-import { abaRank, ABA_RANK_NAMES } from "@/lib/abaRank";
+import { abaRank, ABA_RANKS } from "@/lib/abaRank";
 
 export type DirectoryPlayer = {
   id: number;
@@ -288,32 +288,46 @@ function RankMenu({ value, onChange }: { value: string; onChange: (value: string
   const [open, setOpen] = useState(false);
   const owner = useId().replace(/:/g, "");
   const rootRef = useCloseOnOutside<HTMLDivElement>(open, setOpen);
-  const options = ["All Ranks", ...ABA_RANK_NAMES];
+  const selected = ABA_RANKS.find(rank => rank.name === value);
 
   return (
-    <div className="relative w-40" ref={rootRef} data-dropdown-owner={owner}>
+    <div className="relative w-48" ref={rootRef} data-dropdown-owner={owner}>
       <button
         type="button"
         onClick={() => setOpen(currentOpen => !currentOpen)}
-        className="w-full h-10 px-3 bg-neutral-800 border border-neutral-600 rounded text-white text-left flex items-center justify-between"
+        className="w-full h-10 px-3 bg-neutral-800 border border-neutral-600 rounded text-left flex items-center justify-between gap-2"
       >
-        <span className="truncate">{value}</span>
+        <span className="flex items-center gap-2 min-w-0">
+          {selected && <img src={selected.src} alt="" className="block h-5 w-4 shrink-0 object-contain" />}
+          <span className="truncate text-sm" style={{ color: selected?.color || "#fff" }}>{value}</span>
+        </span>
         <span className="text-neutral-400 text-[10px]">▼</span>
       </button>
       <DropdownLayer anchor={rootRef.current} open={open} owner={owner} matchWidth>
         <div className="pt-1">
           <div className="bg-neutral-800 border border-neutral-600 rounded overflow-hidden shadow-lg max-h-80 overflow-y-auto">
-            {options.map(item => (
+            <button
+              type="button"
+              onClick={() => {
+                onChange("All Ranks");
+                setOpen(false);
+              }}
+              className={`block w-full text-left px-3 py-2 text-sm text-white hover:bg-neutral-700 ${value === "All Ranks" ? "bg-neutral-700" : ""}`}
+            >
+              All Ranks
+            </button>
+            {ABA_RANKS.map(rank => (
               <button
-                key={item}
+                key={rank.name}
                 type="button"
                 onClick={() => {
-                  onChange(item);
+                  onChange(rank.name);
                   setOpen(false);
                 }}
-                className={`block w-full text-left px-3 py-2 text-sm text-white hover:bg-neutral-700 ${value === item ? "bg-neutral-700" : ""}`}
+                className={`flex w-full items-center gap-2 px-3 py-1.5 text-sm hover:bg-neutral-700 ${value === rank.name ? "bg-neutral-700" : ""}`}
               >
-                {item}
+                <img src={rank.src} alt="" className="block h-6 w-5 shrink-0 object-contain" />
+                <span style={{ color: rank.color }}>{rank.name}</span>
               </button>
             ))}
           </div>
