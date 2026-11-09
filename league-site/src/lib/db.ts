@@ -120,6 +120,7 @@ interface Data {
     game: number;
     news: number;
   };
+  next_picker_id?: number | null;
 }
 
 const ROSTERS_ALREADY_SET = [

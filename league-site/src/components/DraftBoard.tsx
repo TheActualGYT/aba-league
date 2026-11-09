@@ -11,7 +11,6 @@ const ROW_H = 112;
 const ROUND_W = 156;
 const SUMMARY_W = 96;
 const SUMMARY_H = 64;
-const PROSPECT_SLOTS = 5;
 
 export type DraftProspect = {
   id: number;
@@ -27,6 +26,7 @@ export type DraftProspect = {
 export type ProspectSection = {
   name: string;
   src: string;
+  slots: number;
   players: DraftProspect[];
 };
 
@@ -41,16 +41,25 @@ function shown(value: string) {
   return value || "-";
 }
 
-function ProspectTable({ players }: { players: DraftProspect[] }) {
-  const rows: Array<DraftProspect | null> = players.slice(0, PROSPECT_SLOTS);
-  while (rows.length < PROSPECT_SLOTS) rows.push(null);
+function ProspectTable({ players, slots }: { players: DraftProspect[]; slots: number }) {
+  const rows: Array<DraftProspect | null> = players.slice(0, slots);
+  while (rows.length < slots) rows.push(null);
 
   return (
-    <table className="w-full border-collapse text-sm">
+    <table className="w-full table-fixed border-collapse text-sm">
+      <colgroup>
+        <col style={{ width: "4.5rem" }} />
+        <col style={{ width: "42%" }} />
+        <col />
+        <col />
+        <col />
+        <col />
+        <col />
+      </colgroup>
       <thead>
         <tr className="text-left text-xs uppercase tracking-wide text-neutral-400">
-          <th className="border-b border-neutral-700 px-2 py-2 font-semibold">Position</th>
-          <th className="border-b border-neutral-700 px-2 py-2 font-semibold">Player Name</th>
+          <th className="border-b border-neutral-700 px-1 py-2 text-center font-semibold">Position</th>
+          <th className="border-b border-neutral-700 px-3 py-2 font-semibold">Player Name</th>
           <th className="border-b border-neutral-700 px-2 py-2 font-semibold">ABA Rating</th>
           <th className="border-b border-neutral-700 px-2 py-2 font-semibold">HT</th>
           <th className="border-b border-neutral-700 px-2 py-2 font-semibold">WT</th>
@@ -63,8 +72,8 @@ function ProspectTable({ players }: { players: DraftProspect[] }) {
           const rank = player ? abaRank(player.rating) : null;
           return (
             <tr key={player?.id ?? `empty-${index}`}>
-              <td className="border-b border-neutral-800 px-2 py-2 text-neutral-200">{player ? shown(player.position) : "-"}</td>
-              <td className="border-b border-neutral-800 px-2 py-2 text-white">{player ? player.name : "-"}</td>
+              <td className="border-b border-neutral-800 px-1 py-2 text-center text-neutral-200">{player ? shown(player.position) : "-"}</td>
+              <td className="border-b border-neutral-800 px-3 py-2 text-white">{player ? player.name : "-"}</td>
               <td className="border-b border-neutral-800 px-2 py-2 text-white">
                 <span className="inline-flex items-center gap-1.5">
                   <span>{player ? shown(player.rating) : "-"}</span>
@@ -85,14 +94,33 @@ function ProspectTable({ players }: { players: DraftProspect[] }) {
 
 export default function DraftBoard({
   teams,
+  pickerTeams,
+  nextPickerId,
   sections,
 }: {
   teams: { id: number; abbreviation: string; logo?: string }[];
+  pickerTeams: { id: number; abbreviation: string; logo?: string }[];
+  nextPickerId: number | null;
   sections: ProspectSection[];
 }) {
   const bodyRef = useRef<HTMLDivElement>(null);
   const [scroll, setScroll] = useState({ left: 0, max: 0 });
+  const startIndex = Math.max(0, pickerTeams.findIndex(team => team.id === nextPickerId));
+  const [pickerIndex, setPickerIndex] = useState(startIndex);
   const rows = boardRows();
+  const picker = pickerTeams[pickerIndex];
+
+  const choosePicker = (next: number) => {
+    if (!pickerTeams.length) return;
+    const index = (next + pickerTeams.length) % pickerTeams.length;
+    setPickerIndex(index);
+    const team = pickerTeams[index];
+    fetch("/api/draft/picker", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ teamId: team.id }),
+    }).catch(() => undefined);
+  };
 
   const syncScroll = () => {
     const node = bodyRef.current;
@@ -115,6 +143,36 @@ export default function DraftBoard({
       }}
     >
       <h2 className="label-glow text-3xl font-bold mb-8 text-white text-center tracking-wide">DRAFT BOARD</h2>
+      {picker && (
+        <div className="mb-8 flex flex-col items-center">
+          <div className="flex items-center gap-4">
+            <button
+              type="button"
+              aria-label="Previous team"
+              onClick={() => choosePicker(pickerIndex - 1)}
+              className="flex h-10 w-10 items-center justify-center rounded border border-neutral-600 text-2xl leading-none text-white hover:bg-neutral-800"
+            >
+              ‹
+            </button>
+            <div className="flex h-20 w-20 items-center justify-center rounded border border-neutral-500 bg-neutral-950">
+              {picker.logo ? (
+                <img src={picker.logo} alt="" className="h-16 w-16 object-contain" />
+              ) : (
+                <span className="text-xs text-neutral-400">{picker.abbreviation}</span>
+              )}
+            </div>
+            <button
+              type="button"
+              aria-label="Next team"
+              onClick={() => choosePicker(pickerIndex + 1)}
+              className="flex h-10 w-10 items-center justify-center rounded border border-neutral-600 text-2xl leading-none text-white hover:bg-neutral-800"
+            >
+              ›
+            </button>
+          </div>
+          <p className="mt-2 text-xs tracking-wide text-neutral-300">PICKING NEXT · {picker.abbreviation}</p>
+        </div>
+      )}
       <div className="overflow-hidden rounded-2xl border border-neutral-700">
         {scroll.max > 0 && (
           <div className="border-b border-neutral-700 bg-neutral-900 px-3 pt-2 pb-1">
@@ -175,7 +233,7 @@ export default function DraftBoard({
                   <img src={section.src} alt="" className="h-6 w-auto object-contain" />
                   <h4 className="text-sm font-bold tracking-wide text-white">{section.name}</h4>
                 </div>
-                <ProspectTable players={section.players} />
+                <ProspectTable players={section.players} slots={section.slots} />
               </div>
             ))}
           </div>

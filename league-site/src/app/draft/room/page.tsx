@@ -4,6 +4,8 @@ import { ABA_RANKS, abaRank } from "@/lib/abaRank";
 
 export const dynamic = "force-dynamic";
 
+const SHORT_BADGES = new Set(["Red", "Dark Red", "Black"]);
+
 function stat(value: unknown) {
   const rating = Number(String(value ?? "").trim());
   return Number.isFinite(rating) ? rating : -1;
@@ -26,9 +28,14 @@ function prospectName(player: { name: string; first_name?: string; last_name?: s
 
 export default async function DraftRoomPage() {
   const data = await db.load();
-  const teams = [...(data.teams || [])]
+  const ordered = [...(data.teams || [])].sort((a, b) => a.name.localeCompare(b.name));
+  const pickerTeams = ordered.map(team => ({
+    id: team.id,
+    abbreviation: team.abbreviation,
+    logo: team.logo,
+  }));
+  const teams = ordered
     .filter(team => team.draft_eligible !== false)
-    .sort((a, b) => a.name.localeCompare(b.name))
     .map(team => ({
       id: team.id,
       abbreviation: team.abbreviation,
@@ -47,23 +54,35 @@ export default async function DraftRoomPage() {
       return prospectName(a).localeCompare(prospectName(b));
     });
 
-  const sections = ABA_RANKS.map(rank => ({
-    name: rank.name,
-    src: rank.src,
-    players: ranked
-      .filter(player => abaRank(player.overall)?.name === rank.name)
-      .slice(0, 5)
-      .map(player => ({
-        id: player.id,
-        position: player.position || "",
-        name: prospectName(player),
-        rating: player.overall != null ? String(player.overall) : "",
-        height: player.height || "",
-        weight: player.weight != null ? String(player.weight) : "",
-        fg: player.fg || "",
-        threeP: player.three_p || "",
-      })),
-  }));
+  const sections = ABA_RANKS.map(rank => {
+    const slots = SHORT_BADGES.has(rank.name) ? 3 : 5;
+    return {
+      name: rank.name,
+      src: rank.src,
+      slots,
+      players: ranked
+        .filter(player => abaRank(player.overall)?.name === rank.name)
+        .slice(0, slots)
+        .map(player => ({
+          id: player.id,
+          position: player.position || "",
+          name: prospectName(player),
+          rating: player.overall != null ? String(player.overall) : "",
+          height: player.height || "",
+          weight: player.weight != null ? String(player.weight) : "",
+          fg: player.fg || "",
+          threeP: player.three_p || "",
+        })),
+    };
+  });
 
-  return <DraftBoard teams={teams} sections={sections} />;
+  const storedPicker = ordered.find(team => team.id === data.next_picker_id);
+  return (
+    <DraftBoard
+      teams={teams}
+      pickerTeams={pickerTeams}
+      nextPickerId={storedPicker?.id ?? null}
+      sections={sections}
+    />
+  );
 }
