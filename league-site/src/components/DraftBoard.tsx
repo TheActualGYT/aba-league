@@ -152,7 +152,7 @@ export default function DraftBoard({
   pickerTeams: PickerTeam[];
   nextPickerId: number | null;
   picks: DraftPick[];
-  playerNames: { id: number; name: string }[];
+  playerNames: { id: number; name: string; rating: string }[];
   sections: ProspectSection[];
 }) {
   const bodyRef = useRef<HTMLDivElement>(null);
@@ -173,8 +173,9 @@ export default function DraftBoard({
   const teamById = new Map(pickerTeams.map(team => [team.id, team]));
   const pickBySlot = new Map(picks.map(pick => [pick.slot, pick]));
   const names = new Map(playerNames.map(player => [player.id, player.name]));
+  const ratings = new Map(playerNames.map(player => [player.id, player.rating]));
   const onClock = openPick ? teamById.get(openPick.teamId) : undefined;
-  const recentPicks = [...picks].filter(pick => pick.playerId).slice(-3).reverse();
+  const recentPicks = [...picks].filter(pick => pick.playerId).slice(-4).reverse();
   const locked = Boolean(openPick);
 
   const savePicker = (teamId: number) => {
@@ -357,26 +358,31 @@ export default function DraftBoard({
           </div>
           <aside className="flex w-80 flex-col rounded-xl border border-neutral-700 bg-neutral-900 px-4 py-4">
             <h3 className="text-center text-sm font-bold tracking-[0.14em] text-white">DRAFT LOG</h3>
-            <div className="mt-3 flex flex-1 flex-col justify-center gap-3">
-              {recentPicks.length === 0 ? (
-                <p className="text-center text-sm text-neutral-500">No picks yet.</p>
-              ) : (
-                recentPicks.map(pick => {
-                  const team = teamById.get(pick.teamId);
-                  const name = pick.playerId ? names.get(pick.playerId) : "";
-                  return (
-                    <div key={pick.slot} className="flex items-center gap-3">
-                      <span className="w-10 shrink-0 text-xs font-bold tracking-wide text-neutral-400">{pick.slot}</span>
-                      {team?.logo ? (
-                        <img src={team.logo} alt="" className="h-8 w-8 shrink-0 object-contain" />
-                      ) : (
-                        <span className="w-8 shrink-0 text-center text-[10px] text-neutral-400">{team?.abbreviation}</span>
-                      )}
-                      <span className="truncate text-sm font-semibold text-white">{name}</span>
-                    </div>
-                  );
-                })
-              )}
+            <div className="mt-3 flex flex-1 flex-col">
+              {Array.from({ length: 4 }, (_, index) => recentPicks[index] || null).map((pick, index) => {
+                const team = pick ? teamById.get(pick.teamId) : undefined;
+                const name = pick?.playerId ? names.get(pick.playerId) : "";
+                const rank = pick?.playerId ? abaRank(ratings.get(pick.playerId)) : null;
+                return (
+                  <div
+                    key={pick?.slot ?? `log-${index}`}
+                    className={`flex flex-1 items-center gap-3 ${index < 3 ? "border-b border-neutral-700" : ""}`}
+                  >
+                    {pick && (
+                      <>
+                        <span className="w-10 shrink-0 text-xs font-bold tracking-wide text-neutral-400">{pick.slot}</span>
+                        {team?.logo ? (
+                          <img src={team.logo} alt="" className="h-7 w-7 shrink-0 object-contain" />
+                        ) : (
+                          <span className="w-7 shrink-0 text-center text-[10px] text-neutral-400">{team?.abbreviation}</span>
+                        )}
+                        <span className="min-w-0 flex-1 truncate text-sm font-semibold text-white">{name}</span>
+                        {rank && <img src={rank.src} alt="" title={rank.name} className="h-5 w-auto shrink-0 object-contain" />}
+                      </>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </aside>
         </div>

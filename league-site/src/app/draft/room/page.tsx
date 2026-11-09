@@ -86,6 +86,7 @@ export default async function DraftRoomPage() {
   const playerNames = (data.players || []).map(player => ({
     id: player.id,
     name: prospectName(player),
+    rating: player.overall != null ? String(player.overall) : "",
   }));
   return (
     <DraftBoard
