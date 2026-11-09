@@ -21,6 +21,7 @@ type SourcePlayer = {
   overall?: number;
   height?: string;
   weight?: number;
+  age?: number;
   number?: string;
   hand?: string;
   skin_tone?: string;
@@ -105,6 +106,7 @@ export function toDirectoryPlayers(players: SourcePlayer[], teams: SourceTeam[])
         rating: show(player.overall),
         height: show(player.height),
         weight: show(player.weight),
+        age: show(player.age),
         number: show(player.number),
         hand: show(player.hand),
         skin_tone: show(player.skin_tone),

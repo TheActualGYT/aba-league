@@ -46,6 +46,7 @@ export type EditablePlayer = {
   last_name?: string;
   position?: string | null;
   overall?: number;
+  age?: number;
   height?: string;
   weight?: number;
   number?: string;
@@ -132,6 +133,14 @@ function overallError(raw: string) {
   return "";
 }
 
+function ageError(raw: string) {
+  const value = raw.trim();
+  if (!value) return "";
+  if (!/^\d+$/.test(value) || Number(value) < 15 || Number(value) > 50) {
+    return "Age has to be between 15 and 50.";
+  }
+  return "";
+}
 function weightError(raw: string) {
   const value = raw.trim();
   if (!value) return "";
@@ -250,6 +259,7 @@ export default function PlayerForm({
   const [shownRank, setShownRank] = useState<AbaRank | null>(null);
   const [height, setHeight] = useState(field(player?.height));
   const [weight, setWeight] = useState(field(player?.weight));
+  const [age, setAge] = useState(field(player?.age));
   const [number, setNumber] = useState(field(player?.number));
   const [hand, setHand] = useState(field(player?.hand));
   const [skinTone, setSkinTone] = useState(field(player?.skin_tone));
@@ -292,10 +302,12 @@ export default function PlayerForm({
   const overallMessage = overallError(overall);
   const numberMessage = jerseyError(number);
   const weightMessage = weightError(weight);
+  const ageMessage = ageError(age);
   const headMessage = headModelError(headModel);
   const settledOverall = useSettledError(overall, overallMessage);
   const settledNumber = useSettledError(number, numberMessage);
   const settledWeight = useSettledError(weight, weightMessage);
+  const settledAge = useSettledError(age, ageMessage);
   const settledHead = useSettledError(headModel, headMessage);
   const shownOverall = revealNow ? overallMessage : settledOverall;
 
@@ -308,6 +320,7 @@ export default function PlayerForm({
   }, [overall]);
   const shownNumber = revealNow ? numberMessage : settledNumber;
   const shownWeight = revealNow ? weightMessage : settledWeight;
+  const shownAge = revealNow ? ageMessage : settledAge;
   const shownHead = revealNow ? headMessage : settledHead;
   const statsBlocked = (Object.keys(stats) as StatKey[]).some(key => !!statError(stats[key]));
   const repStarted = teamId === "prospect" && representative.trim().length > 0;
@@ -320,6 +333,7 @@ export default function PlayerForm({
     !!overallMessage ||
     !!numberMessage ||
     !!weightMessage ||
+    !!ageMessage ||
     !!headMessage ||
     statsBlocked ||
     repAbbrMissing ||
@@ -351,6 +365,7 @@ export default function PlayerForm({
           overall,
           height,
           weight,
+          age,
           number,
           hand,
           skin_tone: skinTone,
@@ -425,6 +440,12 @@ export default function PlayerForm({
               <input value={weight} maxLength={3} onChange={e => { setRevealNow(false); setWeight(digitsOnly(e.target.value, 3)); }} inputMode="numeric" className={`${fieldClass} ${shownWeight ? "abbr-taken" : ""}`} />
               {shownWeight && <p className="text-[11px] text-red-400 mt-1">{shownWeight}</p>}
               {!weightMessage && <UsageNote index={usage} field="weight" value={weight} />}
+            </div>
+            <div>
+              <FieldLabel>Age</FieldLabel>
+              <input value={age} maxLength={2} onChange={e => { setRevealNow(false); setAge(digitsOnly(e.target.value, 2)); }} inputMode="numeric" className={`${fieldClass} ${shownAge ? "abbr-taken" : ""}`} />
+              {shownAge && <p className="text-[11px] text-red-400 mt-1">{shownAge}</p>}
+              {!ageMessage && <UsageNote index={usage} field="age" value={age} />}
             </div>
             <div>
               <FieldLabel>Jersey Number</FieldLabel>

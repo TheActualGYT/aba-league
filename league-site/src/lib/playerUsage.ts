@@ -10,6 +10,7 @@ const KEYS = [
   "overall",
   "height",
   "weight",
+  "age",
   "number",
   "hand",
   "skin_tone",

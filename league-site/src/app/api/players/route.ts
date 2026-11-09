@@ -81,6 +81,7 @@ async function collect(body: any) {
   const hand = String(body.hand || "").trim();
   const height = String(body.height || "").trim();
   const weightRaw = String(body.weight ?? "").trim();
+  const ageRaw = String(body.age ?? "").trim();
   const overallRaw = String(body.overall ?? "").trim();
   const headModel = String(body.head_model ?? "").trim();
   const skinTone = text(body.skin_tone);
@@ -99,6 +100,9 @@ async function collect(body: any) {
   }
   if (weightRaw && (!/^\d+$/.test(weightRaw) || Number(weightRaw) < 150 || Number(weightRaw) > 400)) {
     return { error: fail("Weight has to be between 150 and 400.") };
+  }
+  if (ageRaw && (!/^\d+$/.test(ageRaw) || Number(ageRaw) < 15 || Number(ageRaw) > 50)) {
+    return { error: fail("Age has to be between 15 and 50.") };
   }
   if (numberMessage) return { error: fail(numberMessage) };
   if (hand && hand !== "Left" && hand !== "Right") return { error: fail("Select a hand.") };
@@ -153,6 +157,7 @@ async function collect(body: any) {
       overall: overallRaw ? Number(overallRaw) : undefined,
       height: height || undefined,
       weight: weightRaw ? Number(weightRaw) : undefined,
+      age: ageRaw ? Number(ageRaw) : undefined,
       number: number || undefined,
       hand: hand || undefined,
       skin_tone: skinTone,

@@ -43,6 +43,7 @@ interface Player {
   first_name?: string;
   last_name?: string;
   overall?: number;
+  age?: number;
   height?: string;
   weight?: number;
   number?: string;

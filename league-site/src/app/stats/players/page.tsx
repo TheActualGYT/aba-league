@@ -1,6 +1,6 @@
 import db from "@/lib/db";
 import PlayerStats, { type StatRow } from "@/components/PlayerStats";
-import { addLine, emptySeason, perGame, type CountingLine } from "@/lib/gameScore";
+import { addLine, emptySeason, type CountingLine } from "@/lib/gameScore";
 
 export const dynamic = "force-dynamic";
 
@@ -12,6 +12,8 @@ type Player = {
   team_id?: number | null;
   status?: string;
   position?: string | null;
+  overall?: number;
+  age?: number;
 };
 
 function playerName(player: Player) {
@@ -40,12 +42,13 @@ export default async function PlayerStatsPage() {
     .filter((player: Player) => player.status !== "prospect" && player.team_id)
     .map((player: Player) => ({
       id: player.id,
-      rank: 0,
       position: String(player.position || "").toUpperCase(),
       name: playerName(player),
-      line: perGame(totals.get(player.id) || emptySeason()),
+      age: player.age ?? null,
+      rating: player.overall != null ? String(player.overall) : "",
+      totals: totals.get(player.id) || emptySeason(),
     }))
-    .sort((a, b) => b.line.gmsc - a.line.gmsc || b.line.pts - a.line.pts || a.name.localeCompare(b.name));
+    .sort((a, b) => b.totals.gmsc - a.totals.gmsc || b.totals.pts - a.totals.pts || a.name.localeCompare(b.name));
 
   return (
     <main

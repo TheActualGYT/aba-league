@@ -23,6 +23,7 @@ export type DirectoryPlayer = {
   rating: string;
   height: string;
   weight: string;
+  age: string;
   number: string;
   hand: string;
   skin_tone: string;
@@ -93,6 +94,7 @@ const SHEET_WIDTH: Partial<Record<keyof DirectoryPlayer, string>> = {
   rating: "6.5rem",
   height: "5.5rem",
   weight: "5.5rem",
+  age: "4.25rem",
   body_type: "5.5rem",
   number: "5.5rem",
   hand: "5.5rem",
@@ -103,6 +105,7 @@ const COLUMNS: Record<SectionId, { key: keyof DirectoryPlayer; label: string; no
   vitals: [
     { key: "rating", label: "ABA Rating", prefer: "high" },
     { key: "height", label: "Height", prefer: "high" },
+    { key: "age", label: "Age", prefer: "high" },
     { key: "weight", label: "Weight", prefer: "high" },
     { key: "number", label: "Jersey", prefer: "low" },
     { key: "hand", label: "Hand", prefer: "alpha" },
@@ -160,7 +163,7 @@ const COLUMNS: Record<SectionId, { key: keyof DirectoryPlayer; label: string; no
 
 const ATTRIBUTE_KEYS = new Set(COLUMNS.attributes.map(column => column.key));
 const NUMERIC = new Set([
-  "rating", "weight", "number", "head_model",
+  "rating", "weight", "age", "number", "head_model",
   "fg", "three_p", "dk", "stl", "blk", "off_reb", "def_reb", "passing",
   "off_ability", "def_ability", "speed", "quickness", "vertical", "dribble",
   "strength", "durability", "shooting_range", "stamina", "inside_scoring", "in_game_rating",
