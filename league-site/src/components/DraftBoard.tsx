@@ -11,6 +11,14 @@ const ROW_H = 112;
 const ROUND_W = 156;
 const SUMMARY_W = 136;
 const SUMMARY_H = 90;
+const POSITIONS = ["C", "PF", "SF", "SG", "PG"];
+
+function biggerLogo(team?: { abbreviation?: string; name?: string }) {
+  const abbr = (team?.abbreviation || "").toUpperCase().replace(/[^A-Z]/g, "");
+  const name = (team?.name || "").trim().toLowerCase();
+  if (name.includes("tech") || name.includes("commonwealth") || abbr === "VT" || abbr === "VCU") return false;
+  return abbr === "UVA" || abbr === "VIR" || abbr === "VA" || name.split(/[^a-z]+/).includes("virginia");
+}
 
 export type DraftProspect = {
   id: number;
@@ -33,6 +41,7 @@ export type ProspectSection = {
 
 export type PickerTeam = {
   id: number;
+  name?: string;
   abbreviation: string;
   logo?: string;
   ownership?: string;
@@ -49,12 +58,14 @@ export type PickPlayer = {
   weight: string;
   position: string;
   rating: string;
+  teamId?: number | null;
 };
 
-function PickGraphic({ player, logo }: { player: PickPlayer; logo?: string }) {
+function PickGraphic({ player, team }: { player: PickPlayer; team?: { logo?: string; abbreviation?: string; name?: string } }) {
   const rank = abaRank(player.rating);
   const dark = rank?.name === "Black";
   const color = rank?.name === "Diamond" ? "#d7ecff" : dark ? "#1c1c1c" : rank?.color || "#d4d4d4";
+  const logo = team?.logo;
   return (
     <div className="relative h-full w-full overflow-hidden text-left" style={{ background: color, containerType: "size", color: dark ? "#fff" : "#111", fontFamily: "Inter, sans-serif" }}>
       <div className="absolute inset-x-0 bottom-0 h-1/4" style={{ background: "rgba(0,0,0,0.22)" }} />
@@ -63,7 +74,13 @@ function PickGraphic({ player, logo }: { player: PickPlayer; logo?: string }) {
           src={logo}
           alt=""
           className="pointer-events-none absolute object-contain"
-          style={{ height: "42%", width: "auto", right: "4cqw", bottom: "5%" }}
+          style={{
+            height: biggerLogo(team) ? "58%" : "42%",
+            width: "auto",
+            right: "4cqw",
+            bottom: "5%",
+            filter: "drop-shadow(0 2px 2px rgba(0,0,0,0.6)) drop-shadow(0 5px 8px rgba(0,0,0,0.35))",
+          }}
         />
       )}
       <div className="relative flex h-full items-start justify-between px-[8cqw] pt-[7cqw] text-left">
@@ -193,7 +210,7 @@ export default function DraftBoard({
   playerNames,
   sections,
 }: {
-  teams: { id: number; abbreviation: string; logo?: string }[];
+  teams: { id: number; name?: string; abbreviation: string; logo?: string }[];
   pickerTeams: PickerTeam[];
   nextPickerId: number | null;
   picks: DraftPick[];
@@ -209,6 +226,7 @@ export default function DraftBoard({
   const [selectedId, setSelectedId] = useState<number | null>(nextPickerId);
   const [spinning, setSpinning] = useState(false);
   const [pending, setPending] = useState(false);
+  const [blockNote, setBlockNote] = useState("");
   const rows = boardRows();
   const openPick = [...picks].reverse().find(pick => !pick.playerId);
   const taken = cycleTaken(picks, pickerTeams.map(team => team.id));
@@ -284,7 +302,16 @@ export default function DraftBoard({
   };
 
   const draftPlayer = (playerId: number) => {
-    if (!openPick) return;
+    if (!openPick || !onClock) return;
+    const prospect = playersById.get(playerId);
+    const position = (prospect?.position || "").trim().toUpperCase();
+    const taken = playerNames.some(player => player.teamId === onClock.id && player.position.trim().toUpperCase() === position)
+      || picks.some(pick => pick.teamId === onClock.id && pick.playerId && (playersById.get(pick.playerId)?.position || "").trim().toUpperCase() === position);
+    if (!position || taken) {
+      setBlockNote(position ? `${position} is already filled.` : "That player needs a position.");
+      return;
+    }
+    setBlockNote("");
     setPicks(current => current.map(pick => pick.slot === openPick.slot ? { ...pick, playerId } : pick));
     setLists(current => current.map(section => ({
       ...section,
@@ -356,7 +383,7 @@ export default function DraftBoard({
               </button>
               <div className={`flex h-20 w-20 items-center justify-center rounded-lg border bg-neutral-950 ${spinning ? "border-white" : "border-neutral-500"}`}>
                 {!onClock && picker.logo ? (
-                  <img src={picker.logo} alt="" className="h-16 w-16 object-contain" />
+                  <img src={picker.logo} alt="" className={`h-16 w-16 object-contain ${biggerLogo(picker) ? "scale-125" : ""}`} />
                 ) : !onClock ? (
                   <span className="text-xs text-neutral-400">{picker.abbreviation}</span>
                 ) : null}
@@ -391,7 +418,7 @@ export default function DraftBoard({
               <>
                 <div className="mt-3 flex justify-center">
                   {onClock.logo ? (
-                    <img src={onClock.logo} alt="" className="h-16 w-16 object-contain" />
+                    <img src={onClock.logo} alt="" className={`h-16 w-16 object-contain ${biggerLogo(onClock) ? "scale-125" : ""}`} />
                   ) : (
                     <span className="text-sm text-neutral-300">{onClock.abbreviation}</span>
                   )}
@@ -419,7 +446,7 @@ export default function DraftBoard({
                       <>
                         <span className="w-10 shrink-0 text-xs font-bold tracking-wide text-neutral-400">{pick.slot}</span>
                         {team?.logo ? (
-                          <img src={team.logo} alt="" className="h-7 w-7 shrink-0 object-contain" />
+                          <img src={team.logo} alt="" className={`h-7 w-7 shrink-0 object-contain ${biggerLogo(team) ? "scale-125" : ""}`} />
                         ) : (
                           <span className="w-7 shrink-0 text-center text-[10px] text-neutral-400">{team?.abbreviation}</span>
                         )}
@@ -475,12 +502,12 @@ export default function DraftBoard({
                       >
                         {draftedPlayer ? (
                           <div className="absolute inset-0">
-                            <PickGraphic player={draftedPlayer} logo={placed?.logo} />
+                            <PickGraphic player={draftedPlayer} team={placed} />
                           </div>
                         ) : placed ? (
                           <span className="flex h-full items-center justify-center">
                             {placed.logo ? (
-                              <img src={placed.logo} alt="" className={`h-16 w-16 object-contain ${waiting ? "animate-pulse" : ""}`} />
+                              <img src={placed.logo} alt="" className={`h-16 w-16 object-contain ${waiting ? "animate-pulse" : ""} ${biggerLogo(placed) ? "scale-125" : ""}`} />
                             ) : (
                               <span className={`text-sm font-semibold text-white ${waiting ? "animate-pulse" : ""}`}>{placed.abbreviation}</span>
                             )}
@@ -500,6 +527,7 @@ export default function DraftBoard({
         <section className="min-w-0 flex-1" style={{ zoom: 0.96 } as CSSProperties}>
           <div className="mb-6 flex flex-wrap items-baseline gap-x-4 gap-y-1">
             <h3 className="label-glow text-3xl font-bold tracking-wide text-white">REMAINING PROSPECTS</h3>
+            {blockNote && <p className="text-sm font-semibold text-red-400">{blockNote}</p>}
             <Link href="/draft/prospects" className="text-sm text-neutral-300 underline hover:text-white">
               View all prospects
             </Link>
@@ -525,21 +553,28 @@ export default function DraftBoard({
               {teams.map(team => (
                 <div key={team.id} className="flex items-stretch">
                   <div style={{ width: 52, height: SUMMARY_H }} className="flex shrink-0 flex-col items-center justify-center pr-2">
-                    {team.logo && <img src={team.logo} alt="" className="h-8 max-w-full object-contain" />}
+                    {team.logo && <img src={team.logo} alt="" className={`h-8 max-w-full object-contain ${biggerLogo(team) ? "scale-125" : ""}`} />}
                     <span className="mt-1 text-[11px] font-semibold leading-none tracking-wide text-white">{team.abbreviation}</span>
                   </div>
                   <div className="flex">
-                    {Array.from({ length: ROUNDS }, (_, index) => {
-                      const drafted = picks.filter(pick => pick.teamId === team.id && pick.playerId);
-                      const playerId = drafted[index]?.playerId;
-                      const player = playerId ? playersById.get(playerId) : undefined;
+                    {POSITIONS.map((position, index) => {
+                      const drafted = picks
+                        .filter(pick => pick.teamId === team.id && pick.playerId)
+                        .map(pick => playersById.get(pick.playerId as number))
+                        .find(player => (player?.position || "").trim().toUpperCase() === position);
+                      const rostered = playerNames.find(player => player.teamId === team.id && player.position.trim().toUpperCase() === position);
+                      const player = drafted || rostered;
                       return (
                         <div
-                          key={index}
+                          key={position}
                           style={{ width: SUMMARY_W, height: SUMMARY_H }}
                           className={`relative overflow-hidden border-y border-r border-neutral-600 bg-neutral-950 ${index === 0 ? "border-l" : ""}`}
                         >
-                          {player && <PickGraphic player={player} logo={team.logo} />}
+                          {player ? (
+                            <PickGraphic player={player} team={team} />
+                          ) : (
+                            <span className="flex h-full items-center justify-center text-sm font-bold tracking-wide text-white/50">{position}</span>
+                          )}
                         </div>
                       );
                     })}

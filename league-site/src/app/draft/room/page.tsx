@@ -33,12 +33,14 @@ export default async function DraftRoomPage() {
   const pickerTeams = eligible.map(team => ({
     id: team.id,
     abbreviation: team.abbreviation,
+    name: team.name,
     logo: team.logo,
     ownership: team.ownership || "",
   }));
   const teams = eligible.map(team => ({
     id: team.id,
     abbreviation: team.abbreviation,
+    name: team.name,
     logo: team.logo,
   }));
 
@@ -95,6 +97,7 @@ export default async function DraftRoomPage() {
       weight: player.weight != null ? String(player.weight) : "",
       position: player.position || "",
       rating: player.overall != null ? String(player.overall) : "",
+      teamId: player.team_id ?? null,
     };
   });
   return (

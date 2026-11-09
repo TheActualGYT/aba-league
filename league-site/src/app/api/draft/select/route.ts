@@ -11,6 +11,16 @@ export async function POST(req: NextRequest) {
   if (!player || player.status !== "prospect" || player.team_id) {
     return NextResponse.json({ error: "Player is not available" }, { status: 400 });
   }
+  const position = String(player.position || "").trim().toUpperCase();
+  if (!["C", "PF", "SF", "SG", "PG"].includes(position)) {
+    return NextResponse.json({ error: "Player needs a valid position" }, { status: 400 });
+  }
+  const filled = (data.players || []).some(item =>
+    item.id !== player.id &&
+    item.team_id === open.team_id &&
+    String(item.position || "").trim().toUpperCase() === position
+  );
+  if (filled) return NextResponse.json({ error: "Position already filled" }, { status: 400 });
   player.team_id = open.team_id;
   player.status = "team";
   open.player_id = player.id;
