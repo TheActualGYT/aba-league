@@ -1,5 +1,6 @@
 import db from "@/lib/db";
 import DraftBoard from "@/components/DraftBoard";
+import { ABA_RANKS, abaRank } from "@/lib/abaRank";
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +35,7 @@ export default async function DraftRoomPage() {
       logo: team.logo,
     }));
 
-  const prospects = [...(data.players || [])]
+  const ranked = [...(data.players || [])]
     .filter(player => player.status === "prospect" && !player.team_id)
     .sort((a, b) => {
       const rating = stat(b.overall) - stat(a.overall);
@@ -44,18 +45,25 @@ export default async function DraftRoomPage() {
       const shooting = shootingAverage(b.fg, b.three_p) - shootingAverage(a.fg, a.three_p);
       if (shooting) return shooting;
       return prospectName(a).localeCompare(prospectName(b));
-    })
-    .slice(0, 25)
-    .map(player => ({
-      id: player.id,
-      position: player.position || "",
-      name: prospectName(player),
-      rating: player.overall != null ? String(player.overall) : "",
-      height: player.height || "",
-      weight: player.weight != null ? String(player.weight) : "",
-      fg: player.fg || "",
-      threeP: player.three_p || "",
-    }));
+    });
 
-  return <DraftBoard teams={teams} prospects={prospects} />;
+  const sections = ABA_RANKS.map(rank => ({
+    name: rank.name,
+    src: rank.src,
+    players: ranked
+      .filter(player => abaRank(player.overall)?.name === rank.name)
+      .slice(0, 5)
+      .map(player => ({
+        id: player.id,
+        position: player.position || "",
+        name: prospectName(player),
+        rating: player.overall != null ? String(player.overall) : "",
+        height: player.height || "",
+        weight: player.weight != null ? String(player.weight) : "",
+        fg: player.fg || "",
+        threeP: player.three_p || "",
+      })),
+  })).filter(section => section.players.length > 0);
+
+  return <DraftBoard teams={teams} sections={sections} />;
 }
