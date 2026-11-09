@@ -37,13 +37,14 @@ export async function POST(req: NextRequest) {
     assistant_coach,
     colors: colors || [],
     created_by: 1,
+    draft_eligible: true,
   });
   await db.save(data);
   return NextResponse.json({ id: newId });
 }
 
 export async function PATCH(req: NextRequest) {
-  const { id, name, abbreviation, logo, location, ownership, head_coach, assistant_coach, colors } = await req.json();
+  const { id, name, abbreviation, logo, location, ownership, head_coach, assistant_coach, colors, draft_eligible } = await req.json();
   if (!id) return NextResponse.json({ error: "Missing team id" }, { status: 400 });
 
   const data = await db.load();
@@ -65,6 +66,7 @@ export async function PATCH(req: NextRequest) {
   if (head_coach !== undefined) team.head_coach = head_coach;
   if (assistant_coach !== undefined) team.assistant_coach = assistant_coach;
   if (colors) team.colors = colors;
+  if (typeof draft_eligible === "boolean") team.draft_eligible = draft_eligible;
 
   await db.save(data);
   return NextResponse.json({ ok: true });
