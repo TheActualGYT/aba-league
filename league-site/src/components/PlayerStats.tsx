@@ -137,6 +137,18 @@ export default function PlayerStats({ rows }: { rows: StatRow[] }) {
       <div ref={bodyRef} onScroll={syncScroll} className="overflow-x-auto">
         <table className="w-max border-separate border-spacing-0 text-sm">
           <thead>
+            <tr className="text-[11px] font-bold tracking-[0.18em] text-white">
+              <th
+                colSpan={4}
+                style={{ left: 0 }}
+                className="sticky z-30 bg-neutral-950 px-2 py-2 text-center border-b border-r border-neutral-600"
+              >
+                VITALS
+              </th>
+              <th colSpan={COLUMNS.length - 1} className="bg-neutral-950 px-2 py-2 text-center border-b border-neutral-600">
+                AVERAGES
+              </th>
+            </tr>
             <tr className="text-xs text-neutral-300">
               <th style={{ width: RANK_W, minWidth: RANK_W, left: 0 }} className="sticky z-20 bg-neutral-800 px-2 py-3 text-center font-semibold border-b border-r border-neutral-700">
                 <button type="button" onClick={() => toggle("rank")} className="hover:text-white">Rank{mark("rank")}</button>
@@ -147,11 +159,22 @@ export default function PlayerStats({ rows }: { rows: StatRow[] }) {
               <th style={{ width: NAME_W, minWidth: NAME_W, left: `calc(${RANK_W} + ${POS_W})` }} className="sticky z-20 bg-neutral-800 px-3 py-3 text-left font-semibold border-b border-r border-neutral-700">
                 <button type="button" onClick={() => toggle("name")} className="hover:text-white">Player Name{mark("name")}</button>
               </th>
-              {COLUMNS.map(column => (
-                <th key={column.label} style={{ width: STAT_W, minWidth: STAT_W }} className="bg-neutral-800 px-2 py-3 text-center font-semibold border-b border-l border-neutral-700">
-                  <button type="button" onClick={() => toggle(column.key)} className="hover:text-white">{column.label}{mark(column.key)}</button>
-                </th>
-              ))}
+              {COLUMNS.map(column => {
+                const frozen = column.key === "gmsc";
+                return (
+                  <th
+                    key={column.label}
+                    style={{
+                      width: STAT_W,
+                      minWidth: STAT_W,
+                      ...(frozen ? { left: `calc(${RANK_W} + ${POS_W} + ${NAME_W})` } : {}),
+                    }}
+                    className={`${frozen ? "sticky z-20 border-r" : "border-l"} bg-neutral-800 px-2 py-3 text-center font-semibold border-b border-neutral-700`}
+                  >
+                    <button type="button" onClick={() => toggle(column.key)} className="hover:text-white">{column.label}{mark(column.key)}</button>
+                  </th>
+                );
+              })}
             </tr>
           </thead>
           <tbody>
@@ -167,11 +190,22 @@ export default function PlayerStats({ rows }: { rows: StatRow[] }) {
                   <td style={{ width: RANK_W, minWidth: RANK_W, left: 0 }} className="sticky z-10 bg-neutral-900 px-2 text-center text-neutral-400 border-b border-r border-neutral-700">{index + 1}</td>
                   <td style={{ width: POS_W, minWidth: POS_W, left: RANK_W }} className="sticky z-10 bg-neutral-900 px-2 text-center text-neutral-200 border-b border-r border-neutral-700">{row.position || "\u2014"}</td>
                   <td style={{ width: NAME_W, minWidth: NAME_W, left: `calc(${RANK_W} + ${POS_W})` }} className="sticky z-10 bg-neutral-900 px-3 text-left font-semibold text-white border-b border-r border-neutral-700">{row.name}</td>
-                  {COLUMNS.map(column => (
-                    <td key={column.label} style={{ width: STAT_W, minWidth: STAT_W }} className="bg-neutral-900 px-2 text-center text-neutral-200 border-b border-l border-neutral-700">
-                      {shown(row, column.key)}
-                    </td>
-                  ))}
+                  {COLUMNS.map(column => {
+                    const frozen = column.key === "gmsc";
+                    return (
+                      <td
+                        key={column.label}
+                        style={{
+                          width: STAT_W,
+                          minWidth: STAT_W,
+                          ...(frozen ? { left: `calc(${RANK_W} + ${POS_W} + ${NAME_W})` } : {}),
+                        }}
+                        className={`${frozen ? "sticky z-10 border-r" : "border-l"} bg-neutral-900 px-2 text-center text-neutral-200 border-b border-neutral-700`}
+                      >
+                        {shown(row, column.key)}
+                      </td>
+                    );
+                  })}
                 </tr>
               ))
             )}
