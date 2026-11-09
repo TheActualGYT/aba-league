@@ -56,6 +56,7 @@ export default function EditTeamButton({
   const [assistantCoach, setAssistantCoach] = useState(team.assistant_coach || "");
   const [logo, setLogo] = useState(team.logo || "");
   const [colors, setColors] = useState<string[]>(team.colors || []);
+  const [draftEligible, setDraftEligible] = useState(team.draft_eligible !== false);
   const [message, setMessage] = useState("");
   const [removeIndex, setRemoveIndex] = useState<number | null>(null);
   const [eyedropperMode, setEyedropperMode] = useState(false);
@@ -95,6 +96,7 @@ export default function EditTeamButton({
           assistant_coach: assistantCoach,
           logo,
           colors,
+          draft_eligible: draftEligible,
         }),
       });
       const json = await res.json().catch(() => ({}));
@@ -259,6 +261,16 @@ export default function EditTeamButton({
                     <button type="button" onClick={() => setRemoveIndex(null)} className="bg-neutral-700 text-white px-2 py-0.5 rounded">No</button>
                   </div>
                 )}
+              </div>
+              <div className="border border-neutral-700 rounded-lg p-3">
+                <p className="text-xs font-bold tracking-wide text-white mb-2">DRAFT ELIGIBLE</p>
+                <button
+                  type="button"
+                  onClick={() => setDraftEligible(current => !current)}
+                  className={`h-9 px-3 rounded text-sm font-semibold ${draftEligible ? "bg-neutral-200 text-black" : "bg-neutral-800 text-neutral-300 border border-neutral-600"}`}
+                >
+                  {draftEligible ? "Eligible" : "Not eligible"}
+                </button>
               </div>
             </div>
             <div className="flex justify-end gap-2 mt-5">
