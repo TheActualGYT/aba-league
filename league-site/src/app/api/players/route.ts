@@ -57,8 +57,8 @@ function jerseyError(raw: string) {
 function overallError(raw: unknown) {
   const value = String(raw ?? "").trim();
   if (!value) return "";
-  if (!/^\d+$/.test(value) || Number(value) < 10 || Number(value) > 99) {
-    return "ABA Rating has to be between 10 and 99.";
+  if (!/^\d+$/.test(value) || Number(value) < 10 || Number(value) > 100) {
+    return "ABA Rating has to be between 10 and 100.";
   }
   return "";
 }

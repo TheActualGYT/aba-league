@@ -6,6 +6,7 @@ import AttributeFields, { emptyStats, statError, type StatKey } from "@/componen
 import UsageNote from "@/components/UsageNote";
 import DropdownLayer from "@/components/DropdownLayer";
 import type { UsageIndex } from "@/lib/playerUsage";
+import { abaRank, type AbaRank } from "@/lib/abaRank";
 
 const fieldClass = "w-full h-8 px-2.5 text-sm bg-neutral-800 border border-neutral-600 rounded text-white";
 const labelClass = "block text-[11px] font-semibold tracking-wide text-neutral-400 mb-1";
@@ -125,8 +126,8 @@ function jerseyError(raw: string) {
 function overallError(raw: string) {
   const value = raw.trim();
   if (!value) return "";
-  if (!/^\d+$/.test(value) || Number(value) < 10 || Number(value) > 99) {
-    return "ABA Rating has to be between 10 and 99.";
+  if (!/^\d+$/.test(value) || Number(value) < 10 || Number(value) > 100) {
+    return "ABA Rating has to be between 10 and 100.";
   }
   return "";
 }
@@ -246,7 +247,7 @@ export default function PlayerForm({
   const [lastName, setLastName] = useState(field(player?.last_name));
   const [position, setPosition] = useState(field(player?.position));
   const [overall, setOverall] = useState(field(player?.overall));
-  const [showAmethyst, setShowAmethyst] = useState(false);
+  const [shownRank, setShownRank] = useState<AbaRank | null>(null);
   const [height, setHeight] = useState(field(player?.height));
   const [weight, setWeight] = useState(field(player?.weight));
   const [number, setNumber] = useState(field(player?.number));
@@ -299,9 +300,10 @@ export default function PlayerForm({
   const shownOverall = revealNow ? overallMessage : settledOverall;
 
   useEffect(() => {
-    setShowAmethyst(false);
-    if (overall.trim() !== "99") return;
-    const timer = window.setTimeout(() => setShowAmethyst(true), 2000);
+    setShownRank(null);
+    const rank = abaRank(overall);
+    if (!rank) return;
+    const timer = window.setTimeout(() => setShownRank(rank), 2000);
     return () => window.clearTimeout(timer);
   }, [overall]);
   const shownNumber = revealNow ? numberMessage : settledNumber;
@@ -405,9 +407,9 @@ export default function PlayerForm({
                 <input value={overall} maxLength={3} onChange={e => { setRevealNow(false); setOverall(digitsOnly(e.target.value, 3)); }} inputMode="numeric" className={`${fieldClass} min-w-0 flex-1 ${shownOverall ? "abbr-taken" : ""}`} />
                 <div className="relative h-8 w-8 shrink-0">
                   <div className="h-8 w-8 overflow-hidden rounded border border-neutral-600 bg-neutral-950">
-                    {showAmethyst && <img src="/amethyst-rank.png" alt="Amethyst Rank" className="h-full w-full object-contain" />}
+                    {shownRank && <img src={shownRank.src} alt={`${shownRank.name} Rank`} className="h-full w-full object-contain" />}
                   </div>
-                  {showAmethyst && <span className="absolute left-1/2 top-full mt-1 -translate-x-1/2 whitespace-nowrap text-center text-[10px] leading-none text-purple-300">Amethyst</span>}
+                  {shownRank && <span className={`absolute left-1/2 top-full mt-1 -translate-x-1/2 whitespace-nowrap text-center text-[10px] leading-none ${shownRank.label}`}>{shownRank.name}</span>}
                 </div>
               </div>
               {shownOverall && <p className="text-[11px] text-red-400 mt-1">{shownOverall}</p>}

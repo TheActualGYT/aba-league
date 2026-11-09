@@ -7,6 +7,7 @@ import DeletePlayerButton from "@/components/DeletePlayerButton";
 import DropdownLayer from "@/components/DropdownLayer";
 import { useCloseOnOutside } from "@/components/useCloseOnOutside";
 import { ratingFill, RATING_INK } from "@/lib/ratingColor";
+import { abaRank } from "@/lib/abaRank";
 
 export type DirectoryPlayer = {
   id: number;
@@ -548,6 +549,7 @@ export default function PlayerDirectory({
                         const fill = tinted ? ratingFill(String(player[column.key] ?? "")) : null;
                         const value = column.key === "team" ? player.team : String(player[column.key] ?? "");
                         const frozen = sheet && column.key === "rating";
+                        const rank = column.key === "rating" ? abaRank(player.rating) : null;
                         const cell = (
                           <td
                             key={column.key}
@@ -566,10 +568,10 @@ export default function PlayerDirectory({
                                 <span className="truncate leading-5">{player.abbreviation}</span>
                               </span>
                             ) : column.key === "rating" ? (
-                              <span className="inline-flex h-8 max-h-8 items-center justify-center gap-1.5">
+                              <span className="inline-flex h-[26px] max-h-[26px] items-center justify-center gap-1.5">
                                 <span className="leading-5">{player.rating}</span>
-                                {player.rating === "99" && (
-                                  <img src="/amethyst-rank.png" alt="" title="Amethyst" width={22} height={32} className="block h-8 w-auto max-h-8 shrink-0 object-contain" />
+                                {rank && (
+                                  <img src={rank.src} alt="" title={rank.name} width={18} height={26} className="block h-[26px] w-auto max-h-[26px] shrink-0 object-contain" />
                                 )}
                               </span>
                             ) : (
