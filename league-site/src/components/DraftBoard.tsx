@@ -66,18 +66,18 @@ function PickGraphic({ player, logo }: { player: PickPlayer; logo?: string }) {
           style={{ transform: "translate(16%, 14%)" }}
         />
       )}
-      <div className="relative flex h-full flex-col justify-between px-[5cqw] py-[7cqw] text-left">
-        <div className="flex items-start justify-between gap-[2cqw]">
-          <div className="min-w-0 text-left font-black leading-[0.92]">
-            <div className="truncate" style={{ fontSize: "11cqw" }}>{player.first}</div>
-            <div className="truncate" style={{ fontSize: "11cqw" }}>{player.last}</div>
-          </div>
-          <div className="shrink-0 text-right font-black leading-[0.95]" style={{ fontSize: "8cqw" }}>
-            <div>{player.height}</div>
-            <div>{player.weight}</div>
-          </div>
+      <div className="relative flex h-full items-start justify-between px-[8cqw] pt-[7cqw] text-left">
+        <div className="min-w-0 text-left font-black">
+          <div className="truncate" style={{ fontSize: "11cqw", lineHeight: 1 }}>{player.first}</div>
+          <div className="truncate" style={{ fontSize: "11cqw", lineHeight: 1, marginTop: "1.6cqw" }}>{player.last}</div>
         </div>
-        <div className="self-start text-left font-black leading-none" style={{ fontSize: "9cqw" }}>
+        <div className="shrink-0 text-right font-black leading-[1.05]" style={{ fontSize: "9.5cqw" }}>
+          <div>{player.height}</div>
+          <div>{player.weight}</div>
+        </div>
+      </div>
+      <div className="absolute bottom-0 left-0 flex h-1/4 items-center pl-[8cqw]">
+        <div className="text-left font-black leading-none" style={{ fontSize: "9cqw" }}>
           {[player.position, player.rating].filter(Boolean).join(" / ")}
         </div>
       </div>
