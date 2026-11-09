@@ -31,6 +31,9 @@ export async function POST(req: NextRequest) {
   if (!team) return NextResponse.json({ error: "Team not found" }, { status: 404 });
 
   const picks = data.draft_picks || [];
+  if (picks.some(pick => !pick.player_id)) {
+    return NextResponse.json({ error: "Finish the current pick" }, { status: 400 });
+  }
   const taken = cycleTaken(picks, teams.map(item => item.id));
   if (taken.has(team.id)) return NextResponse.json({ error: "Team already picked this round" }, { status: 400 });
 

@@ -121,7 +121,8 @@ interface Data {
     news: number;
   };
   next_picker_id?: number | null;
-  draft_picks?: { slot: string; team_id: number }[];
+  draft_picks?: { slot: string; team_id: number; player_id?: number }[];
+  cleared_slot_101?: boolean;
 }
 
 const ROSTERS_ALREADY_SET = [
@@ -177,6 +178,11 @@ async function applyDraftEligibility(data: Data) {
       team.draft_eligible = !rosterAlreadySet(team.name);
       changed = true;
     }
+  }
+  if (!data.cleared_slot_101) {
+    data.draft_picks = (data.draft_picks || []).filter(pick => pick.slot !== "1.01");
+    data.cleared_slot_101 = true;
+    changed = true;
   }
   if (changed) await saveData(data);
 }

@@ -38,8 +38,7 @@ export type PickerTeam = {
   ownership?: string;
 };
 
-export type DraftPick = { slot: string; teamId: number };
-export type RosterPlayer = { id: number; teamId: number; name: string; position: string };
+export type DraftPick = { slot: string; teamId: number; playerId?: number };
 
 function boardRows() {
   return Array.from({ length: ROUNDS }, (_, index) => {
@@ -73,7 +72,17 @@ function shown(value: string) {
   return value || "-";
 }
 
-function ProspectTable({ players, slots }: { players: DraftProspect[]; slots: number }) {
+function ProspectTable({
+  players,
+  slots,
+  canDraft,
+  onDraft,
+}: {
+  players: DraftProspect[];
+  slots: number;
+  canDraft: boolean;
+  onDraft: (playerId: number) => void;
+}) {
   const rows: Array<DraftProspect | null> = players.slice(0, slots);
   while (rows.length < slots) rows.push(null);
 
@@ -105,7 +114,11 @@ function ProspectTable({ players, slots }: { players: DraftProspect[]; slots: nu
         {rows.map((player, index) => {
           const rank = player ? abaRank(player.rating) : null;
           return (
-            <tr key={player?.id ?? `empty-${index}`}>
+            <tr
+              key={player?.id ?? `empty-${index}`}
+              onClick={() => player && canDraft && onDraft(player.id)}
+              className={player && canDraft ? "cursor-pointer hover:bg-white/5" : undefined}
+            >
               <td className="border-b border-neutral-800 px-1 py-2 text-center text-neutral-200">{player ? shown(player.position) : "-"}</td>
               <td className="border-b border-neutral-800 px-3 py-2 text-white">{player ? player.name : "-"}</td>
               <td className="border-b border-neutral-800 px-2 py-2 text-white">
@@ -132,14 +145,12 @@ export default function DraftBoard({
   pickerTeams,
   nextPickerId,
   picks: initialPicks,
-  roster,
   sections,
 }: {
   teams: { id: number; abbreviation: string; logo?: string }[];
   pickerTeams: PickerTeam[];
   nextPickerId: number | null;
   picks: DraftPick[];
-  roster: RosterPlayer[];
   sections: ProspectSection[];
 }) {
   const bodyRef = useRef<HTMLDivElement>(null);
@@ -147,18 +158,21 @@ export default function DraftBoard({
   const beforeSpin = useRef<number | null>(null);
   const [scroll, setScroll] = useState({ left: 0, max: 0 });
   const [picks, setPicks] = useState(initialPicks);
+  const [lists, setLists] = useState(sections);
   const [selectedId, setSelectedId] = useState<number | null>(nextPickerId);
   const [spinning, setSpinning] = useState(false);
   const [pending, setPending] = useState(false);
   const rows = boardRows();
+  const openPick = [...picks].reverse().find(pick => !pick.playerId);
   const taken = cycleTaken(picks, pickerTeams.map(team => team.id));
-  const pool = pickerTeams.filter(team => !taken.has(team.id));
-  const activePool = pool.length ? pool : pickerTeams;
+  const pool = pickerTeams.filter(team => !taken.has(team.id) && team.id !== openPick?.teamId);
+  const activePool = pool.length ? pool : pickerTeams.filter(team => team.id !== openPick?.teamId);
   const picker = activePool.find(team => team.id === selectedId) || activePool[0];
   const teamById = new Map(pickerTeams.map(team => [team.id, team]));
-  const pickBySlot = new Map(picks.map(pick => [pick.slot, pick.teamId]));
-  const clockRoster = roster.filter(player => player.teamId === picker?.id);
-  const clockPicks = picks.filter(pick => pick.teamId === picker?.id);
+  const pickBySlot = new Map(picks.map(pick => [pick.slot, pick]));
+  const onClock = openPick ? teamById.get(openPick.teamId) : undefined;
+  const clockPicks = picks.filter(pick => pick.teamId === onClock?.id);
+  const locked = Boolean(openPick);
 
   const savePicker = (teamId: number) => {
     fetch("/api/draft/picker", {
@@ -169,7 +183,7 @@ export default function DraftBoard({
   };
 
   const choosePicker = (step: number) => {
-    if (!activePool.length || spinning || pending || !picker) return;
+    if (!activePool.length || spinning || pending || locked || !picker) return;
     const current = Math.max(0, activePool.findIndex(team => team.id === picker.id));
     const team = activePool[(current + step + activePool.length) % activePool.length];
     setSelectedId(team.id);
@@ -177,7 +191,7 @@ export default function DraftBoard({
   };
 
   const randomize = () => {
-    if (!activePool.length || spinning || pending || !picker) return;
+    if (!activePool.length || spinning || pending || locked || !picker) return;
     const count = activePool.length;
     const startIndex = Math.max(0, activePool.findIndex(team => team.id === picker.id));
     const finalIndex = Math.floor(Math.random() * count);
@@ -206,23 +220,30 @@ export default function DraftBoard({
   };
 
   const continuePick = () => {
-    if (!picker) return;
+    if (!picker || locked) return;
     const slot = nextOpenSlot(picks);
     if (!slot) return;
     const nextPicks = [...picks, { slot, teamId: picker.id }];
     setPicks(nextPicks);
     setPending(false);
-    const takenAfter = cycleTaken(nextPicks, pickerTeams.map(team => team.id));
-    const nextPool = pickerTeams.filter(team => !takenAfter.has(team.id));
-    const openPool = nextPool.length ? nextPool : pickerTeams;
-    const current = Math.max(0, pickerTeams.findIndex(team => team.id === picker.id));
-    const following = pickerTeams[(current + 1) % pickerTeams.length];
-    const nextTeam = openPool.find(team => team.id === following.id) || openPool[0];
-    setSelectedId(nextTeam?.id ?? null);
     fetch("/api/draft/pick", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ teamId: picker.id }),
+    }).catch(() => undefined);
+  };
+
+  const draftPlayer = (playerId: number) => {
+    if (!openPick) return;
+    setPicks(current => current.map(pick => pick.slot === openPick.slot ? { ...pick, playerId } : pick));
+    setLists(current => current.map(section => ({
+      ...section,
+      players: section.players.filter(player => player.id !== playerId),
+    })));
+    fetch("/api/draft/select", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ playerId }),
     }).catch(() => undefined);
   };
 
@@ -255,13 +276,14 @@ export default function DraftBoard({
       }}
     >
       <h2 className="label-glow text-3xl font-bold mb-8 text-white text-center tracking-wide">DRAFT BOARD</h2>
-      {picker && (
+      {(picker || onClock) && (
         <div className="mb-8 flex items-start justify-between gap-6">
+          {picker && (
           <div className="inline-flex flex-col items-center rounded-xl border border-neutral-700 bg-neutral-900 px-5 py-4">
             <button
               type="button"
               onClick={randomize}
-              disabled={spinning || pending}
+              disabled={spinning || pending || locked}
               className="mb-3 h-8 rounded-full border border-neutral-500 px-4 text-xs font-semibold tracking-wide text-white hover:bg-neutral-800 disabled:opacity-40"
             >
               {spinning ? "Randomizing" : "Randomize"}
@@ -270,7 +292,7 @@ export default function DraftBoard({
               <button
                 type="button"
                 aria-label="Previous team"
-                disabled={spinning || pending}
+                disabled={spinning || pending || locked}
                 onClick={() => choosePicker(-1)}
                 className="flex h-9 w-9 items-center justify-center rounded-md border border-neutral-600 text-xl leading-none text-white hover:bg-neutral-800 disabled:opacity-40"
               >
@@ -286,7 +308,7 @@ export default function DraftBoard({
               <button
                 type="button"
                 aria-label="Next team"
-                disabled={spinning || pending}
+                disabled={spinning || pending || locked}
                 onClick={() => choosePicker(1)}
                 className="flex h-9 w-9 items-center justify-center rounded-md border border-neutral-600 text-xl leading-none text-white hover:bg-neutral-800 disabled:opacity-40"
               >
@@ -306,41 +328,28 @@ export default function DraftBoard({
               </div>
             )}
           </div>
-          <aside className="w-80 max-h-72 overflow-y-auto rounded-xl border border-neutral-700 bg-neutral-900 px-4 py-4">
+          )}
+          {onClock && (
+          <aside className="w-80 rounded-xl border border-neutral-700 bg-neutral-900 px-4 py-4">
             <h3 className="text-center text-sm font-bold tracking-[0.14em] text-white">YOU'RE ON THE CLOCK</h3>
             <div className="mt-3 flex justify-center">
-              {picker.logo ? (
-                <img src={picker.logo} alt="" className="h-16 w-16 object-contain" />
+              {onClock.logo ? (
+                <img src={onClock.logo} alt="" className="h-16 w-16 object-contain" />
               ) : (
-                <span className="text-sm text-neutral-300">{picker.abbreviation}</span>
+                <span className="text-sm text-neutral-300">{onClock.abbreviation}</span>
               )}
             </div>
-            <p className="mt-2 text-center text-sm text-white">{picker.ownership || "N/A"}</p>
+            <p className="mt-2 text-center text-sm text-white">{onClock.ownership || "N/A"}</p>
             <div className="mt-4 border-t border-neutral-700 pt-3">
               <p className="mb-1 text-[11px] uppercase tracking-wide text-neutral-400">Draft</p>
-              {clockPicks.length === 0 ? (
-                <p className="text-sm text-neutral-500">-</p>
-              ) : (
-                <div className="flex flex-wrap gap-1">
-                  {clockPicks.map(pick => (
-                    <span key={pick.slot} className="rounded border border-neutral-600 px-1.5 py-0.5 text-xs text-white">{pick.slot}</span>
-                  ))}
-                </div>
-              )}
-            </div>
-            <div className="mt-3">
-              <p className="mb-1 text-[11px] uppercase tracking-wide text-neutral-400">Roster</p>
-              {clockRoster.length === 0 ? (
-                <p className="text-sm text-neutral-500">No roster yet.</p>
-              ) : (
-                clockRoster.map(player => (
-                  <p key={player.id} className="truncate text-sm text-white">
-                    {player.position ? `${player.position} ` : ""}{player.name}
-                  </p>
-                ))
-              )}
+              <div className="flex flex-wrap gap-1">
+                {clockPicks.map(pick => (
+                  <span key={pick.slot} className="rounded border border-neutral-600 px-1.5 py-0.5 text-xs text-white">{pick.slot}</span>
+                ))}
+              </div>
             </div>
           </aside>
+          )}
         </div>
       )}
       <div className="overflow-hidden rounded-2xl border border-neutral-700">
@@ -373,7 +382,9 @@ export default function DraftBoard({
                     ROUND {index + 1}
                   </td>
                   {row.map(slot => {
-                    const placed = teamById.get(pickBySlot.get(slot) || -1);
+                    const placedPick = pickBySlot.get(slot);
+                    const placed = placedPick ? teamById.get(placedPick.teamId) : undefined;
+                    const waiting = Boolean(placedPick && !placedPick.playerId);
                     return (
                       <td
                         key={slot}
@@ -383,9 +394,9 @@ export default function DraftBoard({
                         {placed ? (
                           <span className="flex h-full items-center justify-center">
                             {placed.logo ? (
-                              <img src={placed.logo} alt="" className="h-16 w-16 animate-pulse object-contain" />
+                              <img src={placed.logo} alt="" className={`h-16 w-16 object-contain ${waiting ? "animate-pulse" : ""}`} />
                             ) : (
-                              <span className="animate-pulse text-sm font-semibold text-white">{placed.abbreviation}</span>
+                              <span className={`text-sm font-semibold text-white ${waiting ? "animate-pulse" : ""}`}>{placed.abbreviation}</span>
                             )}
                           </span>
                         ) : slot}
@@ -408,13 +419,13 @@ export default function DraftBoard({
             </Link>
           </div>
           <div className="space-y-8">
-            {sections.map(section => (
+            {lists.map(section => (
               <div key={section.name}>
                 <div className="mb-2 flex items-center gap-2">
                   <img src={section.src} alt="" className="h-6 w-auto object-contain" />
                   <h4 className="text-sm font-bold tracking-wide text-white">{section.name}</h4>
                 </div>
-                <ProspectTable players={section.players} slots={section.slots} />
+                <ProspectTable players={section.players} slots={section.slots} canDraft={Boolean(onClock)} onDraft={draftPlayer} />
               </div>
             ))}
           </div>
