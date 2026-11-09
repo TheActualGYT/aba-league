@@ -417,7 +417,7 @@ export default function PlayerDirectory({
   const numStyle = { width: NUM_COL, minWidth: NUM_COL, maxWidth: NUM_COL };
   const posStyle = { width: POS_COL, minWidth: POS_COL, maxWidth: POS_COL };
   const nameStyle = { width: NAME_COL, minWidth: NAME_COL, maxWidth: NAME_COL };
-  const actionWidth = draftTeam ? "11rem" : ACTION_COL;
+  const actionWidth = ACTION_COL;
   const actionStyle = { width: actionWidth, minWidth: actionWidth, maxWidth: actionWidth };
   const dividerStyle = { width: DIVIDER_COL, minWidth: DIVIDER_COL, maxWidth: DIVIDER_COL };
   const totalWeight = columns.reduce((sum, column) => sum + columnWeight(section, column.key), 0);
@@ -608,6 +608,15 @@ export default function PlayerDirectory({
                       <td style={sheet ? { ...nameStyle, left: `calc(${NUM_COL} + ${POS_COL})` } : nameStyle} className={`${ROW} ${sheet ? "sticky z-20" : ""} px-3 py-0 bg-neutral-900 text-white text-sm font-semibold border-b border-l border-neutral-700 align-middle`}>
                         <div className="flex items-center gap-2 min-w-0">
                           <span className="truncate">{player.name}</span>
+                          {draftTeam && (
+                            <button
+                              type="button"
+                              onClick={() => setDraftPrompt(player)}
+                              className="shrink-0 text-[11px] font-semibold leading-none text-green-400 hover:text-green-300"
+                            >
+                              Draft
+                            </button>
+                          )}
                           {sheet && player.representativeLogo && (
                             <HoverNote note={repName}>
                               <img src={player.representativeLogo} alt="" width={16} height={16} className="block h-4 w-4 shrink-0 object-contain" />
@@ -659,15 +668,6 @@ export default function PlayerDirectory({
                       })}
                       <td style={{ ...actionStyle, height: 40 }} className={`${ROW} px-2 py-0 bg-neutral-900 whitespace-nowrap border-b border-l border-r border-neutral-700 align-middle ${sheet || !last ? "" : "rounded-br-lg"}`}>
                         <div className="flex h-5 items-center justify-center gap-3">
-                          {draftTeam && (
-                            <button
-                              type="button"
-                              onClick={() => setDraftPrompt(player)}
-                              className="text-xs font-semibold leading-5 text-white hover:text-neutral-300"
-                            >
-                              Draft
-                            </button>
-                          )}
                           <Link href={`/players/${player.id}/edit`} className="text-xs leading-5 text-neutral-300 hover:text-white">Edit</Link>
                           <DeletePlayerButton playerId={player.id} playerName={player.name} />
                         </div>
@@ -699,7 +699,7 @@ export default function PlayerDirectory({
                 window.alert(body.error || "Could not draft that player.");
                 return;
               }
-              window.location.reload();
+              window.location.href = "/draft/room";
             }).catch(() => window.alert("Could not draft that player."));
           }}
         />

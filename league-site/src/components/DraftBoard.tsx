@@ -65,24 +65,20 @@ export type PickPlayer = {
 function PickGraphic({ player, team }: { player: PickPlayer; team?: { logo?: string; abbreviation?: string; name?: string } }) {
   const rank = abaRank(player.rating);
   const dark = rank?.name === "Black";
-  const color = rank?.name === "Diamond" ? "#d7ecff" : dark ? "#1c1c1c" : rank?.color || "#d4d4d4";
+  const color = rank?.name === "Diamond" ? "#c8e5ff" : dark ? "#1c1c1c" : rank?.color || "#d4d4d4";
   const logo = team?.logo;
   return (
     <div className="relative h-full w-full overflow-hidden text-left" style={{ background: color, containerType: "size", color: dark ? "#fff" : "#111", fontFamily: "Inter, sans-serif" }}>
       <div className="absolute inset-x-0 bottom-0 h-1/4" style={{ background: "rgba(0,0,0,0.22)" }} />
       {logo && (
-        <img
-          src={logo}
-          alt=""
-          className="pointer-events-none absolute object-contain"
-          style={{
-            height: "42%",
-            width: "auto",
-            right: "4cqw",
-            bottom: "5%",
-            filter: "drop-shadow(0 2px 2px rgba(0,0,0,0.6)) drop-shadow(0 5px 8px rgba(0,0,0,0.35))",
-          }}
-        />
+        <div className="pointer-events-none absolute" style={{ width: "26%", aspectRatio: "1", right: "3%", bottom: "5%" }}>
+          <img
+            src={logo}
+            alt=""
+            className="h-full w-full object-contain object-right-bottom"
+            style={{ filter: "drop-shadow(0 2px 2px rgba(0,0,0,0.6)) drop-shadow(0 5px 8px rgba(0,0,0,0.35))" }}
+          />
+        </div>
       )}
       <div className="relative flex h-full items-start justify-between px-[8cqw] pt-[7cqw] text-left">
         <div className="min-w-0 text-left font-black">
@@ -94,10 +90,11 @@ function PickGraphic({ player, team }: { player: PickPlayer; team?: { logo?: str
           <div>{player.weight || "N/A"}</div>
         </div>
       </div>
-      <div className="absolute bottom-0 left-0 flex h-1/4 items-center pl-[8cqw]">
+      <div className="absolute bottom-0 left-0 flex h-1/4 items-center gap-[1.4cqw] pl-[8cqw]">
         <div className="text-left font-black leading-none" style={{ fontSize: "9cqw" }}>
           {player.position ? `${player.position} / ${player.rating || "N/A"}` : (player.rating || "N/A")}
         </div>
+        {rank && <img src={rank.src} alt="" title={rank.name} className="object-contain" style={{ height: "13cqw", width: "auto" }} />}
       </div>
     </div>
   );
