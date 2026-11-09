@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { abaRank } from "@/lib/abaRank";
+import ConfirmModal from "@/components/ConfirmModal";
 
 const ROUNDS = 5;
 const PICKS = 20;
@@ -152,13 +153,13 @@ function ProspectTable({
     <table className="w-full table-fixed border-collapse text-sm">
       <colgroup>
         <col style={{ width: "2.5rem" }} />
-        <col style={{ width: "58%" }} />
-        <col />
-        <col />
-        <col />
-        <col />
-        <col />
-        <col />
+        <col style={{ width: "46%" }} />
+        <col style={{ width: "7.25rem" }} />
+        <col style={{ width: "3.5rem" }} />
+        <col style={{ width: "3.5rem" }} />
+        <col style={{ width: "3.5rem" }} />
+        <col style={{ width: "3.5rem" }} />
+        <col style={{ width: "3.5rem" }} />
       </colgroup>
       <thead>
         <tr className="text-left text-xs uppercase tracking-wide text-neutral-400">
@@ -184,7 +185,7 @@ function ProspectTable({
               <td className="border-b border-neutral-800 px-1 py-2 text-center text-neutral-200">{player ? shown(player.position) : "-"}</td>
               <td className="border-b border-neutral-800 px-3 py-2 text-white">{player ? player.name : "-"}</td>
               <td className="border-b border-neutral-800 px-2 py-2 text-white">
-                <span className="inline-flex items-center gap-1.5">
+                <span className="inline-flex items-center gap-2 whitespace-nowrap">
                   <span>{player ? shown(player.rating) : "-"}</span>
                   {rank && <img src={rank.src} alt="" title={rank.name} className="h-5 w-auto object-contain" />}
                 </span>
@@ -227,6 +228,7 @@ export default function DraftBoard({
   const [spinning, setSpinning] = useState(false);
   const [pending, setPending] = useState(false);
   const [blockNote, setBlockNote] = useState("");
+  const [prompt, setPrompt] = useState<null | { message: string; confirmLabel: string; danger?: boolean; action: () => void }>(null);
   const rows = boardRows();
   const openPick = [...picks].reverse().find(pick => !pick.playerId);
   const taken = cycleTaken(picks, pickerTeams.map(team => team.id));
@@ -312,18 +314,24 @@ export default function DraftBoard({
       return;
     }
     const teamName = onClock.name || onClock.abbreviation;
-    if (!window.confirm(`Draft ${prospect?.name || "this player"} to ${teamName}?`)) return;
-    setBlockNote("");
-    setPicks(current => current.map(pick => pick.slot === openPick.slot ? { ...pick, playerId } : pick));
-    setLists(current => current.map(section => ({
-      ...section,
-      players: section.players.filter(player => player.id !== playerId),
-    })));
-    fetch("/api/draft/select", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ playerId }),
-    }).catch(() => undefined);
+    const name = prospect?.name || "this player";
+    setPrompt({
+      message: `Draft ${name} to ${teamName}?`,
+      confirmLabel: "Draft",
+      action: () => {
+        setBlockNote("");
+        setPicks(current => current.map(pick => pick.slot === openPick.slot ? { ...pick, playerId } : pick));
+        setLists(current => current.map(section => ({
+          ...section,
+          players: section.players.filter(player => player.id !== playerId),
+        })));
+        fetch("/api/draft/select", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ playerId }),
+        }).catch(() => undefined);
+      },
+    });
   };
 
   const rejectPick = () => {
@@ -332,10 +340,16 @@ export default function DraftBoard({
   };
 
   const resetDraft = () => {
-    if (!window.confirm("Reset the entire draft? This clears every pick.")) return;
-    fetch("/api/draft/reset", { method: "POST" })
-      .then(() => window.location.reload())
-      .catch(() => undefined);
+    setPrompt({
+      message: "Reset the entire draft? This clears every pick.",
+      confirmLabel: "Reset",
+      danger: true,
+      action: () => {
+        fetch("/api/draft/reset", { method: "POST" })
+          .then(() => window.location.reload())
+          .catch(() => undefined);
+      },
+    });
   };
 
   const syncScroll = () => {
@@ -594,6 +608,19 @@ export default function DraftBoard({
       >
         Reset Draft
       </button>
+      {prompt && (
+        <ConfirmModal
+          message={prompt.message}
+          confirmLabel={prompt.confirmLabel}
+          danger={prompt.danger}
+          onCancel={() => setPrompt(null)}
+          onConfirm={() => {
+            const action = prompt.action;
+            setPrompt(null);
+            action();
+          }}
+        />
+      )}
     </main>
   );
 }

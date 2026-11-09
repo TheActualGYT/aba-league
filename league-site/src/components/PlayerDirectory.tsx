@@ -8,6 +8,7 @@ import DropdownLayer from "@/components/DropdownLayer";
 import { useCloseOnOutside } from "@/components/useCloseOnOutside";
 import { ratingFill, RATING_INK } from "@/lib/ratingColor";
 import { abaRank, ABA_RANKS } from "@/lib/abaRank";
+import ConfirmModal from "@/components/ConfirmModal";
 
 export type DirectoryPlayer = {
   id: number;
@@ -401,6 +402,7 @@ export default function PlayerDirectory({
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({ key: "name", dir: "asc" });
   const [rankFilter, setRankFilter] = useState("All Ranks");
   const [scroll, setScroll] = useState({ left: 0, max: 0 });
+  const [draftPrompt, setDraftPrompt] = useState<DirectoryPlayer | null>(null);
   const sheetVitals = COLUMNS.vitals.filter(column => column.key !== "team" && column.key !== "hand");
   const weightAt = sheetVitals.findIndex(column => column.key === "weight");
   const columns = sheet
@@ -660,21 +662,7 @@ export default function PlayerDirectory({
                           {draftTeam && (
                             <button
                               type="button"
-                              onClick={() => {
-                                if (!window.confirm(`Draft ${player.name} to ${draftTeam.name}?`)) return;
-                                fetch("/api/draft/select", {
-                                  method: "POST",
-                                  headers: { "Content-Type": "application/json" },
-                                  body: JSON.stringify({ playerId: player.id }),
-                                }).then(async response => {
-                                  if (!response.ok) {
-                                    const body = await response.json().catch(() => ({}));
-                                    window.alert(body.error || "Could not draft that player.");
-                                    return;
-                                  }
-                                  window.location.reload();
-                                }).catch(() => window.alert("Could not draft that player."));
-                              }}
+                              onClick={() => setDraftPrompt(player)}
                               className="text-xs font-semibold leading-5 text-white hover:text-neutral-300"
                             >
                               Draft
@@ -692,6 +680,29 @@ export default function PlayerDirectory({
           </div>
           </div>
         </>
+      )}
+      {draftPrompt && draftTeam && (
+        <ConfirmModal
+          message={`Draft ${draftPrompt.name} to ${draftTeam.name}?`}
+          confirmLabel="Draft"
+          onCancel={() => setDraftPrompt(null)}
+          onConfirm={() => {
+            const chosen = draftPrompt;
+            setDraftPrompt(null);
+            fetch("/api/draft/select", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ playerId: chosen.id }),
+            }).then(async response => {
+              if (!response.ok) {
+                const body = await response.json().catch(() => ({}));
+                window.alert(body.error || "Could not draft that player.");
+                return;
+              }
+              window.location.reload();
+            }).catch(() => window.alert("Could not draft that player."));
+          }}
+        />
       )}
     </>
   );
